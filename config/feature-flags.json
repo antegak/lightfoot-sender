@@ -3,6 +3,8 @@
   "structuredLogging": true,
   "performanceLogs": true,
   "aiSandbox": true,
-  "advancedSearch": false,
+  "advancedSearch": true,
+  "conversationMemory": true,
+  "recommendationEngine": true,
   "voiceTranscription": false
 }

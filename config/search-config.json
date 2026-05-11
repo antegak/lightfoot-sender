@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "maxProducts": 5,
+  "fuse": {
+    "threshold": 0.38,
+    "ignoreLocation": true,
+    "includeScore": true,
+    "minMatchCharLength": 2
+  },
+  "modes": ["strict", "fuzzy", "semantic-like", "fallback"],
+  "stopWords": [
+    "есть",
+    "покажи",
+    "какие",
+    "какой",
+    "какая",
+    "обувь",
+    "модель",
+    "модели",
+    "размер",
+    "размера",
+    "наличие",
+    "посоветуй",
+    "что"
+  ]
+}

@@ -13,6 +13,8 @@ const {
   readRecentLogs,
 } = require('./services/logger/logger');
 const { buildDiagnostics } = require('./services/diagnostics');
+const { ConversationMemory } = require('./services/memory');
+const { buildAiContext } = require('./services/ai/context-builder');
 const {
   checkConnection: checkBillzConnection,
   compactProductContext,
@@ -75,7 +77,9 @@ const LEGACY_MAIN_CONTACTS_FILE = path.join(USER_DATA, 'contacts_main.json');
 const LEGACY_NEW_CONTACTS_FILE = path.join(USER_DATA, 'contacts_new.json');
 const pendingImports = new Map();
 let lastBillzDiagnostics = null;
+let lastAiDebugState = null;
 let aiSandboxHistory = [];
+const aiConversationMemory = new ConversationMemory();
 let aiSandboxMemory = {
   currentBrand: null,
   currentColor: null,
@@ -94,6 +98,18 @@ function updateAiSandboxMemory(parsedQuery = {}) {
   if (parsedQuery.material) aiSandboxMemory.currentMaterial = parsedQuery.material;
   if (parsedQuery.intent) aiSandboxMemory.currentIntent = parsedQuery.intent;
   if (parsedQuery.footLength) aiSandboxMemory.footLength = parsedQuery.footLength;
+  return aiSandboxMemory;
+}
+
+function syncAiSandboxMemoryFromConversation() {
+  const entities = aiConversationMemory.getState().entities || {};
+  if (entities.preferredBrand) aiSandboxMemory.currentBrand = entities.preferredBrand;
+  if (entities.preferredColor) aiSandboxMemory.currentColor = entities.preferredColor;
+  if (entities.preferredSize) aiSandboxMemory.currentSize = entities.preferredSize;
+  if (entities.preferredMaterial) aiSandboxMemory.currentMaterial = entities.preferredMaterial;
+  if (entities.lastIntent) aiSandboxMemory.currentIntent = entities.lastIntent;
+  if (entities.footLength) aiSandboxMemory.footLength = entities.footLength;
+  if (entities.childAge) aiSandboxMemory.childAgeGroup = entities.childAge;
   return aiSandboxMemory;
 }
 
@@ -483,7 +499,11 @@ async function requestOpenRouterChat({
       searchSummary: billzContext?.searchSummary || null,
       brandSummary: billzContext?.brandSummary || null,
       conversationMemory: billzContext?.conversationMemory || null,
+      memorySummary: billzContext?.memorySummary || '',
+      memoryEntities: billzContext?.memoryEntities || {},
       recentMessages: Array.isArray(billzContext?.recentMessages) ? billzContext.recentMessages.slice(-10) : [],
+      recommendations: Array.isArray(billzContext?.recommendations) ? billzContext.recommendations.slice(0, 5) : [],
+      recommendationReasoning: billzContext?.recommendationReasoning || [],
       totalCachedProducts: Number(billzContext?.totalCachedProducts || 0),
       matchedProducts: Number(billzContext?.matchedProducts ?? products.length),
       searchMode: billzContext?.searchMode || '',
@@ -521,8 +541,11 @@ async function requestOpenRouterChat({
       `Клиентский BILLZ context: ${connected ? JSON.stringify(customerContext, null, 2) : 'нет данных'}`,
       `Brand summary: ${JSON.stringify(billzContext?.brandSummary || null, null, 2)}`,
       `Search summary: ${JSON.stringify(billzContext?.searchSummary || null, null, 2)}`,
-      `Conversation memory: ${JSON.stringify(billzContext?.conversationMemory || null, null, 2)}`,
+      `Conversation memory: ${JSON.stringify(billzContext?.conversationMemory || billzContext?.memoryEntities || null, null, 2)}`,
+      `Memory summary: ${billzContext?.memorySummary || ''}`,
       `Recent messages: ${JSON.stringify((billzContext?.recentMessages || []).slice(-10), null, 2)}`,
+      `Recommendations: ${JSON.stringify((billzContext?.recommendations || []).slice(0, 5), null, 2)}`,
+      `Recommendation reasoning: ${JSON.stringify(billzContext?.recommendationReasoning || [], null, 2)}`,
       `Detected intent: ${billzContext?.detectedIntent || 'unknown'}`,
       `Parsed query: ${JSON.stringify(billzContext?.parsedQuery || null, null, 2)}`,
       `Size recommendation: ${JSON.stringify(billzContext?.sizeRecommendation || null, null, 2)}`,
@@ -744,9 +767,12 @@ async function requestAiTestChat(payload = {}) {
   if (!text) return { ok: false, error: 'Text is empty' };
   if (payload.reset) {
     aiSandboxHistory = [];
+    lastAiDebugState = null;
+    aiConversationMemory.reset();
     aiSandboxMemory = { currentBrand: null, currentColor: null, currentSize: null, currentMaterial: null, currentIntent: null, customerType: null, footLength: null, childAgeGroup: null };
   }
 
+  syncAiSandboxMemoryFromConversation();
   const billzStatus = getBillzStatus();
   const { secretToken } = getBillzAuthConfig();
   const contextText = mergeMemoryIntoText(text);
@@ -754,11 +780,17 @@ async function requestAiTestChat(payload = {}) {
     ? await getBillzContextForAi(secretToken, contextText)
     : { connected: false, ok: false, query: text, error: billzStatus.error || 'billz-not-connected', products: [], parsedQuery: null, detectedIntent: 'unknown', sizeRecommendation: null, totalCachedProducts: 0, matchedProducts: 0, searchMode: '', updatedAt: new Date().toISOString() };
   updateAiSandboxMemory(billzAiContext.parsedQuery || {});
+  aiConversationMemory.addUserMessage(text, billzAiContext.parsedQuery || {});
+  const memoryState = aiConversationMemory.getState();
   const products = billzAiContext.connected ? billzAiContext.products : [];
-  const billzContext = {
+  const billzContext = buildAiContext({
+    query: text,
+    billzContext: {
     connected: Boolean(billzStatus.connected && billzAiContext.connected),
     query: billzAiContext.query || text,
     products,
+    recommendations: billzAiContext.recommendations || [],
+    recommendationReasoning: billzAiContext.recommendationReasoning || [],
     parsedQuery: billzAiContext.parsedQuery || null,
     detectedIntent: billzAiContext.detectedIntent || 'unknown',
     sizeRecommendation: billzAiContext.sizeRecommendation || null,
@@ -771,20 +803,40 @@ async function requestAiTestChat(payload = {}) {
     updatedAt: billzAiContext.updatedAt || new Date().toISOString(),
     status: billzStatus.status,
     error: billzAiContext.connected ? '' : (billzAiContext.error || 'billz-error'),
-  };
+    },
+    memoryState,
+    maxProducts: 5,
+  });
 
   const result = await requestOpenRouterChat({
     mode: 'billz-test',
     text,
-    billzContext: { ...billzContext, conversationMemory: aiSandboxMemory, recentMessages: aiSandboxHistory.slice(-10) },
+    billzContext: { ...billzContext, conversationMemory: aiSandboxMemory },
   });
   if (result?.ok) {
+    aiConversationMemory.addAssistantMessage(result.text || '');
     aiSandboxHistory.push({ role: 'user', content: text, createdAt: new Date().toISOString() });
     aiSandboxHistory.push({ role: 'assistant', content: result.text || '', createdAt: new Date().toISOString() });
     aiSandboxHistory = aiSandboxHistory.slice(-15);
     result.conversationMemory = aiSandboxMemory;
+    result.memory = aiConversationMemory.getState();
+    result.searchDebug = billzContext.searchDebug || null;
+    result.recommendationReasoning = billzContext.recommendationReasoning || [];
     result.history = aiSandboxHistory;
   }
+  lastAiDebugState = {
+    parsedQuery: billzContext.parsedQuery || null,
+    searchSummary: billzContext.searchSummary || null,
+    searchDebug: billzContext.searchDebug || null,
+    memory: aiConversationMemory.getState(),
+    matchedProducts: products.slice(0, 5),
+    fallbackLogic: {
+      mode: billzContext.searchMode || '',
+      fallbackUsed: Boolean(billzContext.searchSummary?.fallbackUsed),
+    },
+    recommendationReasoning: billzContext.recommendationReasoning || [],
+    updatedAt: new Date().toISOString(),
+  };
   return result;
 }
 
@@ -2297,6 +2349,7 @@ function getCacheStateForDiagnostics() {
     billzDiagnosticsAvailable: Boolean(lastBillzDiagnostics),
     billzDiagnosticsAt: lastBillzDiagnostics?.checkedAt || lastBillzDiagnostics?.updatedAt || '',
     aiSandboxHistory: aiSandboxHistory.length,
+    lastAiDebugState,
   };
 }
 
@@ -2317,7 +2370,7 @@ async function getDebugDiagnostics() {
     getBillzStatus,
     hasOpenRouterApiKey,
     getCacheState: getCacheStateForDiagnostics,
-    getAiMemory: () => aiSandboxMemory,
+    getAiMemory: () => ({ sandbox: aiSandboxMemory, conversation: aiConversationMemory.getState() }),
     getWhatsAppSessionState: getWhatsAppSessionStateForDiagnostics,
     getFeatureFlags,
     getLogDirectory,

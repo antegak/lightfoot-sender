@@ -9,9 +9,11 @@
 - Added `.ai-commands` workflow templates for audit, safe refactor, knowledge updates, and bug analysis.
 - Added Stage 2 observability foundation with structured logging, diagnostics service, debug panel, config files, and git workflow docs.
 - Added Winston as a lightweight local logging dependency.
+- Added Stage 3 advanced search foundation with Fuse.js, query normalization, recommendation engine, lightweight conversation memory, and smarter AI context builder.
+- Added brand aliases `BB`/`BL` for Be Lenka, `KT` for Key Top, and `XZ` for XZero.
 
 ### Fixed
-- No runtime fixes in this foundation stage.
+- Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
 
 ### Refactored
 - No runtime refactor in this foundation stage.

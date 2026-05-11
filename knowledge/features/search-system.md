@@ -49,3 +49,16 @@ Fallback logic should prefer:
 - Do not silently broaden search when user asked for an exact SKU/barcode.
 - Do not remove `searchSummary`/debug fields without replacing them.
 - Snapshot before large scoring changes.
+
+## Stage 3 Advanced Search
+
+Stage 3 adds `services/search`:
+- `index.js` - safe entrypoint used by BILLZ local search;
+- `query-normalizer.js` - colors, materials, intents, age, size, brand aliases, stop words;
+- `fuzzy-search.js` - Fuse.js fuzzy search;
+- `search-score.js` - strict/context scoring;
+- `recommendations.js` - similar size/brand/color fallback suggestions.
+
+Search priority is strict match, fuzzy match, semantic-like contextual fallback, then recommendations. Modes are `strict`, `fuzzy`, `semantic-like`, and `fallback`.
+
+AI context remains capped at 5 products and must not send the full catalog to OpenRouter.

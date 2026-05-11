@@ -63,6 +63,7 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "electron-updater": "^6.8.3",
+    "fuse.js": "^7.3.0",
     "playwright": "^1.44.0",
     "winston": "^3.19.0"
   },

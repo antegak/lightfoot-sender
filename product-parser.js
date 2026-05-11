@@ -47,6 +47,9 @@ function normalizeColorCode(value) {
 function detectBrand(product = {}) {
   const text = `${product.name || ''} ${product.sku || ''} ${product.vendorCode || ''}`;
   const lower = normalizeText(text);
+  if (/\b(BB|BL)\b/i.test(text)) return { code: 'BB', name: 'Be Lenka', line: BRAND_LINES['Be Lenka'] };
+  if (/\bKT\b/i.test(text) || lower.includes('key top') || lower.includes('keytop')) return { code: 'KT', name: 'Key Top', line: BRAND_LINES['Key Top'] };
+  if (/\bXZ\b/i.test(text) || lower.includes('xzero') || lower.includes('x zero')) return { code: 'XZ', name: 'XZero', line: BRAND_LINES.XZero };
   if (/(be\s*lenka|belenka|бе\s*ленка|беленка)/i.test(text) || lower.includes('be lenka') || lower.includes('belenka')) return { code: 'BELENKA', name: 'Be Lenka', line: BRAND_LINES['Be Lenka'] };
   if (/\bLL\b/i.test(text) || lower.includes('little light') || lower.includes('детская линия')) return { code: 'LL', name: 'Little Light', line: BRAND_LINES['Little Light'] };
   if (lower.includes('saguaro') || lower.includes('сагуаро')) return { code: 'SAGUARO', name: 'Saguaro', line: BRAND_LINES.Saguaro };
@@ -72,6 +75,19 @@ function detectColor(product = {}) {
   ].filter(Boolean);
 
   for (const candidate of candidates) {
+    const mixed = String(candidate || '').toUpperCase().match(/\b([A-Z]{2}(?:\s*&\s*[A-Z]{2})+)\b/)?.[1]?.replace(/\s+/g, '');
+    if (mixed) {
+      const parts = mixed.split('&').map(normalizeColorCode).filter(Boolean);
+      if (parts.length >= 2) {
+        return {
+          code: parts[0],
+          codes: parts,
+          mixedCode: mixed,
+          name: parts.map((code) => COLORS[code]).filter(Boolean).join(' + '),
+          display: parts.map((code) => colorToPlural(COLORS[code]) || COLORS[code]).filter(Boolean).join(' + '),
+        };
+      }
+    }
     const direct = normalizeColorCode(candidate);
     if (direct) return { code: direct, name: COLORS[direct], display: colorToPlural(COLORS[direct]) };
     const upper = String(candidate || '').toUpperCase();

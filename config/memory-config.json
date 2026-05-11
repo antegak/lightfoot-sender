@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "ttlMinutes": 60,
+  "maxTurns": 8,
+  "maxSummaryChars": 700
+}

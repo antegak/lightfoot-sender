@@ -13,6 +13,7 @@ const {
 } = require('./product-parser');
 const { detectIntent, parseCustomerQuery } = require('./intent-detector');
 const { buildBrandSummary, buildProductIndex, normalizeSearchText, searchProductIndex } = require('./product-index');
+const { searchProductsAdvanced } = require('./services/search');
 const BILLZ_API_V1_BASE_URL = 'https://api.billz.uz/v1/';
 const BILLZ_API_V2_BASE_URL = 'https://api.billz.uz/v2/';
 const MIN_REQUEST_GAP_MS = 600;
@@ -571,7 +572,9 @@ async function searchProductsHybrid(secretToken, query, limit = 5) {
     normalizedQuery: localResult.normalizedQuery,
     brandSummary: localResult.brandSummary,
     searchSummary: localResult.searchSummary,
-    searchMode: 'local',
+    recommendations: localResult.recommendations || [],
+    recommendationReasoning: localResult.recommendationReasoning || [],
+    searchMode: localResult.searchMode || 'local',
     totalCachedProducts: localResult.totalCachedProducts,
     matchedProducts: localResult.matchedProducts,
     cached: cache.cached,
@@ -860,6 +863,25 @@ function searchProductsLocal(products, query, limit = 5) {
   const parsedQuery = typeof query === 'object' && query !== null ? query : parseQuery(query);
   const normalizedProducts = (Array.isArray(products) ? products : []).map(normalizeBillzProduct);
   const productIndex = buildProductIndex(normalizedProducts);
+  const advancedResult = searchProductsAdvanced(productIndex, parsedQuery.raw || query, {
+    limit,
+    memory: parsedQuery.memory || {},
+  });
+  if (advancedResult.ok && (advancedResult.products.length || advancedResult.recommendations.length || advancedResult.query.intent === 'brand_list')) {
+    const products = advancedResult.products.slice(0, Math.max(1, Number(limit) || 5));
+    return {
+      parsedQuery: { ...parsedQuery, ...advancedResult.query },
+      products,
+      docs: advancedResult.docs,
+      recommendations: advancedResult.recommendations,
+      recommendationReasoning: advancedResult.recommendationReasoning,
+      searchMode: advancedResult.mode,
+      searchSummary: advancedResult.searchSummary,
+      brandSummary: buildBrandSummary(productIndex),
+      totalCachedProducts: normalizedProducts.length,
+      matchedProducts: products.length,
+    };
+  }
   const indexed = searchProductIndex(productIndex, parsedQuery, parsedQuery.raw || '', limit);
   logger.info(LOG_CATEGORIES.SEARCH, 'AI search', {
     stage: 'local-search:start',
@@ -1293,6 +1315,8 @@ async function getBillzContextForAi(secretToken, query) {
       detectedIntent: detectIntent(cleanQuery),
       brandSummary: result.brandSummary || { brandsAvailable: [] },
       searchSummary: result.searchSummary || null,
+      recommendations: [],
+      recommendationReasoning: [],
       totalCachedProducts: result.totalCachedProducts || 0,
       matchedProducts: 0,
       searchMode: result.searchMode || 'local',
@@ -1338,6 +1362,8 @@ async function getBillzContextForAi(secretToken, query) {
     humanizedProducts: humanizeBillzProducts(products, { limit: 5 }),
     brandSummary: result.brandSummary || { brandsAvailable: [] },
     searchSummary: result.searchSummary || null,
+    recommendations: (result.recommendations || []).slice(0, 5).map((item) => normalizeBillzProduct(item.product || item)),
+    recommendationReasoning: result.recommendationReasoning || [],
     searchDebug: {
       userQuery: cleanQuery,
       normalizedQuery: result.normalizedQuery || normalizeSearchText(cleanQuery),
@@ -1350,6 +1376,8 @@ async function getBillzContextForAi(secretToken, query) {
       softMatches: result.searchSummary?.softMatches ?? 0,
       finalMatches: result.searchSummary?.finalMatches ?? (result.matchedProducts ?? result.count ?? products.length),
       topScores: result.searchSummary?.topScores || [],
+      fallbackUsed: Boolean(result.searchSummary?.fallbackUsed),
+      recommendationReasoning: result.recommendationReasoning || [],
       matchedProductsCount: result.matchedProducts ?? result.count ?? products.length,
       matchedProductsPreview: products.slice(0, 3).map((product) => ({
         name: product.name,

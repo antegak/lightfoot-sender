@@ -51,3 +51,19 @@ Material codes include `01`, `02`, `03`, and `04`. Confirm current dictionary me
 - Verify search behavior.
 - Verify AI Manager context.
 - Verify BILLZ diagnostics/sample product rendering.
+
+## Stage 3 Parser Upgrade
+
+Brand code map:
+- `TT` -> `TipsieToes`;
+- `LL` -> `Little Light`;
+- `BB` -> `Be Lenka`;
+- `BL` -> `Be Lenka`;
+- `KT` -> `Key Top`;
+- `XZ` -> `XZero`.
+
+`BB` and `BL` must both resolve to Be Lenka.
+
+Mixed colors preserve `mixedCode` and component color codes for combinations like `WH&BK`, `GR&WH`, `PI&WH`, and other known color-code pairs.
+
+The normalizer recognizes age/category phrases such as `3 года`, `5 лет`, `подростковые`, and `детские`.

@@ -37,6 +37,10 @@ const MATERIALS = {
 const BRANDS = {
   TT: 'TipsieToes',
   LL: 'Little Light',
+  BB: 'Be Lenka',
+  BL: 'Be Lenka',
+  KT: 'Key Top',
+  XZ: 'XZero',
   SAGUARO: 'Saguaro',
   BELENKA: 'Be Lenka',
 };
@@ -46,6 +50,8 @@ const BRAND_LINES = {
   'Little Light': 'kids',
   Saguaro: 'family',
   'Be Lenka': 'external',
+  'Key Top': 'family',
+  XZero: 'family',
 };
 
 const STORES = {

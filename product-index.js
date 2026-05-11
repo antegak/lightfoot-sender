@@ -84,6 +84,8 @@ function buildProductDoc(product, index = 0) {
     brandLine: parsed.brand?.line || BRAND_LINES[parsed.brand?.name] || null,
     model: parsed.model || null,
     colorCode: parsed.color?.code || null,
+    colorCodes: parsed.color?.codes || (parsed.color?.code ? [parsed.color.code] : []),
+    mixedColorCode: parsed.color?.mixedCode || null,
     colorHuman: parsed.color?.name || null,
     materialCode: parsed.material?.code || null,
     materialHuman: parsed.material?.name || null,

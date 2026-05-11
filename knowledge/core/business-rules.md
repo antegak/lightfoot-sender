@@ -6,10 +6,16 @@ This document stores LightFoot business vocabulary used by parser, search, AI co
 
 - `TT` - brand code used in product names/search.
 - `LL` - brand code used in product names/search. LL requests can also appear as age or size-context phrases, so parser changes around LL require care.
+- `BB` - Be Lenka brand code.
+- `BL` - Be Lenka brand code.
+- `KT` - Key Top brand code.
+- `XZ` - XZero brand code.
 - `Saguaro` - brand name used in customer/product queries.
 - `Be Lenka` - brand name used in customer/product queries.
 - `Key Top` - brand name used in customer/product queries.
 - `XZero` - brand name used in customer/product queries.
+
+`BB` and `BL` must both resolve to `Be Lenka`.
 
 ## Colors
 

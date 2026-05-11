@@ -1,5 +1,6 @@
 const { COLORS, MATERIALS, BRANDS, getSizeByFootLength } = require('./knowledge-base');
 const { normalizeText } = require('./product-parser');
+const { normalizeQuery: normalizeAdvancedQuery } = require('./services/search/query-normalizer');
 
 function detectIntent(message) {
   const text = normalizeText(message);
@@ -143,25 +144,31 @@ function parseCustomerQuery(message) {
   const colorCode = colors[0]?.code || getColorCode(color);
   const materialCode = getMaterialCode(material);
   const model = null;
+  const advanced = normalizeAdvancedQuery(raw);
   return {
     raw,
-    intent: detectIntent(raw),
-    size,
-    color,
-    colorHuman: color,
-    colorCode,
-    colors,
-    colorCodes: colors.map((item) => item.code),
-    material,
-    materialCode,
-    brand,
+    intent: advanced.intent || detectIntent(raw),
+    size: size || advanced.size || advanced.recommendedSize || null,
+    color: color || advanced.color || null,
+    colorHuman: color || advanced.colorHuman || null,
+    colorCode: colorCode || advanced.colorCode || null,
+    colors: colors.length ? colors : advanced.colors,
+    colorCodes: colors.length ? colors.map((item) => item.code) : advanced.colorCodes,
+    mixedColorCodes: advanced.mixedColorCodes || [],
+    material: material || advanced.material || null,
+    materialCode: materialCode || advanced.materialCode || null,
+    brand: brand || advanced.brand || null,
+    brandCode: advanced.brandCode || null,
     excludeBrand: excludedBrand,
-    customerType,
+    customerType: customerType || advanced.customerType || null,
+    genderCategory: advanced.genderCategory || null,
     sku,
     barcode,
     model,
-    footLength: footLength ? Number(footLength) : null,
-    sizeRecommendation: footLength ? getSizeByFootLength(footLength, 'adult') : null,
+    footLength: footLength ? Number(footLength) : advanced.footLength,
+    childAge: advanced.childAge || null,
+    recommendedSize: advanced.recommendedSize || null,
+    sizeRecommendation: footLength ? getSizeByFootLength(footLength, advanced.customerType === 'kids' ? 'kids' : 'adult') : advanced.sizeRecommendation,
   };
 }
 

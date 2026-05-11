@@ -58,3 +58,16 @@ Input
 - Preserve debug context for search-backed recommendations.
 - Do not make AI modify product facts.
 - Manual testing is required for prompt, parser, or BILLZ context changes.
+
+## Stage 3 Memory And Context
+
+Stage 3 adds lightweight memory in `services/memory`:
+- short-term memory keeps only recent turns;
+- summarized memory stores compact conversation context;
+- entity memory stores preferred brand, size, color, material, foot length, child age, customer type, and last intent.
+
+Memory has TTL from `config/memory-config.json` and must not store infinite chat logs.
+
+AI context is built through `services/ai/context-builder.js` and includes only top relevant products, parsed query, memory summary, recent context, and recommendation reasoning. Product context is capped at 5 items.
+
+Responses should read like a consultant response, not a database dump.

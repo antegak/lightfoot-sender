@@ -70,6 +70,11 @@ It shows:
 - cache state;
 - AI memory state;
 - WhatsApp session state.
+- latest parsed query;
+- latest search score/summary;
+- matched products;
+- fallback logic;
+- recommendation reasoning.
 
 Actions:
 - clear logs;
