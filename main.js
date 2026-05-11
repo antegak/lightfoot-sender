@@ -851,6 +851,7 @@ async function requestAiTestChat(payload = {}) {
     templateUsed: humanizedResponse.templateUsed,
     memorySummary: billzContext.memorySummary || '',
     fallbackReason: humanizedResponse.fallbackReason || '',
+    humanizedDebug: humanizedResponse.debug || null,
     recommendationReasoning: billzContext.recommendationReasoning || [],
     updatedAt: new Date().toISOString(),
   };

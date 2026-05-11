@@ -12,11 +12,14 @@
 - Added Stage 3 advanced search foundation with Fuse.js, query normalization, recommendation engine, lightweight conversation memory, and smarter AI context builder.
 - Added brand aliases `BB`/`BL` for Be Lenka, `KT` for Key Top, and `XZ` for XZero.
 - Added Stage 4 fixtures, deterministic humanization layer, response strategy metadata, and lightweight QA runner.
+- Added Stage 4 hotfix QA for always showing both addresses, LL child age/size formatting, and inventory-style response prevention.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
 - Fixed Be Lenka query parsing so `be` is not misread as beige.
 - Fixed child-age parsing for queries like `LL на 3 года`.
+- Fixed humanized LL/Be Lenka child size output so raw `3/33` is never shown to customers.
+- Fixed humanized responses to always include both public branch addresses and avoid branch-specific stock routing.
 
 ### Refactored
 - No runtime refactor in this foundation stage.

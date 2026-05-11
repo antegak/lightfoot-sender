@@ -34,6 +34,15 @@ Branches should show human addresses:
 
 Do not show `LF`, `LF 9`, raw SKU, raw stock count, barcode, API fields, or JSON in customer-facing responses.
 
+Always show both customer-facing addresses. Do not say that a product is only in one branch, do not expose stock-by-branch logic, and do not route inventory in the customer answer.
+
+For LL child sizing, never show raw `3/33`. Use:
+
+```text
+👣 Примерно на 3 года
+📏 Размер 33
+```
+
 ## Strategy
 
 Response strategies:

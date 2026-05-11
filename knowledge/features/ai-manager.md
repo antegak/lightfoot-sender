@@ -85,3 +85,10 @@ The AI now receives a stable formatted draft with:
 - fallback reason.
 
 This layer is deterministic and local. It does not trigger extra OpenRouter calls and does not enable autonomous replies.
+
+## Stage 4 Hotfix
+
+- Humanized answers always show both customer-facing branch addresses.
+- Product answers must not route a product to a specific branch or mention branch-specific stock.
+- LL/child formats like `3/33` are split into human text: approximate age first, shoe size second.
+- Debug metadata includes detected child format, humanized age, and whether address formatting was applied.

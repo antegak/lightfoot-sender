@@ -76,6 +76,7 @@ It shows:
 - fallback logic;
 - recommendation reasoning.
 - QA fixture results from the lightweight internal runner.
+- detected child size formatting and address formatting status.
 
 Actions:
 - clear logs;

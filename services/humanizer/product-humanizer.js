@@ -48,29 +48,100 @@ function cleanModelName(value) {
     .replace(/\b[A-Z]{2,}\d{2,}[A-Z0-9-]*\b/g, '')
     .replace(/\b(BK|WH|BE|GR|LG|PI|WR|LR|GY|BL|BR|RD|RO|SB|TI|PU|LA|YE|DG|KH|BG|DB|NV|GD|OR)\b/g, '')
     .replace(/\b(01|02|03|04)\b/g, '')
+    .replace(/\b\d{1,2}\/\d{2}\b/g, '')
     .replace(/\s*\/\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
+function parseChildAgeSize(product = {}) {
+  const candidates = [
+    product.size,
+    product.model,
+    product.name,
+    product.title,
+    product.parsed?.size,
+  ].filter(Boolean).map(String);
+
+  for (const candidate of candidates) {
+    const match = candidate.match(/\b(\d{1,2})\/(\d{2})\b/);
+    if (match) return { age: match[1], size: match[2], raw: match[0] };
+  }
+  return null;
+}
+
+function isLittleLightProduct(product = {}) {
+  const raw = [
+    product.brand,
+    product.name,
+    product.model,
+    product.title,
+    product.sku,
+    product.parsed?.brand?.name,
+    product.parsed?.brand?.code,
+  ].filter(Boolean).join(' ').toLowerCase();
+  return raw.includes('little light') || /\bll\b/i.test(raw);
+}
+
+function isBeLenkaChildProduct(product = {}) {
+  const raw = [
+    product.brand,
+    product.name,
+    product.model,
+    product.title,
+    product.sku,
+    product.parsed?.brand?.name,
+    product.parsed?.brand?.code,
+  ].filter(Boolean).join(' ').toLowerCase();
+  return raw.includes('be lenka') && /\bll\b/i.test(raw);
+}
+
+function getDisplayBrand(product = {}) {
+  const brand = product.brand || product.parsed?.brand?.name || '';
+  if (isBeLenkaChildProduct(product)) return 'Be Lenka';
+  return brand;
+}
+
+function humanizeChildSize(product = {}) {
+  const child = parseChildAgeSize(product);
+  if (!child || !(isLittleLightProduct(product) || isBeLenkaChildProduct(product))) return null;
+  return {
+    raw: child.raw,
+    ageText: `Примерно на ${child.age} года`,
+    sizeText: `Размер ${child.size}`,
+    age: child.age,
+    size: child.size,
+  };
+}
+
 function humanizeProduct(product = {}) {
   const parsed = product.parsed || {};
-  const brand = product.brand || parsed.brand?.name || '';
+  const brand = getDisplayBrand(product);
   const model = product.model || parsed.model || cleanModelName(product.name || product.title || '');
   const color = normalizeHumanColor(product.displayColor || product.color || parsed.color?.mixedCode || parsed.color?.display || parsed.color?.name || parsed.color?.code);
   const material = normalizeMaterial(product.material || parsed.material?.name || parsed.material?.code);
-  const size = product.size || parsed.size || '';
+  const childSize = humanizeChildSize(product);
+  const size = childSize ? '' : (product.size || parsed.size || '');
   const price = formatPrice(product.price);
 
   const title = [brand, model].filter(Boolean).join(' ').trim() || model || color || 'модель';
+  if (childSize) {
+    return [
+      `• ${[title, color].filter(Boolean).join(' — ')}`,
+      `👣 ${childSize.ageText}`,
+      `📏 ${childSize.sizeText}`,
+      price ? `💰 ${price}` : '',
+    ].filter(Boolean).join('\n');
+  }
+
   const details = [color, material, size ? `${size} размер` : '', price].filter(Boolean).join(' — ');
-  return details ? `${title} — ${details}` : title;
+  return `• ${details ? `${title} — ${details}` : title}`;
 }
 
 function humanizeProducts(products = [], limit = 3) {
   return (Array.isArray(products) ? products : [])
     .slice(0, Math.max(1, Number(limit) || 3))
-    .map((product) => `• ${humanizeProduct(product)}`)
+    .map((product) => humanizeProduct(product))
     .join('\n');
 }
 
@@ -78,6 +149,7 @@ module.exports = {
   formatPrice,
   normalizeHumanColor,
   normalizeMaterial,
+  humanizeChildSize,
   humanizeProduct,
   humanizeProducts,
 };

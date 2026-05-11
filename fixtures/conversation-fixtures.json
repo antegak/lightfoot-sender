@@ -21,6 +21,13 @@
     "name": "sizing-child",
     "turns": ["есть LL на 3 года?"],
     "expectedStrategy": "sizing",
-    "notes": "Mention age/ запас and ask foot length when needed."
+    "notes": "Mention age/запас and ask foot length when needed."
+  },
+  {
+    "name": "always-both-addresses",
+    "turns": ["есть черные 35?"],
+    "expectedStrategy": "clarification",
+    "expectedContains": ["Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["LF", "LF 9", "остаток", "stock"]
   }
 ]

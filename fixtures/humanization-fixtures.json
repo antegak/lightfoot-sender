@@ -7,16 +7,29 @@
         { "name": "TT Dream / BK / 35 / 01", "brand": "TipsieToes", "model": "Dream", "color": "черный", "material": "кожа", "size": "35", "price": 4490 }
       ]
     },
-    "expectedContains": ["💛", "TipsieToes Dream", "4490", "35"]
+    "expectedContains": ["💛", "TipsieToes Dream", "4490", "35", "Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["LF", "LF 9", "остаток", "stock", "SKU"]
   },
   {
     "name": "branch-format",
     "input": { "intent": "branch_info" },
-    "expectedContains": ["📍Коенкозова 75", "📍Байтик Баатыра 4/1"]
+    "expectedContains": ["📍Коенкозова 75", "📍Байтик Баатыра 4/1"],
+    "expectedNotContains": ["LF", "LF 9"]
   },
   {
     "name": "brand-list",
     "input": { "intent": "brand_list" },
-    "expectedContains": ["TipsieToes", "Little Light", "Saguaro", "Be Lenka"]
+    "expectedContains": ["TipsieToes — взрослые модели", "Little Light — детская", "Saguaro — спортивные", "Be Lenka — премиальная", "Коенкозова", "Байтик Баатыра"]
+  },
+  {
+    "name": "be-lenka-ll-child-size",
+    "input": {
+      "intent": "availability",
+      "products": [
+        { "name": "Be Lenka LL Glow / BL / 3/33 / 02", "brand": "Be Lenka", "model": "Glow", "color": "BL", "size": "3/33", "price": 3890 }
+      ]
+    },
+    "expectedContains": ["Be Lenka Glow", "Примерно на 3 года", "Размер 33", "3890", "Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["3/33", "LF", "LF 9", "stock", "остаток"]
   }
 ]

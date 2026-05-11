@@ -1,5 +1,17 @@
 const { EMOJI } = require('./emoji-rules');
 
+function brandDescription(brand) {
+  const map = {
+    TipsieToes: 'взрослые модели на каждый день',
+    'Little Light': 'детская и подростковая линейка',
+    Saguaro: 'спортивные и outdoor модели',
+    'Be Lenka': 'премиальная barefoot обувь',
+    'Key Top': 'легкие модели для активного дня',
+    XZero: 'современные barefoot-модели',
+  };
+  return map[brand] || 'модели barefoot-направления';
+}
+
 const TEMPLATES = Object.freeze({
   availability: ({ productsText, branchesText }) => [
     `${EMOJI.heart} Есть подходящие варианты:`,
@@ -8,7 +20,7 @@ const TEMPLATES = Object.freeze({
   ].filter(Boolean).join('\n\n'),
   unavailable: ({ recommendationsText, branchesText }) => [
     `${EMOJI.heart} Сейчас не вижу точного совпадения по запросу.`,
-    recommendationsText ? `Могу предложить близкие варианты:\n${recommendationsText}` : 'Могу уточнить наличие по размеру или подобрать похожие модели.',
+    recommendationsText ? `Могу предложить близкие варианты:\n${recommendationsText}` : 'Могу уточнить размер или подобрать похожие модели.',
     branchesText,
   ].filter(Boolean).join('\n\n'),
   recommendation: ({ productsText, branchesText }) => [
@@ -17,11 +29,14 @@ const TEMPLATES = Object.freeze({
     'Для широкой стопы barefoot-модели часто комфортнее за счет более свободной формы носка. Это не медицинская рекомендация, но по ощущениям обычно мягче для пальцев.',
     branchesText,
   ].filter(Boolean).join('\n\n'),
-  clarification: ({ parsedQuery }) => {
+  clarification: ({ parsedQuery, branchesText }) => {
     const parts = [];
     if (!parsedQuery?.size) parts.push('размер');
     if (!parsedQuery?.colorHuman && !parsedQuery?.color) parts.push('цвет');
-    return `${EMOJI.heart} Подскажу. Уточните, пожалуйста, ${parts.join(' и ') || 'размер'}?`;
+    return [
+      `${EMOJI.heart} Подскажу. Уточните, пожалуйста, ${parts.join(' и ') || 'размер'}?`,
+      branchesText,
+    ].filter(Boolean).join('\n\n');
   },
   sizing: ({ sizeRecommendation, branchesText }) => [
     `${EMOJI.feet} По длине стопы ориентир: ${sizeRecommendation?.size || 'нужно уточнить'} размер.`,
@@ -29,15 +44,15 @@ const TEMPLATES = Object.freeze({
     branchesText,
   ].filter(Boolean).join('\n\n'),
   branch_info: ({ branchesText }) => branchesText,
-  brand_list: ({ brandSummary }) => {
+  brand_list: ({ brandSummary, branchesText }) => {
     const brands = brandSummary?.brandsAvailable?.length
       ? brandSummary.brandsAvailable
       : ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka', 'Key Top', 'XZero'];
     return [
-      `${EMOJI.heart} У нас есть несколько направлений:`,
-      brands.map((brand) => `• ${brand}`).join('\n'),
-      'TipsieToes чаще взрослая линейка, Little Light — детская, Saguaro — легкие barefoot-модели для разных возрастов.',
-    ].join('\n\n');
+      `${EMOJI.heart} У нас есть несколько брендов:`,
+      brands.map((brand) => `• ${brand} — ${brandDescription(brand)}`).join('\n'),
+      branchesText,
+    ].filter(Boolean).join('\n\n');
   },
 });
 

@@ -37,6 +37,29 @@ function result(name, ok, details = {}) {
   return { name, status: ok ? 'passed' : 'failed', ...details };
 }
 
+function checkHumanizedText(text, fixture = {}) {
+  const missing = (fixture.expectedContains || []).filter((part) => !text.includes(part));
+  const forbidden = [
+    ...(fixture.expectedNotContains || []),
+    /\b\d{1,2}\/\d{2}\b/,
+    /\bLF 9\b/,
+    /\bLF\b/,
+    /\bSKU\b/i,
+    /\bstock\b/i,
+    /остаток/i,
+    /доступно только/i,
+    /только в филиале/i,
+  ];
+  const forbiddenHits = forbidden
+    .map((rule) => {
+      if (rule instanceof RegExp) return rule.test(text) ? String(rule) : '';
+      return text.includes(rule) ? rule : '';
+    })
+    .filter(Boolean);
+  const addressMissing = !(text.includes('Коенкозова') && text.includes('Байтик Баатыра'));
+  return { missing, forbiddenHits, addressMissing };
+}
+
 function runParserFixtures() {
   return readFixture('parser-fixtures.json').map((fixture) => {
     const parsed = parseCustomerQuery(fixture.query);
@@ -73,8 +96,8 @@ function runHumanizationFixtures() {
       products: fixture.input?.products || [],
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka', 'Key Top', 'XZero'] },
     });
-    const missing = (fixture.expectedContains || []).filter((part) => !formatted.text.includes(part));
-    return result(fixture.name, missing.length === 0, { missing, formatted });
+    const checks = checkHumanizedText(formatted.text, fixture);
+    return result(fixture.name, checks.missing.length === 0 && checks.forbiddenHits.length === 0 && !checks.addressMissing, { ...checks, formatted });
   });
 }
 
@@ -91,8 +114,11 @@ function runConversationFixtures() {
       sizeRecommendation: parsed.sizeRecommendation,
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
     });
-    const ok = !fixture.expectedStrategy || formatted.strategy === fixture.expectedStrategy || formatted.templateUsed === fixture.expectedStrategy;
-    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, formatted, parsed });
+    const textChecks = checkHumanizedText(formatted.text, fixture);
+    const ok = (!fixture.expectedStrategy || formatted.strategy === fixture.expectedStrategy || formatted.templateUsed === fixture.expectedStrategy)
+      && textChecks.forbiddenHits.length === 0
+      && !textChecks.addressMissing;
+    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, ...textChecks, formatted, parsed });
   });
 }
 

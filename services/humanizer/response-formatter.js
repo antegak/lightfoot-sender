@@ -45,12 +45,27 @@ function formatHumanResponse(context = {}, options = {}) {
     branchesText,
     config,
   });
+  const childFormats = (context.products || [])
+    .map((product) => {
+      try {
+        const { humanizeChildSize } = require('./product-humanizer');
+        return humanizeChildSize(product);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
   return {
     text,
     strategy: meta.strategy,
     templateUsed: meta.template,
     fallbackReason: meta.fallbackReason || '',
     recommendationReason: context.recommendationReasoning || [],
+    debug: {
+      detectedChildFormat: childFormats.length ? childFormats : null,
+      humanizedAge: childFormats.map((item) => item.ageText).filter(Boolean),
+      addressFormattingApplied: text.includes('Коенкозова') && text.includes('Байтик Баатыра'),
+    },
   };
 }
 
