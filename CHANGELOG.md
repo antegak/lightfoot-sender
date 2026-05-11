@@ -13,6 +13,8 @@
 - Added brand aliases `BB`/`BL` for Be Lenka, `KT` for Key Top, and `XZ` for XZero.
 - Added Stage 4 fixtures, deterministic humanization layer, response strategy metadata, and lightweight QA runner.
 - Added Stage 4 hotfix QA for always showing both addresses, LL child age/size formatting, and inventory-style response prevention.
+- Added Stage 5 tech debt audit report and shared data-structure map.
+- Added extra parser/search/conversation fixtures for Be Lenka follow-up, child-age wording, black 35, and foot-length sizing.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
@@ -20,12 +22,14 @@
 - Fixed child-age parsing for queries like `LL на 3 года`.
 - Fixed humanized LL/Be Lenka child size output so raw `3/33` is never shown to customers.
 - Fixed humanized responses to always include both public branch addresses and avoid branch-specific stock routing.
+- Fixed brand summary source so Be Lenka, Key Top, and XZero are no longer excluded from known brand output.
 
 ### Refactored
-- No runtime refactor in this foundation stage.
+- Reused canonical store addresses in the humanizer branch formatter.
+- Removed an unnecessary dynamic require from humanizer response formatting.
 
 ### Known Issues
-- GitHub remote/branch promotion still needs to be configured before remote rollback is available.
+- Stage 5 audit found prompt/business-rule duplication that should be reduced in a later controlled AI pipeline patch.
 - Some existing Russian docs may show encoding artifacts in terminal output and should be verified before large text edits.
 
 ## 1.2.2

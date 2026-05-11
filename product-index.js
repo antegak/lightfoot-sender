@@ -171,11 +171,11 @@ function searchProductIndex(index, parsedQuery, query, limit = 5) {
   };
 }
 
-function buildBrandSummary(index) {
-  const known = ['TipsieToes', 'Little Light', 'Saguaro'];
+function buildBrandSummary(index = {}) {
+  const known = Array.from(new Set(Object.values(BRANDS).filter(Boolean)));
   return {
-    brandsAvailable: Array.from(new Set([...index.brands, ...known])).filter(Boolean),
-    unavailableKnownBrands: ['Be Lenka'],
+    brandsAvailable: Array.from(new Set([...(index.brands || []), ...known])).filter(Boolean),
+    unavailableKnownBrands: [],
   };
 }
 

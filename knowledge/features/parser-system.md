@@ -69,3 +69,9 @@ Mixed colors preserve `mixedCode` and component color codes for combinations lik
 The normalizer recognizes age/category phrases such as `3 года`, `5 лет`, `подростковые`, and `детские`.
 
 Parser regression fixtures live in `fixtures/parser-fixtures.json`. Update them whenever parser behavior changes intentionally.
+
+## Stage 5 Audit Notes
+
+- `BL` has contextual meaning: it is a Be Lenka brand alias in brand parsing and a blue color code in product color parsing. Avoid broad replacements.
+- LL and Be Lenka child model formats must keep age and shoe size separate in customer-facing responses.
+- Parser/search changes need fixtures first, then small patches.

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { humanizeBranches } = require('./branch-humanizer');
-const { humanizeProducts } = require('./product-humanizer');
+const { humanizeChildSize, humanizeProducts } = require('./product-humanizer');
 const { TEMPLATES } = require('./templates');
 
 function readConfig() {
@@ -48,7 +48,6 @@ function formatHumanResponse(context = {}, options = {}) {
   const childFormats = (context.products || [])
     .map((product) => {
       try {
-        const { humanizeChildSize } = require('./product-humanizer');
         return humanizeChildSize(product);
       } catch {
         return null;

@@ -1,25 +1,21 @@
 const { EMOJI } = require('./emoji-rules');
+const { STORES, formatStoreAddress } = require('../../knowledge-base');
 
-const BRANCHES = [
-  {
-    code: 'LF',
-    address: 'Коенкозова 75, 3 подъезд, 2 этаж',
-    note: 'вход со стороны Рыскулова',
-  },
-  {
-    code: 'LF 9',
-    address: 'Байтик Баатыра 4/1',
-    note: '',
-  },
-];
+const BRANCHES = Object.entries(STORES).map(([code, store]) => ({
+  code,
+  address: store.address,
+  note: store.note || '',
+  formatted: formatStoreAddress(store),
+}));
 
 function humanizeBranch(branch = {}) {
   const code = String(branch.code || branch.name || '').trim();
   const known = BRANCHES.find((item) => item.code === code) || branch;
-  const address = known.address || branch.formatted || branch.name || '';
-  if (!address) return '';
-  const note = known.note ? `\n(${known.note})` : '';
-  return `${EMOJI.pin}${address}${note}`;
+  const formatted = known.formatted || branch.formatted || (
+    known.address ? formatStoreAddress(known) : (branch.name || '')
+  );
+  if (!formatted) return '';
+  return `${EMOJI.pin}${formatted}`;
 }
 
 function humanizeBranches(branches) {

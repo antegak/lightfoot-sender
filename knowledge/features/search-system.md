@@ -65,4 +65,10 @@ AI context remains capped at 5 products and must not send the full catalog to Op
 
 ## Stage 4 Fixtures
 
-Search regression fixtures live in `fixtures/search-fixtures.json`. They cover availability, brand-list, material, mixed color, wide-foot recommendation, sizing by centimeters, and LL child-age queries.
+Search regression fixtures live in `fixtures/search-fixtures.json`. They cover availability, brand-list, material, mixed color, wide-foot recommendation, sizing by centimeters, LL child-age queries, Be Lenka follow-up wording, black 35 wording, and foot-length wording.
+
+## Stage 5 Audit Notes
+
+- `knowledge-base.js` is the canonical source for brand/color/material/store facts.
+- `services/search/query-normalizer.js` still has layer-specific aliases for natural-language detection. Keep those as adapters, not as the long-term source of truth.
+- Brand summary should derive known brands from the canonical brand map so Be Lenka, Key Top, and XZero do not drift out of brand-list responses.

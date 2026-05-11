@@ -29,10 +29,11 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 
 ## Known Problems
 
-- Repository folder currently has no `.git` metadata available in this workspace, so GitHub backup must be initialized or restored before relying on git rollback.
 - Existing README/CHANGELOG show encoding artifacts in some terminal output; verify file encoding before editing large Russian text blocks.
 - Parser color/material dictionaries need business confirmation before changing code mappings.
 - Build output and `node_modules` are present locally; avoid treating generated files as source.
+- AI prompt, deterministic humanizer, and product/search logic still duplicate some business rules.
+- Some parser/search fixtures intentionally capture current behavior even when future UX may want stronger recommendation intent.
 
 ## Technical Debt
 
@@ -40,6 +41,9 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Runtime has limited automated tests.
 - Some diagnostics exist, but a unified logging standard is not fully enforced.
 - Parser/search logic is business-critical and should receive snapshot coverage before major edits.
+- `knowledge-base.js` is now the preferred source of truth for brands, colors, materials, stores, and size tables, but not all modules consume it fully yet.
+- `main.js` still mixes Electron IPC, AI orchestration, prompt construction, BILLZ context, and memory wiring.
+- Follow-up memory currently helps search by appending remembered entities to the query text; a future safer path is structured memory context.
 
 ## Future Plans
 

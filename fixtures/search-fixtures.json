@@ -30,5 +30,21 @@
   {
     "query": "есть LL на 3 года?",
     "expected": { "intent": "availability", "brand": "Little Light", "childAge": 3 }
+  },
+  {
+    "query": "а be lenka?",
+    "expected": { "intent": "availability", "brand": "Be Lenka", "brandCode": "BB" }
+  },
+  {
+    "query": "какую модель ребенку 10 лет?",
+    "expected": { "intent": "availability", "customerType": "kids", "childAge": 10 }
+  },
+  {
+    "query": "есть черная обувь 35 размера?",
+    "expected": { "intent": "availability", "size": "35", "colorCode": "BK" }
+  },
+  {
+    "query": "стопа 24 см",
+    "expected": { "intent": "sizing", "footLength": 24, "recommendedSize": "37" }
   }
 ]

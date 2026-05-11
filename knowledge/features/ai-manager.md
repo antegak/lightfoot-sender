@@ -92,3 +92,10 @@ This layer is deterministic and local. It does not trigger extra OpenRouter call
 - Product answers must not route a product to a specific branch or mention branch-specific stock.
 - LL/child formats like `3/33` are split into human text: approximate age first, shoe size second.
 - Debug metadata includes detected child format, humanized age, and whether address formatting was applied.
+
+## Stage 5 Audit Notes
+
+- Deterministic `humanizedResponse` should be treated as the safest customer-facing draft.
+- OpenRouter prompt should focus on tone and reasoning. Business rules should gradually move into deterministic helpers/config.
+- AI context remains capped to top relevant products and should not send the full catalog.
+- Follow-up memory works today, but future cleanup should pass memory as structured search context instead of mutating the raw query text.

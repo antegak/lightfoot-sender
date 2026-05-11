@@ -29,5 +29,19 @@
     "expectedStrategy": "clarification",
     "expectedContains": ["Коенкозова", "Байтик Баатыра"],
     "expectedNotContains": ["LF", "LF 9", "остаток", "stock"]
+  },
+  {
+    "name": "be-lenka-follow-up",
+    "turns": ["есть детские?", "а be lenka?"],
+    "expectedStrategy": "unavailable",
+    "expectedContains": ["Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["SKU", "stock", "остаток", "LF", "LF 9"]
+  },
+  {
+    "name": "child-ten-years",
+    "turns": ["какую модель ребенку 10 лет?"],
+    "expectedStrategy": "sizing",
+    "expectedContains": ["Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["SKU", "stock", "остаток", "3/33"]
   }
 ]
