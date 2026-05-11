@@ -15,6 +15,8 @@ const {
 const { buildDiagnostics } = require('./services/diagnostics');
 const { ConversationMemory } = require('./services/memory');
 const { buildAiContext } = require('./services/ai/context-builder');
+const { formatHumanResponse } = require('./services/humanizer');
+const { runQaFixtures } = require('./services/qa');
 const {
   checkConnection: checkBillzConnection,
   compactProductContext,
@@ -508,6 +510,10 @@ async function requestOpenRouterChat({
       matchedProducts: Number(billzContext?.matchedProducts ?? products.length),
       searchMode: billzContext?.searchMode || '',
       humanized: humanizeBillzProducts(products, { limit: 5, includeDebug: true }),
+      deterministicDraft: billzContext?.humanizedResponse?.text || '',
+      responseStrategy: billzContext?.humanizedResponse?.strategy || '',
+      templateUsed: billzContext?.humanizedResponse?.templateUsed || '',
+      fallbackReason: billzContext?.humanizedResponse?.fallbackReason || '',
       updatedAt: billzContext?.updatedAt || new Date().toISOString(),
     };
     logger.info(LOG_CATEGORIES.AI, 'BILLZ test context prepared', { promptBillzContext });
@@ -546,6 +552,10 @@ async function requestOpenRouterChat({
       `Recent messages: ${JSON.stringify((billzContext?.recentMessages || []).slice(-10), null, 2)}`,
       `Recommendations: ${JSON.stringify((billzContext?.recommendations || []).slice(0, 5), null, 2)}`,
       `Recommendation reasoning: ${JSON.stringify(billzContext?.recommendationReasoning || [], null, 2)}`,
+      `Deterministic draft: ${billzContext?.humanizedResponse?.text || ''}`,
+      `Response strategy: ${billzContext?.humanizedResponse?.strategy || ''}`,
+      `Template used: ${billzContext?.humanizedResponse?.templateUsed || ''}`,
+      `Fallback reason: ${billzContext?.humanizedResponse?.fallbackReason || ''}`,
       `Detected intent: ${billzContext?.detectedIntent || 'unknown'}`,
       `Parsed query: ${JSON.stringify(billzContext?.parsedQuery || null, null, 2)}`,
       `Size recommendation: ${JSON.stringify(billzContext?.sizeRecommendation || null, null, 2)}`,
@@ -807,6 +817,8 @@ async function requestAiTestChat(payload = {}) {
     memoryState,
     maxProducts: 5,
   });
+  const humanizedResponse = formatHumanResponse(billzContext);
+  billzContext.humanizedResponse = humanizedResponse;
 
   const result = await requestOpenRouterChat({
     mode: 'billz-test',
@@ -821,6 +833,7 @@ async function requestAiTestChat(payload = {}) {
     result.conversationMemory = aiSandboxMemory;
     result.memory = aiConversationMemory.getState();
     result.searchDebug = billzContext.searchDebug || null;
+    result.humanizedResponse = humanizedResponse;
     result.recommendationReasoning = billzContext.recommendationReasoning || [];
     result.history = aiSandboxHistory;
   }
@@ -834,6 +847,10 @@ async function requestAiTestChat(payload = {}) {
       mode: billzContext.searchMode || '',
       fallbackUsed: Boolean(billzContext.searchSummary?.fallbackUsed),
     },
+    responseStrategy: humanizedResponse.strategy,
+    templateUsed: humanizedResponse.templateUsed,
+    memorySummary: billzContext.memorySummary || '',
+    fallbackReason: humanizedResponse.fallbackReason || '',
     recommendationReasoning: billzContext.recommendationReasoning || [],
     updatedAt: new Date().toISOString(),
   };
@@ -3296,6 +3313,17 @@ ipcMain.handle('debug-diagnostics', async () => {
   } catch (error) {
     logger.error(LOG_CATEGORIES.IPC, 'debug-diagnostics failed', { error });
     return { ok: false, error: error?.message || 'diagnostics-failed' };
+  }
+});
+ipcMain.handle('debug-run-fixtures', async () => {
+  try {
+    const startedAt = Date.now();
+    const qa = runQaFixtures();
+    logger.performance('QA fixtures', startedAt, { status: qa.summary?.status, total: qa.summary?.total, failed: qa.summary?.failed });
+    return { ok: true, qa };
+  } catch (error) {
+    logger.error(LOG_CATEGORIES.IPC, 'debug-run-fixtures failed', { error });
+    return { ok: false, error: error?.message || 'qa-fixtures-failed' };
   }
 });
 ipcMain.handle('updates-check', async () => checkForUpdates({ manual: true }));

@@ -1,0 +1,30 @@
+[
+  {
+    "query": "есть черные 35?",
+    "expected": { "intent": "availability", "size": "35", "colorCode": "BK", "brand": null, "materialCode": null }
+  },
+  {
+    "query": "есть замшевые?",
+    "expected": { "intent": "availability", "size": null, "colorCode": null, "brand": null, "materialCode": "02" }
+  },
+  {
+    "query": "какие бренды есть?",
+    "expected": { "intent": "brand_list", "size": null, "colorCode": null, "brand": null, "materialCode": null }
+  },
+  {
+    "query": "что есть из be lenka?",
+    "expected": { "intent": "availability", "size": null, "colorCode": null, "brand": "Be Lenka", "materialCode": null }
+  },
+  {
+    "query": "есть белые с черным?",
+    "expected": { "intent": "availability", "size": null, "colorCodes": ["BK", "WH"], "brand": null, "materialCode": null }
+  },
+  {
+    "query": "что подойдет на 24 см?",
+    "expected": { "intent": "sizing", "footLength": 24 }
+  },
+  {
+    "query": "есть LL на 3 года?",
+    "expected": { "intent": "availability", "brand": "Little Light", "childAge": 3 }
+  }
+]

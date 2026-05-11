@@ -67,3 +67,5 @@ Brand code map:
 Mixed colors preserve `mixedCode` and component color codes for combinations like `WH&BK`, `GR&WH`, `PI&WH`, and other known color-code pairs.
 
 The normalizer recognizes age/category phrases such as `3 года`, `5 лет`, `подростковые`, and `детские`.
+
+Parser regression fixtures live in `fixtures/parser-fixtures.json`. Update them whenever parser behavior changes intentionally.

@@ -69,6 +69,7 @@ contextBridge.exposeInMainWorld('api', {
   debugClearLogs: () => ipcRenderer.invoke('debug-clear-logs'),
   debugExportLogs:() => ipcRenderer.invoke('debug-export-logs'),
   debugDiagnostics: () => ipcRenderer.invoke('debug-diagnostics'),
+  debugRunFixtures: () => ipcRenderer.invoke('debug-run-fixtures'),
   updatesCheck:   () => ipcRenderer.invoke('updates-check'),
   updatesDownload:() => ipcRenderer.invoke('updates-download'),
   updatesInstall: () => ipcRenderer.invoke('updates-install'),

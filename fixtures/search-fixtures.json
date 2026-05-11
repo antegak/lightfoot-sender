@@ -1,0 +1,34 @@
+[
+  {
+    "query": "есть черные 35?",
+    "expected": { "intent": "availability", "size": "35", "colorCode": "BK", "modeOneOf": ["strict", "fuzzy", "semantic-like"] }
+  },
+  {
+    "query": "есть замшевые?",
+    "expected": { "intent": "availability", "materialCode": "02" }
+  },
+  {
+    "query": "какие бренды есть?",
+    "expected": { "intent": "brand_list" }
+  },
+  {
+    "query": "что есть из be lenka?",
+    "expected": { "intent": "availability", "brand": "Be Lenka" }
+  },
+  {
+    "query": "есть белые с черным?",
+    "expected": { "intent": "availability", "colorCodes": ["BK", "WH"] }
+  },
+  {
+    "query": "на широкую ногу что есть?",
+    "expected": { "intent": "recommendation", "context": "wide_foot" }
+  },
+  {
+    "query": "что подойдет на 24 см?",
+    "expected": { "intent": "sizing", "footLength": 24 }
+  },
+  {
+    "query": "есть LL на 3 года?",
+    "expected": { "intent": "availability", "brand": "Little Light", "childAge": 3 }
+  }
+]

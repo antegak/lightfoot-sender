@@ -47,6 +47,7 @@ const BRAND_ALIASES = [
 ];
 
 function detectIntent(text) {
+  if (/широк|wide|болят|плоскостоп|пальц|жмет|давит/i.test(text)) return 'recommendation';
   if (/(какие|что).*бренд|бренд.*есть|марки.*есть/.test(text)) return 'brand_list';
   if (/(где|адрес|магазин|филиал|примерить)/.test(text)) return 'store_question';
   if (/(цена|стоим|сколько)/.test(text)) return 'price_question';
@@ -99,6 +100,8 @@ function detectBrand(text) {
 }
 
 function detectAge(text) {
+  const unicodeAge = text.match(/(^|\s)(\d{1,2})\s*(?:\u0433\u043e\u0434\u0430|\u0433\u043e\u0434|\u043b\u0435\u0442)(\s|$)/);
+  if (unicodeAge) return Number(unicodeAge[2]);
   const match = text.match(/\b(\d{1,2})\s*(?:года|год|лет)\b/);
   if (match) return Number(match[1]);
   if (text.includes('подрост')) return 'teen';
@@ -107,6 +110,7 @@ function detectAge(text) {
 }
 
 function detectCustomerType(text) {
+  if (/(^|\s)\d{1,2}\s*(?:\u0433\u043e\u0434\u0430|\u0433\u043e\u0434|\u043b\u0435\u0442)(\s|$)/.test(text)) return 'kids';
   if (text.includes('подрост')) return 'teen';
   if (text.includes('детск') || text.includes('ребен') || /\b\d{1,2}\s*(?:года|год|лет)\b/.test(text)) return 'kids';
   if (text.includes('взросл') || text.includes('женск') || text.includes('мужск')) return 'adult';

@@ -75,6 +75,7 @@ It shows:
 - matched products;
 - fallback logic;
 - recommendation reasoning.
+- QA fixture results from the lightweight internal runner.
 
 Actions:
 - clear logs;

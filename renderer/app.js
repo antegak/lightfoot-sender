@@ -5522,6 +5522,7 @@ async function reloadDebugPanel() {
   if (!panel) return;
   const logsBox = panel.querySelector('[data-debug-logs]');
   const diagnosticsBox = panel.querySelector('[data-debug-diagnostics]');
+  const qaBox = panel.querySelector('[data-debug-qa]');
   if (logsBox) logsBox.textContent = 'Loading logs...';
   if (diagnosticsBox) diagnosticsBox.textContent = 'Loading diagnostics...';
 
@@ -5540,6 +5541,7 @@ async function reloadDebugPanel() {
       ? formatDebugJson(diagnosticsResult.diagnostics)
       : `Failed to load diagnostics: ${diagnosticsResult?.error || 'unknown'}`;
   }
+  if (qaBox && !qaBox.textContent.trim()) qaBox.textContent = 'QA fixtures not run yet.';
 }
 
 function ensureDebugPanel() {
@@ -5557,6 +5559,7 @@ function ensureDebugPanel() {
     </div>
     <div class="debug-panel-actions">
       <button type="button" data-debug-reload>Reload diagnostics</button>
+      <button type="button" data-debug-qa-run>Run QA fixtures</button>
       <button type="button" data-debug-clear>Clear logs</button>
       <button type="button" data-debug-export>Export logs</button>
     </div>
@@ -5568,11 +5571,21 @@ function ensureDebugPanel() {
       <summary>Logs</summary>
       <pre data-debug-logs>No logs loaded.</pre>
     </details>
+    <details>
+      <summary>QA fixtures</summary>
+      <pre data-debug-qa>QA fixtures not run yet.</pre>
+    </details>
   `;
   document.body.appendChild(panel);
 
   panel.querySelector('[data-debug-close]')?.addEventListener('click', () => toggleDebugPanel(false));
   panel.querySelector('[data-debug-reload]')?.addEventListener('click', reloadDebugPanel);
+  panel.querySelector('[data-debug-qa-run]')?.addEventListener('click', async () => {
+    const qaBox = panel.querySelector('[data-debug-qa]');
+    if (qaBox) qaBox.textContent = 'Running QA fixtures...';
+    const result = await window.api.debugRunFixtures?.();
+    if (qaBox) qaBox.textContent = result?.ok ? formatDebugJson(result.qa) : `QA failed: ${result?.error || 'unknown'}`;
+  });
   panel.querySelector('[data-debug-clear]')?.addEventListener('click', async () => {
     await window.api.debugClearLogs?.();
     await reloadDebugPanel();

@@ -62,3 +62,7 @@ Stage 3 adds `services/search`:
 Search priority is strict match, fuzzy match, semantic-like contextual fallback, then recommendations. Modes are `strict`, `fuzzy`, `semantic-like`, and `fallback`.
 
 AI context remains capped at 5 products and must not send the full catalog to OpenRouter.
+
+## Stage 4 Fixtures
+
+Search regression fixtures live in `fixtures/search-fixtures.json`. They cover availability, brand-list, material, mixed color, wide-foot recommendation, sizing by centimeters, and LL child-age queries.

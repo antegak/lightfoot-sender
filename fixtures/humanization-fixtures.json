@@ -1,0 +1,22 @@
+[
+  {
+    "name": "availability-products",
+    "input": {
+      "intent": "availability",
+      "products": [
+        { "name": "TT Dream / BK / 35 / 01", "brand": "TipsieToes", "model": "Dream", "color": "черный", "material": "кожа", "size": "35", "price": 4490 }
+      ]
+    },
+    "expectedContains": ["💛", "TipsieToes Dream", "4490", "35"]
+  },
+  {
+    "name": "branch-format",
+    "input": { "intent": "branch_info" },
+    "expectedContains": ["📍Коенкозова 75", "📍Байтик Баатыра 4/1"]
+  },
+  {
+    "name": "brand-list",
+    "input": { "intent": "brand_list" },
+    "expectedContains": ["TipsieToes", "Little Light", "Saguaro", "Be Lenka"]
+  }
+]

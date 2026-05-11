@@ -25,8 +25,10 @@ function detectQueryColors(text) {
     if (!matches.some((item) => item.code === code)) matches.push({ code, human });
   };
   for (const [code, color] of Object.entries(COLORS)) {
-    const codePattern = new RegExp(`(^|\\s)${code.toLowerCase()}($|\\s)`);
-    if (normalized.includes(normalizeText(color)) || codePattern.test(normalized)) addColor(code, color);
+    const upperText = String(text).toUpperCase();
+    if ((code === 'BE' || code === 'BL') && /\bBE\s+LENKA\b|\bBELENKA\b/.test(upperText)) continue;
+    const codePattern = new RegExp(`(^|\\s)${code}($|\\s)`);
+    if (normalized.includes(normalizeText(color)) || codePattern.test(upperText)) addColor(code, color);
   }
   const aliases = [
     ['черн', COLORS.BK],

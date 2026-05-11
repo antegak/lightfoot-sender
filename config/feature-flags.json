@@ -6,5 +6,7 @@
   "advancedSearch": true,
   "conversationMemory": true,
   "recommendationEngine": true,
+  "humanizationLayer": true,
+  "qaMode": true,
   "voiceTranscription": false
 }

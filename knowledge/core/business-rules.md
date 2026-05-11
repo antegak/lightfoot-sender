@@ -17,6 +17,17 @@ This document stores LightFoot business vocabulary used by parser, search, AI co
 
 `BB` and `BL` must both resolve to `Be Lenka`.
 
+## Consultant Tone
+
+Customer-facing answers should sound like a friendly LightFoot consultant:
+- concise;
+- helpful;
+- no raw JSON/API fields;
+- no article/SKU when a human model name exists;
+- light emoji only, mainly `💛` and `📍`.
+
+For foot problems such as wide feet, painful feet, flat feet, or squeezed toes, explain barefoot comfort softly and avoid medical claims.
+
 ## Colors
 
 - `BK` - black.

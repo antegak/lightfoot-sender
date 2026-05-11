@@ -1,0 +1,26 @@
+[
+  {
+    "name": "recommendation-wide-foot",
+    "turns": ["на широкую ногу что есть?"],
+    "expectedStrategy": "recommendation",
+    "notes": "Explain barefoot comfort softly without medical claims."
+  },
+  {
+    "name": "clarification-missing-size",
+    "turns": ["есть черные?"],
+    "expectedStrategy": "clarification",
+    "notes": "Can confirm direction and ask size if product list is broad."
+  },
+  {
+    "name": "unavailable-brand",
+    "turns": ["есть xzero 35?"],
+    "expectedStrategy": "unavailable",
+    "notes": "Do not replace requested brand silently."
+  },
+  {
+    "name": "sizing-child",
+    "turns": ["есть LL на 3 года?"],
+    "expectedStrategy": "sizing",
+    "notes": "Mention age/ запас and ask foot length when needed."
+  }
+]

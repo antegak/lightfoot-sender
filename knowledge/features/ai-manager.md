@@ -71,3 +71,17 @@ Memory has TTL from `config/memory-config.json` and must not store infinite chat
 AI context is built through `services/ai/context-builder.js` and includes only top relevant products, parsed query, memory summary, recent context, and recommendation reasoning. Product context is capped at 5 items.
 
 Responses should read like a consultant response, not a database dump.
+
+## Stage 4 Humanization
+
+Stage 4 adds deterministic humanization in `services/humanizer`.
+
+The AI now receives a stable formatted draft with:
+- response strategy;
+- template used;
+- product formatting;
+- branch formatting;
+- recommendations;
+- fallback reason.
+
+This layer is deterministic and local. It does not trigger extra OpenRouter calls and does not enable autonomous replies.

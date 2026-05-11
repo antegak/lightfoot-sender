@@ -11,9 +11,12 @@
 - Added Winston as a lightweight local logging dependency.
 - Added Stage 3 advanced search foundation with Fuse.js, query normalization, recommendation engine, lightweight conversation memory, and smarter AI context builder.
 - Added brand aliases `BB`/`BL` for Be Lenka, `KT` for Key Top, and `XZ` for XZero.
+- Added Stage 4 fixtures, deterministic humanization layer, response strategy metadata, and lightweight QA runner.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
+- Fixed Be Lenka query parsing so `be` is not misread as beige.
+- Fixed child-age parsing for queries like `LL на 3 года`.
 
 ### Refactored
 - No runtime refactor in this foundation stage.

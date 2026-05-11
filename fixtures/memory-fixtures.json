@@ -1,0 +1,20 @@
+[
+  {
+    "name": "black-follow-up-size",
+    "turns": ["есть черные?", "а 35 размер?"],
+    "expectedEntities": {
+      "preferredColor": "черный",
+      "preferredSize": "35",
+      "lastIntent": "availability"
+    }
+  },
+  {
+    "name": "brand-follow-up-color",
+    "turns": ["что есть из be lenka?", "а белые с черным?"],
+    "expectedEntities": {
+      "preferredBrand": "Be Lenka",
+      "preferredColor": "черный",
+      "lastIntent": "availability"
+    }
+  }
+]

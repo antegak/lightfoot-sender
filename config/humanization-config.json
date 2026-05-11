@@ -1,0 +1,6 @@
+{
+  "emojiLevel": "light",
+  "maxProductsInResponse": 3,
+  "shortResponseThreshold": 1,
+  "recommendationThreshold": 1
+}
