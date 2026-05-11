@@ -1,0 +1,13 @@
+const LOG_CATEGORIES = Object.freeze({
+  AI: 'AI',
+  BILLZ: 'BILLZ',
+  SEARCH: 'SEARCH',
+  WHATSAPP: 'WHATSAPP',
+  IPC: 'IPC',
+  CACHE: 'CACHE',
+  SYSTEM: 'SYSTEM',
+  ERROR: 'ERROR',
+  PERFORMANCE: 'PERFORMANCE',
+});
+
+module.exports = { LOG_CATEGORIES };

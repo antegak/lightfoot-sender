@@ -1,0 +1,8 @@
+{
+  "debugPanel": true,
+  "structuredLogging": true,
+  "performanceLogs": true,
+  "aiSandbox": true,
+  "advancedSearch": false,
+  "voiceTranscription": false
+}

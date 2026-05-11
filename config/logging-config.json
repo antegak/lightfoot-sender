@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "level": "info",
+  "directory": "logs",
+  "maxFileSizeBytes": 1048576,
+  "maxFiles": 5,
+  "files": {
+    "combined": "combined.log",
+    "errors": "error.log"
+  }
+}

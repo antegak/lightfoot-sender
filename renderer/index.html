@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LightFoot Sender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="titlebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24">
+          <path d="M13.5 2L6 14h7l-2.5 8L22 10h-7l3-8z"></path>
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <div class="brand-title">LightFoot Sender</div>
+        <div class="brand-subtitle">Рабочий инструмент для WhatsApp</div>
+      </div>
+    </div>
+
+    <div class="titlebar-spacer"></div>
+
+    <div class="titlebar-actions">
+      <div class="connection-badge" id="connectionBadge">
+        <div class="badge-dot"></div>
+        <span id="connectionText">Не подключено</span>
+      </div>
+
+      <button class="theme-btn" id="btnTheme" onclick="toggleTheme()" title="Сменить тему">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Тёмная</span>
+      </button>
+
+      <div class="window-controls">
+        <button class="wc-btn wc-min" onclick="window.api.minimize()" title="Свернуть"></button>
+        <button class="wc-btn wc-max" onclick="window.api.maximize()" title="Развернуть"></button>
+        <button class="wc-btn wc-close" onclick="window.api.close()" title="Закрыть"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Навигация</div>
+        <div class="nav">
+          <div class="nav-item active" data-page="connect" onclick="switchPage('connect', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 12h16"></path>
+              <path d="M12 4v16"></path>
+            </svg>
+            <span>Панель</span>
+          </div>
+          <div class="nav-item" data-page="contacts" onclick="switchPage('contacts', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21V19C22.9986 17.1771 21.765 15.5857 20 15.13"></path>
+              <path d="M16 3.13C17.7699 3.58317 19.0078 5.17799 19.0078 7.005C19.0078 8.83201 17.7699 10.4268 16 10.88"></path>
+            </svg>
+            <span>Сбор базы</span>
+          </div>
+          <div class="nav-item" data-page="compose" onclick="switchPage('compose', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"></path>
+            </svg>
+            <span>Сообщения</span>
+          </div>
+          <div class="nav-item" data-page="send" onclick="switchPage('send', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Рассылка</span>
+          </div>
+          <div class="nav-item" data-page="ai-manager" onclick="switchPage('ai-manager', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a4 4 0 0 1 4 4v1h1a4 4 0 0 1 4 4v3a4 4 0 0 1-4 4h-1v1a3 3 0 0 1-6 0v-1H8a5 5 0 0 1 0-10h2V6a4 4 0 0 1 2-4Z"></path>
+              <path d="M9 13h.01"></path>
+              <path d="M15 13h.01"></path>
+              <path d="M10 17c1.2.7 2.8.7 4 0"></path>
+            </svg>
+            <span>ИИ менеджер</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Быстрые действия</div>
+        <div class="sidebar-card-text">Быстрый доступ к журналу и локальным данным.</div>
+        <button class="small-btn" onclick="window.api.openLogs()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span>Открыть логи</span>
+        </button>
+        <button class="small-btn" onclick="window.api.openDataFolder()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H9L11 6H20C20.5304 6 21.0391 6.21071 21.4142 6.58579C21.7893 6.96086 22 7.46957 22 8V19Z"></path>
+          </svg>
+          <span>Папка данных</span>
+        </button>
+        <button class="small-btn small-btn-accent" data-onboarding-target="tourButton" onclick="startOnboarding(true)">
+          <span>Показать обучение</span>
+        </button>
+        <button class="small-btn update-check-btn" id="btnCheckUpdates" onclick="checkForUpdatesManually()">
+          <span class="update-check-icon">↻</span>
+          <span id="updateCheckLabel">Проверить обновления</span>
+        </button>
+        <div class="update-check-status" id="updateCheckStatus">Обновления актуальны</div>
+        <div class="sidebar-version" id="appVersionLabel">Версия приложения</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="page active" id="page-connect">
+        <div class="page-header page-header-compact">
+          <div>
+            <div class="page-eyebrow">Панель</div>
+            <div class="page-title">LightFoot Sender</div>
+            <div class="page-subtitle">Короткий обзор рабочего состояния и быстрый переход к следующему шагу.</div>
+          </div>
+        </div>
+
+        <div class="dashboard-shell">
+          <article class="panel dashboard-whatsapp-card">
+            <div class="dashboard-whatsapp-copy">
+              <div class="dashboard-status-label">WhatsApp</div>
+              <div class="dashboard-status-value" id="dashboardActiveAccount">Аккаунт не выбран</div>
+              <div class="dashboard-status-line">
+                <span>Статус:</span>
+                <span class="status-chip" id="connectStateBadge" data-tone="neutral">Проверка</span>
+              </div>
+              <div class="dashboard-status-note" id="dashboardAccountHint">Подключите WhatsApp и выберите, что делать дальше.</div>
+            </div>
+            <div class="dashboard-status-actions">
+              <button class="btn btn-primary" id="btnOpenWA" data-onboarding-target="whatsapp" onclick="openWhatsApp()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 8v4l3 3"></path>
+                </svg>
+                Подключить
+              </button>
+              <button class="btn btn-secondary" id="btnCheckStatus" onclick="checkStatus()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path>
+                </svg>
+                Проверить
+              </button>
+            </div>
+          </article>
+
+          <div class="dashboard-actions">
+            <button class="action-card action-card-collect" type="button" data-onboarding-target="contacts" onclick="switchPage('contacts')">
+              <div class="action-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21V19C22.9986 17.1771 21.765 15.5857 20 15.13"></path>
+                  <path d="M16 3.13C17.7699 3.58317 19.0078 5.17799 19.0078 7.005C19.0078 8.83201 17.7699 10.4268 16 10.88"></path>
+                </svg>
+              </div>
+              <div class="action-card-copy">
+                <div class="action-card-title">Собрать контакты</div>
+                <div class="action-card-text">Соберите базу из WhatsApp или проверьте уже сохранённые контакты.</div>
+              </div>
+            </button>
+
+            <button class="action-card action-card-compose" type="button" data-onboarding-target="messages" onclick="switchPage('compose')">
+              <div class="action-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"></path>
+                </svg>
+              </div>
+              <div class="action-card-copy">
+                <div class="action-card-title">Подготовить сообщения</div>
+                <div class="action-card-text">Создайте папку, добавьте варианты текста и проверьте предпросмотр.</div>
+              </div>
+            </button>
+
+            <button class="action-card action-card-send" type="button" data-onboarding-target="send" onclick="switchPage('send')">
+              <div class="action-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </div>
+              <div class="action-card-copy">
+                <div class="action-card-title">Запустить рассылку</div>
+                <div class="action-card-text">Выберите базу, аккаунт, сообщения и начните с тестовой отправки.</div>
+              </div>
+            </button>
+          </div>
+
+          <div class="dashboard-kpis">
+            <article class="overview-card overview-card-compact">
+              <div class="overview-label">Контакты</div>
+              <div class="overview-value" id="dashboardContactsValue">0</div>
+              <div class="overview-meta">в активной базе</div>
+            </article>
+            <article class="overview-card overview-card-compact">
+              <div class="overview-label">Сообщения</div>
+              <div class="overview-value" id="dashboardMessagesValue">0</div>
+              <div class="overview-meta">готовых вариантов</div>
+            </article>
+            <article class="overview-card overview-card-compact">
+              <div class="overview-label">База для отправки</div>
+              <div class="overview-value overview-value-sm" id="dashboardSendBaseValue">База не выбрана</div>
+              <div class="overview-meta">текущий выбор</div>
+            </article>
+            <article class="overview-card overview-card-compact">
+              <div class="overview-label">Папка сообщений</div>
+              <div class="overview-value overview-value-sm" id="dashboardImageValue">Папка не выбрана</div>
+              <div class="overview-footer">
+                <div class="status-chip" id="sendStateBadge" data-tone="neutral">Ожидание</div>
+              </div>
+            </article>
+          </div>
+
+          <article class="panel dashboard-accounts-panel" data-onboarding-target="accounts">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Аккаунты WhatsApp</div>
+                <div class="panel-description">Подключите нужный аккаунт или проверьте его состояние перед работой.</div>
+              </div>
+              <div class="status-chip" id="accountsStateBadge" data-tone="neutral">Аккаунт не выбран</div>
+            </div>
+            <div class="accounts-grid" id="waAccountsList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-contacts">
+        <div class="page-header page-header-compact">
+          <div>
+            <div class="page-eyebrow">База</div>
+            <div class="page-title">Сбор базы</div>
+            <div class="page-subtitle">Собирайте контакты из WhatsApp, импортируйте файл и быстро находите нужного клиента.</div>
+          </div>
+          <div class="page-tools">
+            <div class="status-chip" id="collectStateBadge" data-tone="neutral">Подготовка</div>
+          </div>
+        </div>
+
+        <div class="workspace-grid workspace-grid-contacts">
+          <article class="panel panel-emphasis collect-panel" data-onboarding-target="collectPanel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Сбор контактов</div>
+                <div class="panel-description">Выберите базу, задайте лимит и запустите сбор из текущих чатов.</div>
+              </div>
+              <div class="status-chip" id="collectStateBadgeMirror" data-tone="neutral">Подготовка</div>
+            </div>
+
+            <div class="collect-form-stack">
+              <div class="form-group">
+                <label for="collectTargetCount">Сколько собрать</label>
+                <input type="number" id="collectTargetCount" value="50" min="1" max="5000" step="1">
+              </div>
+
+              <div class="form-group">
+                <label for="contactBaseType">Куда сохраняем</label>
+                <select id="contactBaseType">
+                  <option value="main">Основная база</option>
+                  <option value="new">Новая база</option>
+                </select>
+              </div>
+
+              <div class="base-summary-card is-active" id="collectBaseSummaryCard">
+                <div class="base-summary-caption">Активная база</div>
+                <div class="base-summary-title" id="collectBaseSummaryValue">Основная база</div>
+                <div class="base-summary-meta" id="collectBaseSummaryMeta">0 контактов</div>
+              </div>
+
+              <div class="compact-actions">
+                <button class="btn btn-ghost btn-sm" id="btnCreateBase" data-base-manage="1" onclick="createBase('contacts')">Создать</button>
+                <button class="btn btn-ghost btn-sm" id="btnRenameBase" data-base-manage="1" onclick="renameBase('contacts')">Переименовать</button>
+                <button class="btn btn-danger btn-sm" id="btnDeleteBase" data-base-manage="1" onclick="deleteBase('contacts')">Удалить</button>
+              </div>
+
+              <div class="collect-primary-actions">
+                <button class="btn btn-primary btn-lg" id="btnCollect" onclick="collectContacts()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Собрать
+                </button>
+                <button class="btn btn-danger" id="btnCollectStop" onclick="stopCollect()" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  </svg>
+                  Стоп
+                </button>
+              </div>
+            </div>
+
+            <div class="status-bar" id="collectStatus">Выберите базу или нажмите «Собрать».</div>
+
+            <div class="progress-card">
+              <div class="progress-card-head">
+                <div class="progress-title">Прогресс сбора</div>
+                <div class="progress-inline" id="collectProgressText">0 / 0</div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-bar" id="collectProgressBar"></div>
+              </div>
+            </div>
+
+            <div class="mini-stats" id="collectStats"></div>
+          </article>
+
+          <article class="panel contact-browser-panel" data-onboarding-target="bases">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Контакты</div>
+                <div class="panel-description">Имя отображается первым, номер вторым уровнем. Действия доступны справа.</div>
+              </div>
+              <div class="soft-caption" id="contactCount">0 контактов • Основная база</div>
+            </div>
+
+            <div class="contact-toolbar">
+              <div class="contact-file-actions">
+                <button class="btn btn-secondary btn-sm contact-file-btn" onclick="importCsv()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  Импорт CSV
+                </button>
+                <button class="btn btn-secondary btn-sm contact-file-btn" onclick="exportCsv()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Экспорт CSV
+                </button>
+              </div>
+              <div class="contact-maintenance-actions">
+                <button class="btn btn-ghost btn-sm" onclick="removeDuplicates()">Убрать дубли</button>
+                <button class="btn btn-danger btn-sm" onclick="clearContacts()">Очистить</button>
+              </div>
+            </div>
+
+            <div class="contact-search contact-search-sticky">
+              <div class="search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="search" id="contactSearch" placeholder="Поиск по имени или номеру">
+              </div>
+              <div class="input-helper" id="contactSearchHelper">По имени, чату или номеру</div>
+            </div>
+
+            <div class="contact-list" id="contactList">
+              <div class="contact-list-spacer" id="contactListSpacer"></div>
+              <div class="contact-list-viewport" id="contactListViewport">
+                <div class="empty-state">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                  </svg>
+                  <p>База пока пустая. Соберите или импортируйте контакты.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-compose">
+        <div class="page-header page-header-compact">
+          <div>
+            <div class="page-eyebrow">Сообщения</div>
+            <div class="page-title">Сообщения</div>
+            <div class="page-subtitle">Соберите варианты текста в папки и проверьте, как сообщение выглядит для клиента.</div>
+          </div>
+        </div>
+
+        <div class="workspace-grid workspace-grid-compose">
+          <article class="panel panel-emphasis compose-editor-panel" data-onboarding-target="messageFolders">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Папка сообщений</div>
+                <div class="panel-description">В одной папке можно держать несколько вариантов текста и одно изображение.</div>
+              </div>
+              <div class="status-chip" data-tone="neutral">Автосохранение</div>
+            </div>
+
+            <div class="compose-folder-top">
+              <div class="form-group">
+                <label for="messageFolderSelect">Папка</label>
+                <select id="messageFolderSelect"></select>
+              </div>
+              <div class="message-folder-actions">
+                <button class="btn btn-ghost btn-sm" id="btnCreateMessageFolder" onclick="createMessageFolder()">Создать</button>
+                <button class="btn btn-ghost btn-sm" id="btnRenameMessageFolder" onclick="renameMessageFolder()">Переименовать</button>
+                <button class="btn btn-danger btn-sm" id="btnDeleteMessageFolder" onclick="deleteMessageFolder()">Удалить</button>
+              </div>
+            </div>
+
+            <div class="message-folder-rail" id="messageFolderRail"></div>
+
+            <div class="message-folder-summary">
+              <div class="base-summary-card is-active">
+                <div class="base-summary-caption">Активная папка</div>
+                <div class="base-summary-title" id="messageFolderSummaryName">Основные сообщения</div>
+                <div class="base-summary-meta" id="messageFolderSummaryMeta">1 вариант • без изображения</div>
+              </div>
+
+              <div class="ai-helper-card" id="aiHelperCard" data-onboarding-target="aiHelper" aria-label="ИИ помощник">
+                <div class="ai-connect-card" id="aiConnectCard" data-onboarding-target="aiApiSetup">
+                  <div class="ai-connect-title">Подключите ИИ</div>
+                  <div class="ai-connect-text">Введите API ключ, чтобы создавать и улучшать тексты</div>
+                  <div class="ai-key-row">
+                    <input id="aiApiKeyInput" type="password" placeholder="sk-or-..." autocomplete="off">
+                    <button class="btn btn-primary btn-sm" id="btnAiConnect" type="button" onclick="connectAiApiKey()">Подключить</button>
+                  </div>
+                  <div class="ai-connect-note">Ключ сохраняется только на вашем устройстве</div>
+                </div>
+                <div class="ai-workspace is-hidden" id="aiWorkspace">
+                <div class="ai-helper-head">
+                  <div>
+                    <div class="base-summary-caption">ИИ помощник</div>
+                    <div class="ai-helper-subtitle">Создать или улучшить текст. Добавленные варианты остаются здесь с отметкой.</div>
+                  </div>
+                  <div class="ai-status" id="aiStatus"><span></span>ИИ подключен</div>
+                  <button class="btn btn-ghost btn-sm ai-change-key-btn" type="button" onclick="showAiKeySetup()">Сменить API ключ</button>
+                </div>
+                <div class="ai-mode-toggle" role="tablist" aria-label="Режим ИИ">
+                  <button class="ai-mode-btn is-active" id="aiModeCreate" type="button" onclick="setAiMode('create')">Создать</button>
+                  <button class="ai-mode-btn" id="aiModeImprove" type="button" onclick="setAiMode('improve')">Улучшить</button>
+                </div>
+                <div class="ai-input-wrap">
+                  <input id="aiCreateInput" type="text" placeholder="О чём сообщение?">
+                  <textarea id="aiImproveInput" class="is-hidden" rows="3" placeholder="Вставь текст"></textarea>
+                </div>
+                <button class="btn btn-primary btn-sm ai-generate-btn" id="btnAiGenerate" type="button" onclick="generateAiText()">Сгенерировать</button>
+                <div class="ai-loader is-hidden" id="aiLoader">Генерация...</div>
+                <div class="ai-error is-hidden" id="aiError"></div>
+                <div class="ai-empty-state" id="aiEmptyState">
+                  <div>Попробуйте идеи:</div>
+                  <button type="button" onclick="useAiHint('скидка на обувь')">скидка на обувь</button>
+                  <button type="button" onclick="useAiHint('напоминание клиенту')">напоминание клиенту</button>
+                </div>
+                <div class="ai-results" id="aiResults"></div>
+                </div>
+              </div>
+
+              <div class="image-preview image-preview-inline" id="folderImagePreview">
+                <img id="folderImageThumb" alt="Изображение папки">
+                <div class="image-preview-copy">
+                  <div class="image-preview-name" id="folderImageName"></div>
+                  <div class="image-preview-note">Изображение прикреплено к папке сообщений.</div>
+                </div>
+                <button class="contact-remove" onclick="clearImage()" title="Удалить изображение">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="compose-toolbar">
+              <button class="btn btn-secondary btn-sm" id="btnSelectMessageImage" onclick="selectImage()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Прикрепить изображение
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btnAddVariant" onclick="addVariant()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Добавить вариант
+              </button>
+              <button class="btn btn-primary btn-sm" id="btnSaveMessages" onclick="saveMessages()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Сохранить
+              </button>
+            </div>
+
+            <div class="message-stack" id="messageVariants"></div>
+          </article>
+
+          <article class="panel preview-panel preview-card" id="previewCard">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Как это увидит клиент</div>
+                <div class="panel-description">Предпросмотр одного из вариантов сообщения.</div>
+              </div>
+            </div>
+
+            <div class="whatsapp-preview">
+              <div class="whatsapp-preview-body">
+                <div class="preview-image-card" id="previewImageWrap">
+                  <img id="previewImage" alt="Предпросмотр изображения">
+                </div>
+                <div class="preview-bubble" id="previewText"></div>
+                <div class="whatsapp-preview-meta">
+                  <span>12:34</span>
+                  <span>✓✓</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-secondary btn-sm" id="previewShuffleBtn" onclick="showPreview()">Показать другой вариант</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-send">
+        <div class="page-header page-header-compact">
+          <div>
+            <div class="page-eyebrow">Рассылка</div>
+            <div class="page-title">Рассылка</div>
+            <div class="page-subtitle">Проверьте получателей, аккаунт, папку сообщений и настройки перед стартом.</div>
+          </div>
+        </div>
+
+        <div class="workspace-grid workspace-grid-send">
+          <article class="panel panel-emphasis send-flow-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Подготовка рассылки</div>
+                <div class="panel-description">Пять простых шагов: кому отправляем, с какого аккаунта, что отправляем, настройки и старт.</div>
+              </div>
+              <div class="status-chip" id="sendStateBadgePanel" data-tone="neutral">Ожидание</div>
+            </div>
+
+            <div class="send-flow-step">
+              <div class="send-flow-index">1</div>
+              <div class="send-flow-content">
+                <div class="send-flow-title">Кому отправляем</div>
+                <div class="form-group">
+                  <label for="sendBaseType">База для рассылки</label>
+                  <select id="sendBaseType" data-onboarding-target="sendSetup">
+                    <option value="main">Основная база</option>
+                    <option value="new">Новая база</option>
+                  </select>
+                </div>
+
+                <div class="base-manager base-manager-inline">
+                  <div class="base-summary-card is-active" id="sendBaseSummaryCard">
+                    <div class="base-summary-caption">Активная база для рассылки</div>
+                    <div class="base-summary-title" id="sendBaseSummaryValue">Основная база</div>
+                    <div class="base-summary-meta" id="sendBaseSummaryMeta">0 контактов</div>
+                  </div>
+                  <div class="base-manager-actions">
+                    <button class="btn btn-ghost btn-sm" id="btnCreateBaseSend" data-base-manage="1" onclick="createBase('send')">Создать</button>
+                    <button class="btn btn-ghost btn-sm" id="btnRenameBaseSend" data-base-manage="1" onclick="renameBase('send')">Переименовать</button>
+                    <button class="btn btn-danger btn-sm" id="btnDeleteBaseSend" data-base-manage="1" onclick="deleteBase('send')">Удалить</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="send-flow-step">
+              <div class="send-flow-index">2</div>
+              <div class="send-flow-content">
+                <div class="send-flow-title">С какого аккаунта</div>
+                <div class="form-group">
+                  <label for="sendAccountId">WhatsApp-аккаунт</label>
+                  <select id="sendAccountId">
+                    <option value="wa_1">WhatsApp 1</option>
+                    <option value="wa_2">WhatsApp 2</option>
+                    <option value="wa_3">WhatsApp 3</option>
+                  </select>
+                </div>
+
+                <div class="surface-note surface-note-inline" id="sendAccountSummary">Выберите WhatsApp-аккаунт для отправки.</div>
+              </div>
+            </div>
+
+            <div class="send-flow-step">
+              <div class="send-flow-index">3</div>
+              <div class="send-flow-content">
+                <div class="send-flow-title">Что отправляем</div>
+                <div class="form-group">
+                  <label for="sendMessageFolderId">Папка сообщений</label>
+                  <select id="sendMessageFolderId"></select>
+                </div>
+
+                <div class="upload-card">
+                  <div class="panel-header">
+                    <div>
+                      <div class="panel-title">Что отправим клиентам</div>
+                      <div class="panel-description" id="sendMessageFolderSummary">Выберите папку сообщений.</div>
+                    </div>
+                  </div>
+                  <div class="image-preview" id="imagePreview">
+                    <img id="imageThumb" alt="Предпросмотр изображения">
+                    <div class="image-preview-copy">
+                      <div class="image-preview-name" id="imageName"></div>
+                      <div class="image-preview-note">Будет отправлено вместе с текстом.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="send-flow-step">
+              <div class="send-flow-index">4</div>
+              <div class="send-flow-content">
+                <div class="send-flow-title">Настройки отправки</div>
+                <div class="form-row cols-3">
+                  <div class="form-group">
+                    <label for="sendCount">Сколько отправить</label>
+                    <select id="sendCount">
+                      <option value="10">10 контактов</option>
+                      <option value="20" selected>20 контактов</option>
+                      <option value="30">30 контактов</option>
+                      <option value="50">50 контактов</option>
+                      <option value="100">100 контактов</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="delayMin">Задержка от, сек</label>
+                    <input type="number" id="delayMin" value="60" min="10" max="600">
+                  </div>
+                  <div class="form-group">
+                    <label for="delayMax">Задержка до, сек</label>
+                    <input type="number" id="delayMax" value="120" min="10" max="600">
+                  </div>
+                </div>
+
+                <div class="form-row cols-2">
+                  <div class="form-group repeat-mode-group">
+                    <label for="sendRepeatMode">Повторная отправка</label>
+                    <select id="sendRepeatMode">
+                      <option value="skip-ever" selected>Не писать уже отправленным</option>
+                      <option value="skip-days">Не писать N дней</option>
+                      <option value="allow">Разрешить повторы</option>
+                    </select>
+                    <div class="field-hint">Защищает от повторной отправки по тем же номерам.</div>
+                  </div>
+                  <div class="form-group" id="skipDaysGroup">
+                    <label for="skipDays">Период запрета повтора</label>
+                    <input type="number" id="skipDays" value="0" min="0" max="365" placeholder="0 = не пропускать">
+                  </div>
+                </div>
+
+                <div class="form-row cols-2">
+                  <label class="checkbox-row" data-onboarding-target="safeMode">
+                    <input type="checkbox" id="safeMode" checked>
+                    <div>
+                      <div class="checkbox-label">Безопасный режим</div>
+                      <div class="checkbox-sublabel">Имитация ручного набора и дополнительные паузы.</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="send-flow-step send-flow-step-actions">
+              <div class="send-flow-index">5</div>
+              <div class="send-flow-content">
+                <div class="send-flow-title">Запуск</div>
+                <div class="btn-row send-main-actions">
+                  <button class="btn btn-secondary btn-test-badge" id="btnTest" data-onboarding-target="testSend" onclick="sendTest()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path>
+                    </svg>
+                    Тестовая отправка
+                  </button>
+                  <button class="btn btn-primary btn-lg" id="btnStart" onclick="startSending()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Запустить рассылку
+                  </button>
+                  <button class="btn btn-danger" id="btnStop" onclick="stopSending()" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    </svg>
+                    Остановить
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-bar" id="sendStatus">Готово к отправке. Начните с теста.</div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Прогресс</div>
+                <div class="panel-description">Отправлено, ошибки и остаток обновляются в реальном времени.</div>
+              </div>
+              <div class="status-chip" id="sendStateBadgeInfo" data-tone="neutral">Ожидание</div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card" id="statSent">
+                <div class="stat-value" id="statSentVal">0</div>
+                <div class="stat-label">Отправлено</div>
+              </div>
+              <div class="stat-card" id="statErrors">
+                <div class="stat-value" id="statErrorsVal">0</div>
+                <div class="stat-label">Ошибки</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="statRemaining">0</div>
+                <div class="stat-label">Осталось</div>
+              </div>
+            </div>
+
+            <div class="progress-card">
+              <div class="progress-card-head">
+                <div class="progress-title">Прогресс отправки</div>
+                <div class="progress-inline" id="sendProgressText">0 из 0</div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-bar" id="progressBar"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel log-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Журнал действий</div>
+                <div class="panel-description">Ключевые события отправки без лишнего шума.</div>
+              </div>
+              <button class="btn btn-ghost btn-sm" id="btnClearLog" onclick="clearLog()">Очистить лог</button>
+            </div>
+
+            <div class="log-area" id="logArea">
+              <div class="log-line info">[ Ожидание запуска... ]</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-ai-manager">
+        <div class="page-header page-header-compact">
+          <div>
+            <div class="page-eyebrow">Mock UI</div>
+            <div class="page-title">ИИ менеджер</div>
+            <div class="page-subtitle">Прототип рабочего места менеджера: режимы auto, suggest и handoff без подключения API.</div>
+          </div>
+          <div class="page-tools">
+            <button class="btn btn-secondary" id="aiManagerNotifyBtn" data-onboarding-target="aiManagerNotify" onclick="checkAiManagerNotifications()">Проверить уведомления</button>
+            <button class="ai-power-toggle is-on" id="aiManagerPowerBtn" type="button" onclick="toggleAiManagerPower()">
+              <span class="ai-power-dot"></span>
+              <span id="aiManagerPowerText">ИИ включён</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ai-integration-grid">
+          <article class="billz-card" id="billzCard" data-state="disconnected">
+            <button class="billz-summary" type="button" onclick="toggleBillzPanel()" aria-expanded="false">
+              <span id="billzSummaryText">BILLZ ○ не подключен</span>
+            </button>
+            <div class="billz-panel is-hidden" id="billzPanel">
+              <div class="billz-key-row">
+                <input id="billzSecretInput" type="password" placeholder="Secret ключ BILLZ" autocomplete="off">
+                <input id="billzApiBaseUrlInput" type="url" aria-label="API URL BILLZ" title="API URL BILLZ" placeholder="https://api-admin.billz.ai" autocomplete="off">
+                <button class="btn btn-primary btn-sm" id="btnBillzSave" type="button" onclick="saveBillzSecret()">&#1057;&#1086;&#1093;&#1088;&#1072;&#1085;&#1080;&#1090;&#1100; &#1082;&#1083;&#1102;&#1095;</button>
+                <button class="btn btn-secondary btn-sm" id="btnBillzCheck" type="button" onclick="checkBillzConnection()">&#1055;&#1088;&#1086;&#1074;&#1077;&#1088;&#1080;&#1090;&#1100; &#1087;&#1086;&#1076;&#1082;&#1083;&#1102;&#1095;&#1077;&#1085;&#1080;&#1077;</button>
+                <button class="btn btn-secondary btn-sm" id="btnBillzDiagnostics" type="button" onclick="runBillzDiagnostics()">&#1044;&#1080;&#1072;&#1075;&#1085;&#1086;&#1089;&#1090;&#1080;&#1082;&#1072; API</button>
+              </div>
+              <div class="billz-status-line" id="billzStatusLine">не подключен</div>
+              <div class="billz-key-row">
+                <input id="billzProductSearchInput" type="search" placeholder="Product search" autocomplete="off" onkeydown="if(event.key==='Enter') searchBillzProducts()">
+                <button class="btn btn-secondary btn-sm" id="btnBillzSearch" type="button" onclick="searchBillzProducts()">Search</button>
+              </div>
+              <div class="billz-diagnostics" id="billzSearchResults"></div>
+              <div class="billz-diagnostics" id="billzDiagnostics"></div>
+            </div>
+          </article>
+
+          <article class="panel ai-test-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Тест ИИ</div>
+                <div class="panel-description">Проверка OpenRouter и доступа ИИ к BILLZ данным.</div>
+              </div>
+            </div>
+            <div class="ai-test-chat">
+              <div class="ai-sandbox-thread" id="aiSandboxThread"></div>
+              <div class="ai-test-input-row">
+                <input id="aiTestInput" type="text" placeholder="Есть ли 42 размер?" autocomplete="off">
+                <button class="btn btn-primary btn-sm" id="btnAiTestSend" type="button" onclick="sendAiTest()">Отправить</button>
+                <button class="btn btn-secondary btn-sm" id="btnAiTestClear" type="button" onclick="clearAiSandbox()">Очистить</button>
+              </div>
+              <div class="ai-test-answer" id="aiTestAnswer">Ответ появится здесь.</div>
+              <div class="ai-test-billz-context" id="aiBillzContextDebug"></div>
+            </div>
+          </article>
+        </div>
+
+        <article class="ai-soon-panel" data-onboarding-target="aiManagerIntro">
+          <div>
+            <div class="ai-soon-kicker">ИИ ассистент</div>
+            <div class="ai-soon-title">ИИ ещё не сделан. Скоро будет отвечать автоматически</div>
+            <div class="ai-soon-text">Сейчас это только интерфейс будущего ассистента. Позже он сам будет определять: когда ответить, когда предложить вариант, когда передать вам.</div>
+          </div>
+          <div class="ai-soon-status">Демо-режим</div>
+        </article>
+
+        <div class="ai-manager-shell">
+          <aside class="panel ai-chat-list-panel" data-onboarding-target="aiManagerFilters">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Чаты</div>
+                <div class="panel-description">Mock-диалоги для проверки будущей логики.</div>
+              </div>
+            </div>
+            <div class="ai-chat-tools">
+              <input type="search" id="aiManagerSearch" placeholder="Поиск по имени или номеру" oninput="renderAiManager()">
+              <div class="ai-filter-tabs">
+                <button class="ai-filter-tab is-active" type="button" data-ai-filter="all" onclick="setAiManagerFilter('all')">Все</button>
+                <button class="ai-filter-tab" type="button" data-ai-filter="handoff" onclick="setAiManagerFilter('handoff')">Требуют ответа</button>
+                <button class="ai-filter-tab" type="button" data-ai-filter="suggest" onclick="setAiManagerFilter('suggest')">Есть предложение</button>
+                <button class="ai-filter-tab" type="button" data-ai-filter="auto" onclick="setAiManagerFilter('auto')">Авто</button>
+              </div>
+            </div>
+            <div class="ai-chat-list" id="aiManagerChatList"></div>
+          </aside>
+
+          <article class="panel ai-dialog-panel">
+            <div class="ai-dialog-head">
+              <div>
+                <div class="ai-dialog-name" id="aiManagerDialogName">Клиент</div>
+                <div class="ai-dialog-phone" id="aiManagerDialogPhone">+996</div>
+              </div>
+              <span class="ai-status-pill" id="aiManagerDialogStatus" data-mode="auto">ИИ ответил автоматически</span>
+            </div>
+
+            <div class="ai-message-stream" id="aiManagerMessages"></div>
+
+            <div class="ai-control-card" id="aiManagerControl"></div>
+          </article>
+
+          <aside class="panel ai-client-card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Карточка клиента</div>
+                <div class="panel-description">Демо-данные: случайное имя, номер, размер и история покупок.</div>
+              </div>
+            </div>
+
+            <div class="ai-client-avatar" id="aiManagerClientAvatar">А</div>
+            <div class="ai-client-name" id="aiManagerClientName">Анна</div>
+            <div class="ai-client-phone" id="aiManagerClientPhone">+996</div>
+
+            <div class="ai-client-fields">
+              <div class="ai-client-field">
+                <span>Размер</span>
+                <strong id="aiManagerClientSize">38</strong>
+              </div>
+              <div class="ai-client-field">
+                <span>Покупки</span>
+                <strong id="aiManagerClientPurchases">2 пары</strong>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="../name-utils.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+

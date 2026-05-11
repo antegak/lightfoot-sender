@@ -1,0 +1,73 @@
+{
+  "name": "lightfoot-sender",
+  "version": "1.2.3",
+  "description": "LightFoot Sender — WhatsApp рассылка для менеджеров",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "clean:build": "node scripts/clean-build.js",
+    "install:chromium": "playwright install chromium",
+    "prepare:chromium": "node scripts/prepare-chromium.js",
+    "build": "npm run clean:build && npm run install:chromium && npm run prepare:chromium && electron-builder"
+  },
+  "build": {
+    "appId": "com.lightfoot.sender",
+    "productName": "LightFoot Sender",
+    "artifactName": "LightFoot-Sender-Setup-${version}.exe",
+    "publish": {
+      "provider": "github",
+      "owner": "antegak",
+      "repo": "lightfoot-sender"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LightFoot Sender",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!dist*/**",
+      "!chromium/**",
+      "!.env",
+      "!*.bat",
+      "!*.md",
+      "CHANGELOG.md",
+      "!.git/**"
+    ],
+    "extraResources": [
+      {
+        "from": "chromium",
+        "to": "chromium"
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/playwright/**",
+      "node_modules/playwright-core/**"
+    ]
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "electron-updater": "^6.8.3",
+    "playwright": "^1.44.0",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.0"
+  }
+}

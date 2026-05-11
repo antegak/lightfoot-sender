@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "checks": {
+    "billzConnected": true,
+    "openRouterConnected": true,
+    "cacheLoaded": true,
+    "aiMemoryActive": true,
+    "whatsAppSessionActive": true
+  }
+}

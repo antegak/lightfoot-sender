@@ -1,0 +1,12 @@
+chromium/
+logs/
+dist/
+build/
+node_modules/
+temp/
+*.log
+.env
+.env.*
+coverage
+playwright-report
+test-results
