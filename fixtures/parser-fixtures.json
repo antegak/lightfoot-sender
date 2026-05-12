@@ -42,5 +42,13 @@
   {
     "query": "стопа 24 см",
     "expected": { "intent": "sizing", "footLength": 24, "recommendedSize": "37" }
+  },
+  {
+    "query": "стопа 22 см",
+    "expected": { "intent": "sizing", "footLength": 22, "recommendedSize": "34" }
+  },
+  {
+    "query": "bl",
+    "expected": { "brand": null, "brandCode": null, "colorCode": null }
   }
 ]

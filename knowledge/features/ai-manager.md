@@ -99,3 +99,28 @@ This layer is deterministic and local. It does not trigger extra OpenRouter call
 - OpenRouter prompt should focus on tone and reasoning. Business rules should gradually move into deterministic helpers/config.
 - AI context remains capped to top relevant products and should not send the full catalog.
 - Follow-up memory works today, but future cleanup should pass memory as structured search context instead of mutating the raw query text.
+
+## Stage 6 Stabilization
+
+Stage 6 makes the deterministic layer the customer-facing response contract.
+
+Pipeline:
+
+```text
+user message
+  -> parser
+  -> structured memory context
+  -> intent/search/recommendations
+  -> normalized products
+  -> AI reasoning object
+  -> deterministic humanizer
+  -> customer response
+```
+
+Rules:
+- OpenRouter is a reasoning layer only for AI sandbox product conversations.
+- OpenRouter must not insert addresses, format products, or choose branch availability.
+- Final customer text is overwritten with `humanizedResponse.text`.
+- If OpenRouter is unavailable, AI sandbox can still return the deterministic humanized response with an `aiError`.
+- Debug state includes normalized product preview, reasoning object, formatter output preview, customer profile, clarification state, and AI confidence.
+- Follow-up context is passed as memory entities to search; the original user query is preserved.

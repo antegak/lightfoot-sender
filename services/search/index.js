@@ -41,6 +41,11 @@ function searchProductsAdvanced(index, rawQuery, options = {}) {
         suggestion: item.suggestion,
       })),
     };
+    const topScore = Number(response.searchSummary.topScores[0]?.score || 0);
+    response.searchSummary.confidence = Math.max(0, Math.min(100, Math.round(topScore)));
+    response.searchSummary.lowConfidence = response.searchSummary.finalMatches === 0
+      || response.searchSummary.fallbackUsed
+      || (response.searchSummary.finalMatches > 0 && topScore < 45);
     logger.info(LOG_CATEGORIES.SEARCH, 'advanced search completed', {
       query: rawQuery,
       normalizedQuery: query.normalized,
@@ -49,6 +54,8 @@ function searchProductsAdvanced(index, rawQuery, options = {}) {
       mode: result.mode,
       fuzzyScore: response.searchSummary.topScores[0]?.fuseScore ?? null,
       fallbackUsed: result.fallbackUsed,
+      confidence: response.searchSummary.confidence,
+      lowConfidence: response.searchSummary.lowConfidence,
     });
     logger.performance('advanced search', startedAt, { matches: matchedDocs.length, mode: result.mode });
     return response;

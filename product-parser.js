@@ -47,7 +47,7 @@ function normalizeColorCode(value) {
 function detectBrand(product = {}) {
   const text = `${product.name || ''} ${product.sku || ''} ${product.vendorCode || ''}`;
   const lower = normalizeText(text);
-  if (/\b(BB|BL)\b/i.test(text)) return { code: 'BB', name: 'Be Lenka', line: BRAND_LINES['Be Lenka'] };
+  if (/\bBB\b/i.test(text)) return { code: 'BB', name: 'Be Lenka', line: BRAND_LINES['Be Lenka'] };
   if (/\bKT\b/i.test(text) || lower.includes('key top') || lower.includes('keytop')) return { code: 'KT', name: 'Key Top', line: BRAND_LINES['Key Top'] };
   if (/\bXZ\b/i.test(text) || lower.includes('xzero') || lower.includes('x zero')) return { code: 'XZ', name: 'XZero', line: BRAND_LINES.XZero };
   if (/(be\s*lenka|belenka|бе\s*ленка|беленка)/i.test(text) || lower.includes('be lenka') || lower.includes('belenka')) return { code: 'BELENKA', name: 'Be Lenka', line: BRAND_LINES['Be Lenka'] };

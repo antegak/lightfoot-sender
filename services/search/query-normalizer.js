@@ -41,7 +41,7 @@ const BRAND_ALIASES = [
   { code: 'TT', name: 'TipsieToes', terms: ['tt', 'tipsietoes', 'tipsie toes', 'типси', 'типсито'] },
   { code: 'LL', name: 'Little Light', terms: ['ll', 'little light', 'литл', 'детская линия'] },
   { code: 'SAGUARO', name: 'Saguaro', terms: ['saguaro', 'сагуаро'] },
-  { code: 'BB', name: 'Be Lenka', terms: ['bb', 'bl', 'be lenka', 'belenka', 'бе ленка', 'беленка'] },
+  { code: 'BB', name: 'Be Lenka', terms: ['bb', 'be lenka', 'belenka', 'бе ленка', 'беленка'] },
   { code: 'KT', name: 'Key Top', terms: ['kt', 'key top', 'keytop', 'кей топ'] },
   { code: 'XZ', name: 'XZero', terms: ['xz', 'xzero', 'x zero', 'икс зеро'] },
 ];

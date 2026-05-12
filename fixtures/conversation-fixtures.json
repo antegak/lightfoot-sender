@@ -20,7 +20,7 @@
   {
     "name": "sizing-child",
     "turns": ["есть LL на 3 года?"],
-    "expectedStrategy": "sizing",
+    "expectedStrategy": "clarification",
     "notes": "Mention age/запас and ask foot length when needed."
   },
   {
@@ -40,8 +40,15 @@
   {
     "name": "child-ten-years",
     "turns": ["какую модель ребенку 10 лет?"],
-    "expectedStrategy": "sizing",
+    "expectedStrategy": "clarification",
     "expectedContains": ["Коенкозова", "Байтик Баатыра"],
     "expectedNotContains": ["SKU", "stock", "остаток", "3/33"]
+  },
+  {
+    "name": "foot-length-22",
+    "turns": ["стопа 22 см"],
+    "expectedStrategy": "sizing",
+    "expectedContains": ["34", "Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["SKU", "stock", "остаток"]
   }
 ]

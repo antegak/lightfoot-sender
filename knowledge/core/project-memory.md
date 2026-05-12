@@ -44,6 +44,9 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - `knowledge-base.js` is now the preferred source of truth for brands, colors, materials, stores, and size tables, but not all modules consume it fully yet.
 - `main.js` still mixes Electron IPC, AI orchestration, prompt construction, BILLZ context, and memory wiring.
 - Follow-up memory currently helps search by appending remembered entities to the query text; a future safer path is structured memory context.
+- Stage 6 changed AI sandbox search to preserve the original user query and pass previous entities as structured memory.
+- Stage 6 made deterministic humanizer output the final customer-facing response for product-aware AI sandbox answers.
+- Stage 6 removed the old conflicting Be Lenka shortcut; Be Lenka recognition is now `BB` plus written names only.
 
 ## Future Plans
 

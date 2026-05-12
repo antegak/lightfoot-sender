@@ -70,7 +70,7 @@ function runParserFixtures() {
 
 function runSearchFixtures() {
   return readFixture('search-fixtures.json').map((fixture) => {
-    const parsed = normalizeQuery(fixture.query);
+    const parsed = normalizeQuery(fixture.query, fixture.memory || {});
     const mismatches = compareExpected(parsed, fixture.expected);
     return result(fixture.query, mismatches.length === 0, { mismatches, parsed });
   });

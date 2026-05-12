@@ -72,3 +72,10 @@ Search regression fixtures live in `fixtures/search-fixtures.json`. They cover a
 - `knowledge-base.js` is the canonical source for brand/color/material/store facts.
 - `services/search/query-normalizer.js` still has layer-specific aliases for natural-language detection. Keep those as adapters, not as the long-term source of truth.
 - Brand summary should derive known brands from the canonical brand map so Be Lenka, Key Top, and XZero do not drift out of brand-list responses.
+
+## Stage 6 Stabilization
+
+- Search returns lightweight confidence metadata through `searchSummary.confidence` and `searchSummary.lowConfidence`.
+- Follow-up queries can receive structured memory, for example remembered size plus a fresh color query.
+- Low-confidence or ambiguous outputs should feed clarification instead of random product suggestions.
+- Be Lenka uses `BB` and written brand names only.

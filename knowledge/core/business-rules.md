@@ -7,7 +7,6 @@ This document stores LightFoot business vocabulary used by parser, search, AI co
 - `TT` - brand code used in product names/search.
 - `LL` - brand code used in product names/search. LL requests can also appear as age or size-context phrases, so parser changes around LL require care.
 - `BB` - Be Lenka brand code.
-- `BL` - Be Lenka brand code.
 - `KT` - Key Top brand code.
 - `XZ` - XZero brand code.
 - `Saguaro` - brand name used in customer/product queries.
@@ -15,7 +14,9 @@ This document stores LightFoot business vocabulary used by parser, search, AI co
 - `Key Top` - brand name used in customer/product queries.
 - `XZero` - brand name used in customer/product queries.
 
-`BB` and `BL` must both resolve to `Be Lenka`.
+`BB` and the written name `Be Lenka` resolve to `Be Lenka`. The old conflicting two-letter shortcut is not a Be Lenka alias.
+
+Stage 6 rule: do not restore removed Be Lenka shortcuts without explicit business confirmation and fixtures.
 
 ## Consultant Tone
 
@@ -74,3 +75,5 @@ Address: Байтик Баатыра 4/1.
 ## Rule
 
 When business meaning is uncertain, do not invent behavior in code. Document the uncertainty, add diagnostics, and ask for confirmation before changing parser/search results.
+
+Customer-facing AI responses must always show both public addresses. The LLM must not choose a branch or describe branch-specific stock; addresses come from the deterministic humanizer.

@@ -1,3 +1,5 @@
+const { normalizeProducts } = require('../normalization');
+
 function buildAiContext({
   query,
   billzContext = {},
@@ -6,11 +8,15 @@ function buildAiContext({
 } = {}) {
   const products = Array.isArray(billzContext.products) ? billzContext.products.slice(0, maxProducts) : [];
   const recommendations = Array.isArray(billzContext.recommendations) ? billzContext.recommendations.slice(0, maxProducts) : [];
+  const normalizedProducts = normalizeProducts(products, maxProducts);
+  const normalizedRecommendations = normalizeProducts(recommendations.map((item) => item.product || item), maxProducts);
   return {
     query: String(query || ''),
     connected: Boolean(billzContext.connected),
     products,
     recommendations,
+    normalizedProducts,
+    normalizedRecommendations,
     parsedQuery: billzContext.parsedQuery || null,
     detectedIntent: billzContext.detectedIntent || 'unknown',
     sizeRecommendation: billzContext.sizeRecommendation || null,

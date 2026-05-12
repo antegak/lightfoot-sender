@@ -22,23 +22,37 @@ Rules:
 
 ## NormalizedProduct
 
-Product document produced by `product-parser.js` and `product-index.js`.
+Strict product contract produced by `services/normalization`.
 
-Important fields:
-- `brand`: customer-facing brand name.
-- `brandLine`: `adult`, `kids`, `family`, or `external`.
-- `model`: parsed model name when available.
-- `colorCode`, `colorCodes`, `mixedColorCode`, `colorHuman`.
-- `materialCode`, `materialHuman`.
-- `size`.
-- `price`.
-- `stock`.
-- `store`: internal store hint only. Customer-facing responses should show both public addresses.
-- `humanName`, `searchableText`, `tokens`.
+```js
+NormalizedProduct = {
+  id,
+  brand,
+  line,
+  model,
+  audience,
+  color,
+  material,
+  size,
+  ageGroup,
+  price,
+  stock,
+  available,
+  displayName,
+  searchableText,
+  metadata
+}
+```
+
+Important nested fields:
+- `color.code`, `color.codes`, `color.mixedCode`, `color.label`.
+- `material.code`, `material.label`.
+- `metadata.parsed`, `metadata.human`, `metadata.store`.
 
 Rules:
 - `knowledge-base.js` is the canonical source for brands, colors, materials, stores, and size tables.
 - Store fields are not inventory-routing instructions for AI responses.
+- Parser/search/humanizer should gradually consume this object instead of creating separate partial product transforms.
 
 ## ParsedQuery
 
@@ -63,7 +77,7 @@ Important fields:
 Rules:
 - Fresh user input wins over memory.
 - Brand-list intent must not search for a product named "brand".
-- `BB` and `BL` both map to `Be Lenka` in brand context; `BL` can also be a color code in product color parsing, so context matters.
+- `BB` and the written name `Be Lenka` map to `Be Lenka`; the old conflicting two-letter shortcut must not be treated as a Be Lenka brand alias.
 
 ## SearchResult
 
@@ -83,6 +97,7 @@ Rules:
 - Product results sent to AI context are capped at 5.
 - Search failures must return safe empty results rather than crashing.
 - Search diagnostics should include normalized query, intent, matches, score, and fallback usage.
+- `searchSummary.confidence` and `searchSummary.lowConfidence` are confidence hooks for future suggest/handoff modes.
 
 ## HumanizedProduct
 
@@ -114,6 +129,21 @@ Rules:
 - Keep memory lightweight and TTL-based.
 - Do not store infinite chat logs.
 - Reset must clear recent turns and extracted entities.
+
+## ConversationContext
+
+Cleaner Stage 6 context object built around memory and current parser output.
+
+Important fields:
+- `entities`
+- `inferredCustomerProfile`
+- `previousIntent`
+- `previousProducts`
+- `clarificationState`
+
+Rules:
+- Original user query must stay intact.
+- Follow-up context should be passed as structured memory, not by rewriting customer text.
 
 ## CustomerProfile
 
@@ -152,6 +182,12 @@ Important fields:
 - `memoryEntities`
 - `recentMessages`
 - `recommendationReasoning`
+- `normalizedProducts`
+- `normalizedRecommendations`
+- `customerProfile`
+- `conversationContext`
+- `reasoningObject`
+- `aiConfidence`
 - `totalCachedProducts`
 - `matchedProducts`
 - `searchMode`
@@ -161,3 +197,23 @@ Rules:
 - Keep product context short and relevant.
 - Deterministic `humanizedResponse` is the safest customer-facing draft.
 - Prompt should support tone/reasoning, not become the only home for business rules.
+
+## AIReasoningObject
+
+Structured object returned by the LLM reasoning layer or produced locally as a fallback.
+
+Important fields:
+- `strategy`
+- `tone`
+- `clarificationNeeded`
+- `clarificationReason`
+- `recommendationReason`
+- `suggestedProducts`
+- `confidence`
+- `uncertaintyFlags`
+- `riskyResponseFlags`
+
+Rules:
+- This object is debug/reasoning input only.
+- It must not format final customer-facing text.
+- Humanizer remains the final renderer.

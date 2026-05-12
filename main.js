@@ -15,7 +15,15 @@ const {
 const { buildDiagnostics } = require('./services/diagnostics');
 const { ConversationMemory } = require('./services/memory');
 const { buildAiContext } = require('./services/ai/context-builder');
-const { formatHumanResponse } = require('./services/humanizer');
+const {
+  buildConversationContext,
+  buildCustomerProfile,
+  buildReasoningObject,
+  buildReasoningSystemPrompt,
+  buildReasoningUserPrompt,
+  parseReasoningObject,
+} = require('./services/ai/response-contract');
+const { formatHumanResponse, humanizeBranches } = require('./services/humanizer');
 const { runQaFixtures } = require('./services/qa');
 const {
   checkConnection: checkBillzConnection,
@@ -124,6 +132,14 @@ function mergeMemoryIntoText(text) {
   if (aiSandboxMemory.currentMaterial && !lower.includes(aiSandboxMemory.currentMaterial)) parts.push(aiSandboxMemory.currentMaterial);
   if (aiSandboxMemory.currentBrand && !lower.includes(aiSandboxMemory.currentBrand.toLocaleLowerCase('ru-RU'))) parts.push(aiSandboxMemory.currentBrand);
   return parts.filter(Boolean).join(' ');
+}
+
+function ensureCustomerAddresses(text) {
+  const value = String(text || '').trim();
+  const branches = humanizeBranches();
+  if (!value) return branches;
+  if (value.includes('Коенкозова') && value.includes('Байтик Баатыра')) return value;
+  return [value, branches].filter(Boolean).join('\n\n');
 }
 
 function ensureDir(dirPath) {
@@ -342,6 +358,14 @@ async function testOpenRouterApiKey(rawKey) {
   }
 
   try {
+    const fallbackReasoning = buildReasoningObject(billzContext || {}, billzContext?.humanizedResponse || {});
+    const reasoningSystemPrompt = buildReasoningSystemPrompt({ connected });
+    const reasoningUserPrompt = buildReasoningUserPrompt({
+      ...(billzContext || {}),
+      query: billzContext?.query || cleanText,
+      reasoningFallback: fallbackReasoning,
+    });
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -526,14 +550,11 @@ async function requestOpenRouterChat({
       'Никогда не показывай клиенту SKU, артикулы, barcode, stock count, технические поля API, JSON и office codes.',
       'Не говори слово "остаток" и не используй технический стиль.',
       'Используй только название модели, цену, размер и реальные адреса магазинов.',
-      'Используй реальные адреса только из branches/addresses. Не добавляй второй филиал, если его нет в клиентском context.',
-      'Если branches/addresses пустые, не придумывай адрес. Напиши: "Могу уточнить наличие по филиалам 💛".',
       'Если можешь определить цвет модели, используй человеческое название цвета: бежевые, черные, зеленые, бордовые.',
       'Не перечисляй слишком много товаров.',
       'Если найдено несколько товаров без конкретной модели, кратко подтверди наличие, назови диапазон цен и предложи подобрать фото/модели.',
       'Если пользователь спрашивает конкретную модель, можно назвать модель, цену, размер и адреса.',
       'Если intent=sizing и есть sizeRecommendation, помоги подобрать размер по длине стопы.',
-      'Если intent=location, отвечай только адресами из context или скажи, что уточню филиал.',
       'Если intent=brand_list, отвечай по brandSummary и не говори, что товаров нет.',
       'Если клиент спрашивает бренд, которого нет в products, не заменяй его на TipsieToes. Скажи честно, что этого бренда сейчас не вижу, и мягко предложи альтернативы.',
       'Если клиент спрашивает обувь для ребенка, не предлагай взрослую линейку TipsieToes как детскую. Ориентируйся на Little Light, Saguaro или уточни возраст/длину стопы.',
@@ -563,8 +584,6 @@ async function requestOpenRouterChat({
       'Инструкция:',
       'Отвечай клиенту только по клиентскому BILLZ context.',
       'Не показывай технические поля и не называй SKU/артикул/barcode/stock/office.',
-      'Адреса бери только из branches/addresses. Если там один филиал, покажи только его.',
-      'Если branches/addresses пустые, не называй адрес и предложи уточнить филиал.',
       'Цвета бери из displayColor/color. Не показывай цветовые коды вроде BK, BE, LG, WR.',
     ].join('\n');
 
@@ -579,15 +598,15 @@ async function requestOpenRouterChat({
       body: JSON.stringify({
         model,
         temperature: 0.35,
-        max_tokens: Math.min(maxTokens, 500),
+        max_tokens: Math.min(maxTokens, 350),
         messages: [
           {
             role: 'system',
-            content: systemPrompt,
+            content: reasoningSystemPrompt,
           },
           {
             role: 'user',
-            content: userPrompt,
+            content: reasoningUserPrompt,
           },
         ],
       }),
@@ -598,9 +617,13 @@ async function requestOpenRouterChat({
       return { ok: false, error: normalizeOpenRouterError(data?.error?.message, response.status) };
     }
 
+    const rawText = data?.choices?.[0]?.message?.content || '';
+    const reasoningObject = parseReasoningObject(rawText, fallbackReasoning);
     return {
       ok: true,
-      text: data?.choices?.[0]?.message?.content || '',
+      text: rawText,
+      rawText,
+      reasoningObject,
       mode: normalizedMode,
       billzConnected: connected,
       billzItems: products.length,
@@ -683,15 +706,6 @@ async function requestOpenRouterChat({
     '— «можно зайти и примерить»',
     '— «напишите, подскажем»',
     '',
-    'ОБЯЗАТЕЛЬНОЕ ОКОНЧАНИЕ',
-    'В конце сообщения добавь жёлтое сердце и адреса магазинов.',
-    'Формат строго такой:',
-    '',
-    '💛',
-    '📍 Бишкек',
-    'Коенкозова 75 — 3-й вход, 2 этаж',
-    'Байтик-Баатыра 4а/1',
-    '',
     'ВАЖНО',
     '— не использовать много восклицательных знаков',
     '— не писать КАПСОМ',
@@ -766,7 +780,7 @@ async function requestOpenRouterChat({
 
   return {
     ok: true,
-    text: data?.choices?.[0]?.message?.content || '',
+    text: ensureCustomerAddresses(data?.choices?.[0]?.message?.content || ''),
     mode: normalizedMode,
     model: data?.model || model,
   };
@@ -785,13 +799,24 @@ async function requestAiTestChat(payload = {}) {
   syncAiSandboxMemoryFromConversation();
   const billzStatus = getBillzStatus();
   const { secretToken } = getBillzAuthConfig();
-  const contextText = mergeMemoryIntoText(text);
+  const previousMemoryState = aiConversationMemory.getState();
   const billzAiContext = billzStatus.connected && secretToken
-    ? await getBillzContextForAi(secretToken, contextText)
+    ? await getBillzContextForAi(secretToken, text, { memory: previousMemoryState.entities || {} })
     : { connected: false, ok: false, query: text, error: billzStatus.error || 'billz-not-connected', products: [], parsedQuery: null, detectedIntent: 'unknown', sizeRecommendation: null, totalCachedProducts: 0, matchedProducts: 0, searchMode: '', updatedAt: new Date().toISOString() };
+  logger.info(LOG_CATEGORIES.AI, 'AI parser boundary', {
+    intent: billzAiContext.detectedIntent,
+    parsedQuery: billzAiContext.parsedQuery,
+  });
   updateAiSandboxMemory(billzAiContext.parsedQuery || {});
   aiConversationMemory.addUserMessage(text, billzAiContext.parsedQuery || {});
   const memoryState = aiConversationMemory.getState();
+  const conversationContext = buildConversationContext(memoryState, billzAiContext.parsedQuery || {}, billzAiContext.products || []);
+  const customerProfile = buildCustomerProfile(memoryState, billzAiContext.parsedQuery || {});
+  logger.info(LOG_CATEGORIES.AI, 'AI memory merge', {
+    previousEntities: previousMemoryState.entities || {},
+    currentEntities: memoryState.entities || {},
+    previousIntent: conversationContext.previousIntent,
+  });
   const products = billzAiContext.connected ? billzAiContext.products : [];
   const billzContext = buildAiContext({
     query: text,
@@ -812,20 +837,42 @@ async function requestAiTestChat(payload = {}) {
     searchMode: billzAiContext.searchMode || '',
     updatedAt: billzAiContext.updatedAt || new Date().toISOString(),
     status: billzStatus.status,
-    error: billzAiContext.connected ? '' : (billzAiContext.error || 'billz-error'),
-    },
-    memoryState,
-    maxProducts: 5,
-  });
-  const humanizedResponse = formatHumanResponse(billzContext);
+	    error: billzAiContext.connected ? '' : (billzAiContext.error || 'billz-error'),
+	    },
+	    memoryState,
+	    maxProducts: 5,
+	  });
+  billzContext.conversationContext = conversationContext;
+  billzContext.customerProfile = customerProfile.inferredCustomerProfile;
+  let humanizedResponse = formatHumanResponse(billzContext);
+  const reasoningObject = buildReasoningObject(billzContext, humanizedResponse);
+  billzContext.reasoningObject = reasoningObject;
+  billzContext.aiConfidence = reasoningObject.confidence;
+  humanizedResponse = formatHumanResponse(billzContext);
   billzContext.humanizedResponse = humanizedResponse;
+  logger.info(LOG_CATEGORIES.AI, 'AI formatter output', {
+    strategy: humanizedResponse.strategy,
+    templateUsed: humanizedResponse.templateUsed,
+    confidence: reasoningObject.confidence,
+    clarificationNeeded: reasoningObject.clarificationNeeded,
+  });
 
   const result = await requestOpenRouterChat({
     mode: 'billz-test',
     text,
     billzContext: { ...billzContext, conversationMemory: aiSandboxMemory },
   });
+  if (!result?.ok) {
+    result.ok = true;
+    result.aiError = result.error || 'reasoning-layer-unavailable';
+    result.text = humanizedResponse.text || '';
+    result.reasoningObject = reasoningObject;
+    result.rawText = '';
+  }
   if (result?.ok) {
+    result.rawText = result.rawText || result.text || '';
+    result.reasoningObject = { ...reasoningObject, ...(result.reasoningObject || {}) };
+    result.text = humanizedResponse.text || result.text || '';
     aiConversationMemory.addAssistantMessage(result.text || '');
     aiSandboxHistory.push({ role: 'user', content: text, createdAt: new Date().toISOString() });
     aiSandboxHistory.push({ role: 'assistant', content: result.text || '', createdAt: new Date().toISOString() });
@@ -834,6 +881,10 @@ async function requestAiTestChat(payload = {}) {
     result.memory = aiConversationMemory.getState();
     result.searchDebug = billzContext.searchDebug || null;
     result.humanizedResponse = humanizedResponse;
+    result.reasoningObject = result.reasoningObject || reasoningObject;
+    result.aiConfidence = result.reasoningObject.confidence;
+    result.customerProfile = billzContext.customerProfile;
+    result.conversationContext = conversationContext;
     result.recommendationReasoning = billzContext.recommendationReasoning || [];
     result.history = aiSandboxHistory;
   }
@@ -843,6 +894,12 @@ async function requestAiTestChat(payload = {}) {
     searchDebug: billzContext.searchDebug || null,
     memory: aiConversationMemory.getState(),
     matchedProducts: products.slice(0, 5),
+    normalizedProductPreview: billzContext.normalizedProducts || [],
+    reasoningObject: result.reasoningObject || reasoningObject,
+    formatterOutputPreview: humanizedResponse.text || '',
+    customerProfile: billzContext.customerProfile || null,
+    clarificationState: conversationContext.clarificationState,
+    aiConfidence: result.aiConfidence || reasoningObject.confidence,
     fallbackLogic: {
       mode: billzContext.searchMode || '',
       fallbackUsed: Boolean(billzContext.searchSummary?.fallbackUsed),

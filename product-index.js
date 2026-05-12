@@ -1,5 +1,6 @@
 const { BRAND_LINES, COLORS, MATERIALS, BRANDS } = require('./knowledge-base');
 const { normalizeText, parseBillzProduct, humanizeBillzProduct } = require('./product-parser');
+const { normalizeProduct } = require('./services/normalization');
 
 const BANNED_MODEL_WORDS = new Set([
   'размер', 'размера', 'размером', 'размеры',
@@ -55,6 +56,7 @@ function expandMaterialTerms(material) {
 function buildProductDoc(product, index = 0) {
   const parsed = parseBillzProduct(product);
   const human = humanizeBillzProduct(product);
+  const normalizedProduct = normalizeProduct(product, index);
   const rawParts = [
     product.id,
     product.name,
@@ -77,6 +79,7 @@ function buildProductDoc(product, index = 0) {
   return {
     id: product.id || product.sku || product.barcode || `${index}`,
     raw: product,
+    normalizedProduct,
     normalized: parsed,
     human,
     tokens,

@@ -16,5 +16,14 @@
       "preferredColor": "черный",
       "lastIntent": "availability"
     }
+  },
+  {
+    "name": "follow-up-black-size",
+    "turns": ["есть 35 размер?", "а черные есть?"],
+    "expectedEntities": {
+      "preferredSize": "35",
+      "preferredColor": "черный",
+      "lastIntent": "availability"
+    }
   }
 ]

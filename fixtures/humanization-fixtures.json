@@ -26,7 +26,7 @@
     "input": {
       "intent": "availability",
       "products": [
-        { "name": "Be Lenka LL Glow / BL / 3/33 / 02", "brand": "Be Lenka", "model": "Glow", "color": "BL", "size": "3/33", "price": 3890 }
+        { "name": "Be Lenka LL Glow / синий / 3/33 / 02", "brand": "Be Lenka", "model": "Glow", "color": "синий", "size": "3/33", "price": 3890 }
       ]
     },
     "expectedContains": ["Be Lenka Glow", "Примерно на 3 года", "Размер 33", "3890", "Коенкозова", "Байтик Баатыра"],

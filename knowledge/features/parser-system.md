@@ -58,11 +58,10 @@ Brand code map:
 - `TT` -> `TipsieToes`;
 - `LL` -> `Little Light`;
 - `BB` -> `Be Lenka`;
-- `BL` -> `Be Lenka`;
 - `KT` -> `Key Top`;
 - `XZ` -> `XZero`.
 
-`BB` and `BL` must both resolve to Be Lenka.
+`BB` and the written name `Be Lenka` resolve to Be Lenka. The old conflicting two-letter shortcut must not be treated as a Be Lenka alias.
 
 Mixed colors preserve `mixedCode` and component color codes for combinations like `WH&BK`, `GR&WH`, `PI&WH`, and other known color-code pairs.
 
@@ -72,6 +71,13 @@ Parser regression fixtures live in `fixtures/parser-fixtures.json`. Update them 
 
 ## Stage 5 Audit Notes
 
-- `BL` has contextual meaning: it is a Be Lenka brand alias in brand parsing and a blue color code in product color parsing. Avoid broad replacements.
+- Be Lenka recognition is limited to `BB` and written brand names.
 - LL and Be Lenka child model formats must keep age and shoe size separate in customer-facing responses.
 - Parser/search changes need fixtures first, then small patches.
+
+## Stage 6 Stabilization
+
+- Be Lenka no longer has the old conflicting two-letter shortcut.
+- Parser fixtures include a guard that the removed shortcut does not resolve as a brand or color.
+- Child/teen queries with age but no foot length should trigger clarification before product recommendation.
+- Parser output feeds the normalized product/context pipeline and should not directly format customer text.

@@ -29,7 +29,14 @@ const TEMPLATES = Object.freeze({
     'Для широкой стопы barefoot-модели часто комфортнее за счет более свободной формы носка. Это не медицинская рекомендация, но по ощущениям обычно мягче для пальцев.',
     branchesText,
   ].filter(Boolean).join('\n\n'),
-  clarification: ({ parsedQuery, branchesText }) => {
+  clarification: ({ parsedQuery, branchesText, fallbackReason }) => {
+    if (fallbackReason === 'child_or_teen_without_foot_length') {
+      return [
+        `${EMOJI.heart} Подберем.`,
+        'Напишите, пожалуйста, сколько см стопа - так получится подобрать размер точнее 😊',
+        branchesText,
+      ].filter(Boolean).join('\n\n');
+    }
     const parts = [];
     if (!parsedQuery?.size) parts.push('размер');
     if (!parsedQuery?.colorHuman && !parsedQuery?.color) parts.push('цвет');

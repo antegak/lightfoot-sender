@@ -526,8 +526,9 @@ async function getCachedProducts(secretToken, options = {}) {
   };
 }
 
-async function searchProductsHybrid(secretToken, query, limit = 5) {
+async function searchProductsHybrid(secretToken, query, limit = 5, options = {}) {
   const parsedQuery = parseQuery(query);
+  parsedQuery.memory = options.memory || {};
   const normalizedLimit = Math.max(1, Math.min(20, Number(limit) || 5));
   logger.info(LOG_CATEGORIES.SEARCH, 'AI search', {
     stage: 'hybrid:start',
@@ -1300,9 +1301,9 @@ async function testBillzSecretToken(authOptions = {}) {
   return checkConnection(authOptions.secretToken);
 }
 
-async function getBillzContextForAi(secretToken, query) {
+async function getBillzContextForAi(secretToken, query, options = {}) {
   const cleanQuery = String(query || '').trim();
-  const result = await searchProductsHybrid(secretToken, cleanQuery, 5);
+  const result = await searchProductsHybrid(secretToken, cleanQuery, 5, { memory: options.memory || {} });
   if (!result.ok) {
     return {
       connected: false,

@@ -46,7 +46,7 @@ function normalizeMaterial(value) {
 function cleanModelName(value) {
   return String(value || '')
     .replace(/\b[A-Z]{2,}\d{2,}[A-Z0-9-]*\b/g, '')
-    .replace(/\b(BK|WH|BE|GR|LG|PI|WR|LR|GY|BL|BR|RD|RO|SB|TI|PU|LA|YE|DG|KH|BG|DB|NV|GD|OR)\b/g, '')
+    .replace(/\b(BK|WH|BE|GR|LG|PI|WR|LR|GY|BR|RD|RO|SB|TI|PU|LA|YE|DG|KH|BG|DB|NV|GD|OR)\b/g, '')
     .replace(/\b(01|02|03|04)\b/g, '')
     .replace(/\b\d{1,2}\/\d{2}\b/g, '')
     .replace(/\s*\/\s*/g, ' ')
@@ -115,6 +115,34 @@ function humanizeChildSize(product = {}) {
 }
 
 function humanizeProduct(product = {}) {
+  const normalized = product.normalizedProduct || (product.metadata && product.displayName ? product : null);
+  if (normalized) {
+    const brand = normalized.brand || '';
+    const model = normalized.model || cleanModelName(normalized.displayName || '');
+    const color = normalizeHumanColor(normalized.color?.label || normalized.color?.mixedCode || normalized.color?.code);
+    const material = normalizeMaterial(normalized.material?.label || normalized.material?.code);
+    const childSize = humanizeChildSize({
+      brand,
+      name: normalized.displayName,
+      model,
+      size: normalized.size,
+      parsed: normalized.metadata?.parsed,
+    });
+    const size = childSize ? '' : (normalized.size || '');
+    const price = formatPrice(normalized.price);
+    const title = [brand, model].filter(Boolean).join(' ').trim() || normalized.displayName || 'модель';
+    if (childSize) {
+      return [
+        `• ${[title, color].filter(Boolean).join(' — ')}`,
+        `👣 ${childSize.ageText}`,
+        `📏 ${childSize.sizeText}`,
+        price ? `💰 ${price}` : '',
+      ].filter(Boolean).join('\n');
+    }
+    const details = [color, material, size ? `${size} размер` : '', price].filter(Boolean).join(' — ');
+    return `• ${details ? `${title} — ${details}` : title}`;
+  }
+
   const parsed = product.parsed || {};
   const brand = getDisplayBrand(product);
   const model = product.model || parsed.model || cleanModelName(product.name || product.title || '');

@@ -80,7 +80,7 @@ The highest-value cleanup path is gradual centralization around `knowledge-base.
 - file: `knowledge-base.js`, `product-parser.js`, `services/search/query-normalizer.js`, `services/humanizer/product-humanizer.js`, `services/humanizer/templates.js`
 - function/module: brand/color/material aliases and descriptions
 - problem: each module has partial maps for brands, colors, materials, descriptions, or aliases.
-- impact: aliases can drift, especially `BL` which is both a color code (`blue`) and Be Lenka alias in some contexts.
+- impact: aliases can drift. Stage 6 removes the old conflicting two-letter shortcut as a Be Lenka alias and keeps `BB` plus written brand names only.
 - risk: medium parser/search regression risk.
 - suggested fix: centralize canonical data in `knowledge-base.js` and add small adapter helpers per layer.
 - confidence: 90%
