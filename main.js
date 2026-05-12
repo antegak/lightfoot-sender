@@ -358,14 +358,6 @@ async function testOpenRouterApiKey(rawKey) {
   }
 
   try {
-    const fallbackReasoning = buildReasoningObject(billzContext || {}, billzContext?.humanizedResponse || {});
-    const reasoningSystemPrompt = buildReasoningSystemPrompt({ connected });
-    const reasoningUserPrompt = buildReasoningUserPrompt({
-      ...(billzContext || {}),
-      query: billzContext?.query || cleanText,
-      reasoningFallback: fallbackReasoning,
-    });
-
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -586,6 +578,14 @@ async function requestOpenRouterChat({
       'Не показывай технические поля и не называй SKU/артикул/barcode/stock/office.',
       'Цвета бери из displayColor/color. Не показывай цветовые коды вроде BK, BE, LG, WR.',
     ].join('\n');
+
+    const fallbackReasoning = buildReasoningObject(billzContext || {}, billzContext?.humanizedResponse || {});
+    const reasoningSystemPrompt = buildReasoningSystemPrompt({ connected });
+    const reasoningUserPrompt = buildReasoningUserPrompt({
+      ...(billzContext || {}),
+      query: billzContext?.query || cleanText,
+      reasoningFallback: fallbackReasoning,
+    });
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
