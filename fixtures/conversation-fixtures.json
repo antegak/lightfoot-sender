@@ -24,11 +24,10 @@
     "notes": "Mention age/запас and ask foot length when needed."
   },
   {
-    "name": "always-both-addresses",
+    "name": "clarification-no-address-spam",
     "turns": ["есть черные 35?"],
     "expectedStrategy": "clarification",
-    "expectedContains": ["Коенкозова", "Байтик Баатыра"],
-    "expectedNotContains": ["LF", "LF 9", "остаток", "stock"]
+    "expectedNotContains": ["Коенкозова", "Байтик Баатыра", "LF", "LF 9", "остаток", "stock"]
   },
   {
     "name": "be-lenka-follow-up",
@@ -41,21 +40,41 @@
     "name": "child-ten-years",
     "turns": ["какую модель ребенку 10 лет?"],
     "expectedStrategy": "clarification",
-    "expectedContains": ["Коенкозова", "Байтик Баатыра"],
-    "expectedNotContains": ["SKU", "stock", "остаток", "3/33"]
+    "expectedNotContains": ["Коенкозова", "Байтик Баатыра", "SKU", "stock", "остаток", "3/33"]
   },
   {
     "name": "foot-length-22",
     "turns": ["стопа 22 см"],
     "expectedStrategy": "sizing",
-    "expectedContains": ["34", "Коенкозова", "Байтик Баатыра"],
-    "expectedNotContains": ["SKU", "stock", "остаток"]
+    "expectedContains": ["34"],
+    "expectedNotContains": ["Коенкозова", "Байтик Баатыра", "SKU", "stock", "остаток"]
   },
   {
     "name": "adult-and-child-broad-query",
     "turns": ["привет! хочу обувь для себя и ребенка, что взять?"],
     "expectedStrategy": "clarification",
-    "expectedContains": ["размер", "сколько см стопа", "Коенкозова", "Байтик Баатыра"],
-    "expectedNotContains": ["TipsieToes Glamour", "42 размер", "43 размер", "45 размер", "SKU", "stock", "остаток"]
+    "expectedContains": ["размер", "сколько см стопа"],
+    "expectedNotContains": ["Коенкозова", "Байтик Баатыра", "TipsieToes Glamour", "42 размер", "43 размер", "45 размер", "SKU", "stock", "остаток"]
+  },
+  {
+    "name": "family-profile-update-remembers-both",
+    "turns": ["привет! хочу обувь для себя и ребенка, что взять?", "у меня 39 размер, а ребенка 21см"],
+    "expectedStrategy": "family_profile_update",
+    "expectedContains": ["39", "21 см", "32 размер", "Little Light"],
+    "expectedNotContains": ["Коенкозова", "Байтик Баатыра", "нужно уточнить", "42 размер", "43 размер", "SKU", "stock", "остаток"]
+  },
+  {
+    "name": "family-profile-brand-advice",
+    "turns": ["привет! хочу обувь для себя и ребенка, что взять?", "у меня 39 размер, а ребенка 21см", "Какие бренды тогда взять?"],
+    "expectedStrategy": "brand_list",
+    "expectedContains": ["Для вас", "39 размер", "Для ребенка", "21 см", "32 размер", "Little Light"],
+    "expectedNotContains": ["42 размер", "43 размер", "45 размер", "Коенкозова", "Байтик Баатыра", "SKU", "stock", "остаток"]
+  },
+  {
+    "name": "personal-advice-remembers-adult-size",
+    "turns": ["привет! хочу обувь для себя и ребенка, что взять?", "у меня 39 размер, а ребенка 21см", "а лично мне какие?"],
+    "expectedStrategy": "personal_advice",
+    "expectedContains": ["39", "TipsieToes", "Be Lenka", "Saguaro"],
+    "expectedNotContains": ["нужно уточнить размер", "42 размер", "43 размер", "Коенкозова", "Байтик Баатыра", "SKU", "stock", "остаток"]
   }
 ]

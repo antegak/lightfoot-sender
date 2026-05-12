@@ -26,18 +26,24 @@ function needsClarification(context = {}) {
 function buildCustomerProfile(memoryState = {}, parsed = {}) {
   const entities = memoryState.entities || {};
   const customerType = parsed.customerType || entities.customerType || null;
+  const adultSize = entities.adultSize || null;
+  const childFootLength = entities.childFootLength || null;
+  const childRecommendedSize = entities.childRecommendedSize || null;
   return {
     customerType,
     inferredCustomerProfile: {
-      child: customerType === 'kids' || Boolean(parsed.childAge || entities.childAge),
+      child: customerType === 'kids' || Boolean(parsed.childAge || entities.childAge || childFootLength || childRecommendedSize),
       teen: customerType === 'teen',
-      adult: customerType === 'adult',
+      adult: customerType === 'adult' || Boolean(adultSize),
       footLength: parsed.footLength || entities.footLength || null,
       preferredSize: parsed.size || entities.preferredSize || null,
+      adultSize,
       preferredBrand: parsed.brand || entities.preferredBrand || null,
       preferredColor: parsed.colorHuman || entities.preferredColor || null,
       preferredMaterial: parsed.material || entities.preferredMaterial || null,
       childAge: parsed.childAge || entities.childAge || null,
+      childFootLength,
+      childRecommendedSize,
       fitNeeds: parsed.context || entities.fitNeeds || null,
     },
     previousIntent: entities.lastIntent || null,

@@ -29,6 +29,28 @@ const TEMPLATES = Object.freeze({
     'Для широкой стопы barefoot-модели часто комфортнее за счет более свободной формы носка. Это не медицинская рекомендация, но по ощущениям обычно мягче для пальцев.',
     branchesText,
   ].filter(Boolean).join('\n\n'),
+  personal_advice: ({ customerProfile, memoryEntities }) => {
+    const size = customerProfile?.adultSize || memoryEntities?.adultSize || memoryEntities?.preferredSize;
+    return [
+      `${EMOJI.heart} Вам я бы смотрела взрослую линейку в ${size || 'вашем'} размере:`,
+      '• TipsieToes — мягкие модели на каждый день',
+      '• Be Lenka — более премиальная barefoot посадка',
+      '• Saguaro — если хочется легче и спортивнее',
+      'Если стопа широкая, лучше начать с моделей с более свободным носком.',
+    ].filter(Boolean).join('\n\n');
+  },
+  family_profile_update: ({ customerProfile, memoryEntities }) => {
+    const adultSize = customerProfile?.adultSize || memoryEntities?.adultSize || memoryEntities?.preferredSize;
+    const childFootLength = customerProfile?.childFootLength || memoryEntities?.childFootLength;
+    const childSize = customerProfile?.childRecommendedSize || memoryEntities?.childRecommendedSize;
+    return [
+      `${EMOJI.heart} Запомнила: для вас смотрим ${adultSize || 'взрослый'} размер.`,
+      childFootLength || childSize
+        ? `Для ребенка: ${childFootLength ? `${childFootLength} см стопа` : 'по стопе'}${childSize ? `, ориентир ${childSize} размер` : ''}.`
+        : '',
+      'Дальше можно подобрать отдельно: вам - взрослые TipsieToes, Be Lenka или Saguaro, ребенку - Little Light или детские Saguaro.',
+    ].filter(Boolean).join('\n\n');
+  },
   clarification: ({ parsedQuery, branchesText, fallbackReason }) => {
     if (fallbackReason === 'child_or_teen_without_foot_length') {
       return [
@@ -53,14 +75,26 @@ const TEMPLATES = Object.freeze({
     branchesText,
   ].filter(Boolean).join('\n\n'),
   branch_info: ({ branchesText }) => branchesText,
-  brand_list: ({ brandSummary, branchesText }) => {
+  brand_list: ({ brandSummary, customerProfile, memoryEntities }) => {
+    const adultSize = customerProfile?.adultSize || memoryEntities?.adultSize || memoryEntities?.preferredSize;
+    const childFootLength = customerProfile?.childFootLength || memoryEntities?.childFootLength;
+    const childSize = customerProfile?.childRecommendedSize || memoryEntities?.childRecommendedSize;
+    if (adultSize || childFootLength || childSize) {
+      return [
+        `${EMOJI.heart} Тогда я бы разделила так:`,
+        adultSize ? `Для вас (${adultSize} размер): TipsieToes, Be Lenka или Saguaro.` : 'Для взрослого: TipsieToes, Be Lenka или Saguaro.',
+        childFootLength || childSize
+          ? `Для ребенка (${childFootLength ? `${childFootLength} см стопа` : 'по стопе'}${childSize ? `, ориентир ${childSize} размер` : ''}): Little Light или Saguaro kids.`
+          : 'Для ребенка: Little Light или Saguaro kids.',
+        'Если хотите мягче на каждый день - начнем с TipsieToes для вас и Little Light для ребенка.',
+      ].filter(Boolean).join('\n\n');
+    }
     const brands = brandSummary?.brandsAvailable?.length
       ? brandSummary.brandsAvailable
       : ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka', 'Key Top', 'XZero'];
     return [
       `${EMOJI.heart} У нас есть несколько брендов:`,
       brands.map((brand) => `• ${brand} — ${brandDescription(brand)}`).join('\n'),
-      branchesText,
     ].filter(Boolean).join('\n\n');
   },
 });

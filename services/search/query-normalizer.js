@@ -117,6 +117,14 @@ function detectCustomerType(text) {
   return null;
 }
 
+function getCustomerSizeTable(customerType, footLength) {
+  const cm = Number(String(footLength || '').replace(',', '.'));
+  if (customerType === 'kids' || customerType === 'teen') {
+    return cm >= 20.5 ? 'LittleLightTeen' : 'LittleLightKids';
+  }
+  return 'adult';
+}
+
 function removeStopWords(text) {
   const config = readConfig();
   const stopWords = new Set((config.stopWords || []).map(normalizeText));
@@ -132,7 +140,7 @@ function normalizeQuery(rawQuery, memory = {}) {
   const footLength = text.match(/(\d{2}(?:[.,]\d)?)\s*(?:см|cm|сантиметр)/)?.[1]?.replace(',', '.') || null;
   const explicitSize = footLength ? null : text.match(/\b(?:размер\s*)?(1[8-9]|2[0-9]|3[0-9]|4[0-9]|5[0-2])(?:\s*(?:размер|р|eu))?\b/)?.[1] || null;
   const customerType = detectCustomerType(text) || memory.customerType || null;
-  const sizeTable = customerType === 'kids' ? 'kids' : 'adult';
+  const sizeTable = getCustomerSizeTable(customerType, footLength);
   const sizeRecommendation = footLength ? getSizeByFootLength(footLength, sizeTable) : null;
 
   const merged = {

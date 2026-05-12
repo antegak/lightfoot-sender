@@ -17,6 +17,20 @@ function hasFootProblem(query = '') {
   return /(широк|болят|плоскостоп|пальц.*сжима|жмет|давит)/i.test(String(query));
 }
 
+function isPersonalFollowUp(context = {}) {
+  return /лично\s+мне|мне\s+какие|для\s+меня/i.test(String(context.query || context.parsedQuery?.raw || ''));
+}
+
+function isFamilyProfileUpdate(context = {}) {
+  const profile = context.customerProfile || {};
+  const entities = context.memoryEntities || {};
+  return Boolean(
+    (profile.adultSize || entities.adultSize)
+    && (profile.childFootLength || entities.childFootLength || profile.childRecommendedSize || entities.childRecommendedSize)
+    && /у\s+меня|реб[её]н|дет/i.test(String(context.query || context.parsedQuery?.raw || ''))
+  );
+}
+
 function chooseResponseStrategy(context = {}) {
   const intent = context.detectedIntent || context.parsedQuery?.intent || 'availability';
   const products = Array.isArray(context.products) && context.products.length
@@ -27,6 +41,10 @@ function chooseResponseStrategy(context = {}) {
     : (Array.isArray(context.normalizedRecommendations) ? context.normalizedRecommendations : []);
   if (intent === 'brand_list') return { strategy: 'brand_list', template: 'brand_list' };
   if (intent === 'store_question' || intent === 'location' || intent === 'branch_info') return { strategy: 'branch_info', template: 'branch_info' };
+  if (isFamilyProfileUpdate(context)) return { strategy: 'family_profile_update', template: 'family_profile_update' };
+  if (isPersonalFollowUp(context) && (context.customerProfile?.adultSize || context.memoryEntities?.adultSize || context.memoryEntities?.preferredSize)) {
+    return { strategy: 'personal_advice', template: 'personal_advice' };
+  }
   const clarification = needsClarification(context);
   if (clarification) return { strategy: 'clarification', template: 'clarification', fallbackReason: clarification.reason };
   if (intent === 'recommendation' || hasFootProblem(context.query)) return { strategy: 'recommendation', template: 'recommendation' };
@@ -49,7 +67,9 @@ function formatHumanResponse(context = {}, options = {}) {
     : (context.recommendations || []).map((item) => item.product || item);
   const productsText = humanizeProducts(productsForDisplay, maxProducts);
   const recommendationsText = humanizeProducts(recommendationsForDisplay, maxProducts);
-  const branchesText = humanizeBranches(context.branches);
+  const branchesText = ['availability', 'unavailable', 'branch_info'].includes(meta.template)
+    ? humanizeBranches(context.branches)
+    : '';
   const template = TEMPLATES[meta.template] || TEMPLATES.availability;
   const text = template({
     ...context,

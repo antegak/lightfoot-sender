@@ -96,6 +96,14 @@ function detectCustomerType(text) {
   return null;
 }
 
+function getCustomerSizeTable(customerType, footLength) {
+  const cm = Number(String(footLength || '').replace(',', '.'));
+  if (customerType === 'kids' || customerType === 'teen') {
+    return cm >= 20.5 ? 'LittleLightTeen' : 'LittleLightKids';
+  }
+  return 'adult';
+}
+
 function detectExcludedBrand(text) {
   const normalized = normalizeText(text);
   if (!/(помимо|кроме|без|не)\s+/.test(normalized)) return null;
@@ -170,7 +178,7 @@ function parseCustomerQuery(message) {
     footLength: footLength ? Number(footLength) : advanced.footLength,
     childAge: advanced.childAge || null,
     recommendedSize: advanced.recommendedSize || null,
-    sizeRecommendation: footLength ? getSizeByFootLength(footLength, advanced.customerType === 'kids' ? 'kids' : 'adult') : advanced.sizeRecommendation,
+    sizeRecommendation: footLength ? getSizeByFootLength(footLength, getCustomerSizeTable(advanced.customerType, footLength)) : advanced.sizeRecommendation,
   };
 }
 

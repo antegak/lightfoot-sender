@@ -3,6 +3,7 @@ const path = require('path');
 const { parseCustomerQuery } = require('../../intent-detector');
 const { normalizeQuery } = require('../search');
 const { ConversationMemory } = require('../memory');
+const { buildCustomerProfile } = require('../ai/response-contract');
 const { formatHumanResponse } = require('../humanizer');
 
 const FIXTURE_DIR = path.join(__dirname, '..', '..', 'fixtures');
@@ -56,7 +57,9 @@ function checkHumanizedText(text, fixture = {}) {
       return text.includes(rule) ? rule : '';
     })
     .filter(Boolean);
-  const addressMissing = !(text.includes('Коенкозова') && text.includes('Байтик Баатыра'));
+  const requiresAddress = fixture.requireAddresses === true
+    || (fixture.expectedContains || []).some((part) => String(part).includes('Коенкозова') || String(part).includes('Байтик Баатыра'));
+  const addressMissing = requiresAddress && !(text.includes('Коенкозова') && text.includes('Байтик Баатыра'));
   return { missing, forbiddenHits, addressMissing };
 }
 
@@ -103,8 +106,14 @@ function runHumanizationFixtures() {
 
 function runConversationFixtures() {
   return readFixture('conversation-fixtures.json').map((fixture) => {
-    const last = (fixture.turns || []).slice(-1)[0] || '';
+    const turns = fixture.turns || [];
+    const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
+    turns.slice(0, -1).forEach((turn) => memory.addUserMessage(turn, parseCustomerQuery(turn)));
+    const last = turns.slice(-1)[0] || '';
     const parsed = parseCustomerQuery(last);
+    memory.addUserMessage(last, parsed);
+    const memoryState = memory.getState();
+    const customerProfile = buildCustomerProfile(memoryState, parsed).inferredCustomerProfile;
     const formatted = formatHumanResponse({
       query: last,
       detectedIntent: parsed.intent,
@@ -112,6 +121,9 @@ function runConversationFixtures() {
       products: [],
       recommendations: [],
       sizeRecommendation: parsed.sizeRecommendation,
+      memoryEntities: memoryState.entities || {},
+      memorySummary: memoryState.summary || '',
+      customerProfile,
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
     });
     const textChecks = checkHumanizedText(formatted.text, fixture);

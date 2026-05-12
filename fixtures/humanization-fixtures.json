@@ -19,7 +19,8 @@
   {
     "name": "brand-list",
     "input": { "intent": "brand_list" },
-    "expectedContains": ["TipsieToes — взрослые модели", "Little Light — детская", "Saguaro — спортивные", "Be Lenka — премиальная", "Коенкозова", "Байтик Баатыра"]
+    "expectedContains": ["TipsieToes — взрослые модели", "Little Light — детская", "Saguaro — спортивные", "Be Lenka — премиальная"],
+    "expectedNotContains": ["Коенкозова", "Байтик Баатыра"]
   },
   {
     "name": "be-lenka-ll-child-size",
