@@ -6,6 +6,16 @@ function same(a, b) {
 
 function strictScore(doc, query) {
   if (!doc) return 0;
+  const hasStrictSignal = Boolean(
+    query.sku
+    || query.barcode
+    || query.size
+    || query.recommendedSize
+    || query.brand
+    || query.colorCodes?.length
+    || query.materialCode
+  );
+  if (!hasStrictSignal) return 0;
   if (query.sku && !same(doc.raw?.sku || doc.raw?.vendorCode, query.sku)) return 0;
   if (query.barcode && String(doc.raw?.barcode || '') !== String(query.barcode)) return 0;
   if (query.size && String(doc.size || '') !== String(query.size)) return 0;

@@ -50,5 +50,12 @@
     "expectedStrategy": "sizing",
     "expectedContains": ["34", "Коенкозова", "Байтик Баатыра"],
     "expectedNotContains": ["SKU", "stock", "остаток"]
+  },
+  {
+    "name": "adult-and-child-broad-query",
+    "turns": ["привет! хочу обувь для себя и ребенка, что взять?"],
+    "expectedStrategy": "clarification",
+    "expectedContains": ["размер", "сколько см стопа", "Коенкозова", "Байтик Баатыра"],
+    "expectedNotContains": ["TipsieToes Glamour", "42 размер", "43 размер", "45 размер", "SKU", "stock", "остаток"]
   }
 ]

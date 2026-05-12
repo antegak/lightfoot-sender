@@ -33,7 +33,9 @@ const TEMPLATES = Object.freeze({
     if (fallbackReason === 'child_or_teen_without_foot_length') {
       return [
         `${EMOJI.heart} Подберем.`,
-        'Напишите, пожалуйста, сколько см стопа - так получится подобрать размер точнее 😊',
+        parsedQuery?.raw && /для себя/i.test(parsedQuery.raw)
+          ? 'Для взрослого напишите размер, а для ребенка - сколько см стопа. Так подберем точнее и не будем угадывать 😊'
+          : 'Напишите, пожалуйста, сколько см стопа - так получится подобрать размер точнее 😊',
         branchesText,
       ].filter(Boolean).join('\n\n');
     }

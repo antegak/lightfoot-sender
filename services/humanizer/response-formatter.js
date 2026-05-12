@@ -27,9 +27,9 @@ function chooseResponseStrategy(context = {}) {
     : (Array.isArray(context.normalizedRecommendations) ? context.normalizedRecommendations : []);
   if (intent === 'brand_list') return { strategy: 'brand_list', template: 'brand_list' };
   if (intent === 'store_question' || intent === 'location' || intent === 'branch_info') return { strategy: 'branch_info', template: 'branch_info' };
-  if (intent === 'recommendation' || hasFootProblem(context.query)) return { strategy: 'recommendation', template: 'recommendation' };
   const clarification = needsClarification(context);
   if (clarification) return { strategy: 'clarification', template: 'clarification', fallbackReason: clarification.reason };
+  if (intent === 'recommendation' || hasFootProblem(context.query)) return { strategy: 'recommendation', template: 'recommendation' };
   if (intent === 'sizing' || context.sizeRecommendation || context.parsedQuery?.childAge) return { strategy: 'sizing', template: 'sizing' };
   if (products.length) return { strategy: 'availability', template: 'availability' };
   if (context.parsedQuery?.brand) return { strategy: 'unavailable', template: 'unavailable', fallbackReason: 'brand_without_matches' };
