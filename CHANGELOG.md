@@ -16,6 +16,7 @@
 - Added Stage 5 tech debt audit report and shared data-structure map.
 - Added extra parser/search/conversation fixtures for Be Lenka follow-up, child-age wording, black 35, and foot-length sizing.
 - Added Stage 6 deterministic response contracts, normalized product service, AI reasoning object, confidence hooks, and expanded QA fixtures.
+- Added Stage 7 conversational sales engine for AI sandbox with conversation state, topic focus, customer profiles, next-best-action, persona prompt, and multi-step dialogue fixtures.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
@@ -26,11 +27,13 @@
 - Fixed brand summary source so Be Lenka, Key Top, and XZero are no longer excluded from known brand output.
 - Fixed AI sandbox product replies so final customer-facing text comes from the deterministic humanizer, not OpenRouter formatting.
 - Removed the old conflicting Be Lenka shortcut from parser/search/docs/fixtures.
+- Fixed AI sandbox dialogue focus so family, adult, and child follow-ups can stay on the requested subject instead of falling back to unrelated sizing or product-search behavior.
 
 ### Refactored
 - Reused canonical store addresses in the humanizer branch formatter.
 - Removed an unnecessary dynamic require from humanizer response formatting.
 - Preserved original user query during memory follow-up search by passing memory as structured context.
+- Moved LightFoot consultant reasoning prompt rules into `services/ai/prompts/lightfoot-consultant.js`.
 
 ### Known Issues
 - Stage 5 audit found prompt/business-rule duplication that should be reduced in a later controlled AI pipeline patch.

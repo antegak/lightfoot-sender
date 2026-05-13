@@ -1,0 +1,81 @@
+const { buildStage7CustomerProfiles } = require('./customer-profile');
+const { inferActiveSubject, inferCurrentFocus } = require('./topic-tracker');
+const { determineSalesFlow, inferCurrentStage } = require('./sales-flow');
+const { determineNextBestAction, shouldSearchProducts } = require('./next-best-action');
+
+function initialConversationState() {
+  return {
+    currentFocus: null,
+    currentStage: null,
+    customerType: null,
+    activeSubject: null,
+    adultProfile: {},
+    childProfile: {},
+    teenProfile: {},
+    discussedBrands: [],
+    lastQuestion: null,
+    lastRecommendation: null,
+    missingInfo: [],
+    nextBestAction: null,
+    shouldSearchProducts: false,
+    salesFlow: null,
+    confidence: 0,
+  };
+}
+
+function missingInfoFor(state = {}) {
+  const missing = [];
+  if (state.currentFocus === 'family_selection') {
+    if (!state.adultProfile?.size && !state.adultProfile?.footLengthCm) missing.push('adult_size_or_foot_length');
+    if (!state.childProfile?.footLengthCm && !state.childProfile?.size) missing.push('child_foot_length');
+  }
+  if ((state.currentFocus === 'adult_selection' || state.activeSubject === 'adultProfile') && !state.adultProfile?.size && !state.adultProfile?.footLengthCm) {
+    missing.push('adult_size_or_foot_length');
+  }
+  if ((state.currentFocus === 'child_selection' || state.activeSubject === 'childProfile') && !state.childProfile?.footLengthCm && !state.childProfile?.size) {
+    missing.push('child_foot_length');
+  }
+  return missing;
+}
+
+function buildConversationState({
+  query = '',
+  parsedQuery = {},
+  memoryState = {},
+  previousState = {},
+  searchResults = {},
+} = {}) {
+  const profiles = buildStage7CustomerProfiles(memoryState, parsedQuery, query);
+  const activeSubject = inferActiveSubject(query, parsedQuery, profiles, previousState);
+  const currentFocus = inferCurrentFocus(query, parsedQuery, profiles, activeSubject, previousState);
+  const baseState = {
+    ...initialConversationState(),
+    ...previousState,
+    query,
+    currentFocus,
+    activeSubject,
+    customerType: profiles.customerProfile.type || parsedQuery.customerType || memoryState.entities?.customerType || 'unknown',
+    customerProfile: profiles.customerProfile,
+    adultProfile: profiles.adultProfile,
+    childProfile: profiles.childProfile,
+    teenProfile: profiles.teenProfile,
+    discussedBrands: Array.from(new Set([...(previousState.discussedBrands || []), parsedQuery.brand].filter(Boolean))),
+  };
+  baseState.currentStage = inferCurrentStage(currentFocus, parsedQuery, baseState);
+  baseState.missingInfo = missingInfoFor(baseState);
+  baseState.nextBestAction = determineNextBestAction(baseState, parsedQuery, searchResults);
+  baseState.shouldSearchProducts = shouldSearchProducts(baseState, parsedQuery, searchResults);
+  baseState.salesFlow = determineSalesFlow(baseState);
+  baseState.confidence = Math.max(
+    profiles.customerProfile.confidence || 0,
+    profiles.adultProfile.confidence || 0,
+    profiles.childProfile.confidence || 0,
+    baseState.currentFocus && baseState.currentFocus !== 'unknown' ? 55 : 30
+  );
+  return baseState;
+}
+
+module.exports = {
+  buildConversationState,
+  initialConversationState,
+};

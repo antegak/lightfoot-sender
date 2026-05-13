@@ -47,6 +47,8 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Stage 6 changed AI sandbox search to preserve the original user query and pass previous entities as structured memory.
 - Stage 6 made deterministic humanizer output the final customer-facing response for product-aware AI sandbox answers.
 - Stage 6 removed the old conflicting Be Lenka shortcut; Be Lenka recognition is now `BB` plus written names only.
+- Stage 7 added a conversation state engine for AI sandbox quality: topic focus, adult/child profile separation, sales flow, next-best-action, search decision, and LightFoot consultant persona.
+- Stage 7 keeps OpenRouter as a reasoning/persona helper only; deterministic templates still own customer-facing product facts and formatting.
 
 ## Future Plans
 
@@ -59,3 +61,4 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - AI CRM memory.
 - Analytics.
 - Advanced search.
+- Stage 7 follow-up: extract more AI orchestration out of `main.js` after more fixtures exist.

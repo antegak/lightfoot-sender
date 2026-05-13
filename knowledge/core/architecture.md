@@ -77,6 +77,7 @@ IPC is the safety boundary. New features should add small, named IPC handlers in
 Manager input / chat context
   -> intent detection
   -> parser extracts product constraints
+  -> conversation state tracks focus, subject, stage, and next best action
   -> AI sandbox memory updates current context
   -> BILLZ context optional search
   -> OpenRouter request
@@ -85,6 +86,21 @@ Manager input / chat context
 ```
 
 AI output must remain explainable and debuggable. BILLZ context, parsed query, detected intent, and search debug should stay inspectable when troubleshooting.
+
+## Stage 7 Conversation Pipeline
+
+```text
+user message
+  -> parser and lightweight memory
+  -> conversation state engine
+  -> customer profiles for adult / child / teen / family
+  -> topic focus and next-best-action decision
+  -> deterministic humanizer templates
+  -> OpenRouter reasoning layer only
+  -> final AI sandbox response
+```
+
+Stage 7 is limited to AI sandbox/test chat quality. It does not enable WhatsApp auto replies, autonomous mode, CRM persistence, or a rewrite of BILLZ/search/parser/memory/humanizer.
 
 ## BILLZ Pipeline
 

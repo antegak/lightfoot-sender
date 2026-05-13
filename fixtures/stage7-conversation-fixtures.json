@@ -1,0 +1,50 @@
+[
+  {
+    "name": "stage7-family-flow-brand-advice",
+    "turns": ["хочу обувь для себя и ребенка", "у меня 39, у ребенка 21 см", "какие бренды тогда взять?"],
+    "expectedStrategy": "stage7_family_brand_advice",
+    "expectedConversationState": {
+      "currentFocus": "brand_comparison",
+      "nextBestAction": "recommend_brand",
+      "shouldSearchProducts": false
+    },
+    "expectedContains": ["Для вас", "TipsieToes", "Be Lenka", "Для ребенка", "Little Light"],
+    "expectedNotContains": ["Запомнила:", "нужно уточнить размер", "Данные отсутствуют", "Я как ИИ", "согласно базе", "остаток", "артикул", "office", "stock"]
+  },
+  {
+    "name": "stage7-family-flow-adult-focus",
+    "turns": ["хочу обувь для себя и ребенка", "у меня 39, у ребенка 21 см", "а какие лучше рассмотреть для себя?"],
+    "expectedStrategy": "stage7_adult_brand_advice",
+    "expectedConversationState": {
+      "currentFocus": "adult_selection",
+      "activeSubject": "adultProfile",
+      "nextBestAction": "recommend_brand",
+      "shouldSearchProducts": false
+    },
+    "expectedContains": ["Для вас", "39", "TipsieToes", "Be Lenka", "показать варианты"],
+    "expectedNotContains": ["Little Light", "нужно уточнить размер", "Запомнила:", "остаток", "артикул", "office", "stock"]
+  },
+  {
+    "name": "stage7-child-flow-holds-child-focus",
+    "turns": ["ребенку 10 лет", "стопа 22 см", "что лучше взять?"],
+    "expectedStrategy": "stage7_child_brand_advice",
+    "expectedConversationState": {
+      "activeSubject": "childProfile",
+      "nextBestAction": "recommend_brand",
+      "shouldSearchProducts": false
+    },
+    "expectedContains": ["ребенка", "Little Light"],
+    "expectedNotContains": ["взрослые TipsieToes", "Запомнила:", "остаток", "артикул", "office", "stock"]
+  },
+  {
+    "name": "stage7-adult-flow-search-when-specific",
+    "turns": ["мне на каждый день", "39 размер", "хочу черные"],
+    "expectedConversationState": {
+      "currentFocus": "product_availability",
+      "activeSubject": "adultProfile",
+      "nextBestAction": "recommend_product",
+      "shouldSearchProducts": true
+    },
+    "expectedNotContains": ["ребенка", "детские", "нужно уточнить размер", "Запомнила:", "остаток", "артикул", "office", "stock"]
+  }
+]

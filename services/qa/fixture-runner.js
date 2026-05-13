@@ -4,6 +4,7 @@ const { parseCustomerQuery } = require('../../intent-detector');
 const { normalizeQuery } = require('../search');
 const { ConversationMemory } = require('../memory');
 const { buildCustomerProfile } = require('../ai/response-contract');
+const { buildConversationState } = require('../conversation');
 const { formatHumanResponse } = require('../humanizer');
 
 const FIXTURE_DIR = path.join(__dirname, '..', '..', 'fixtures');
@@ -38,6 +39,17 @@ function result(name, ok, details = {}) {
   return { name, status: ok ? 'passed' : 'failed', ...details };
 }
 
+function strategyMatches(actual, template, expected) {
+  if (!expected) return true;
+  if (actual === expected || template === expected) return true;
+  const aliases = {
+    clarification: ['stage7_family_discovery'],
+    brand_list: ['stage7_family_brand_advice'],
+    personal_advice: ['stage7_adult_brand_advice', 'stage7_family_brand_advice'],
+  };
+  return (aliases[expected] || []).includes(actual) || (aliases[expected] || []).includes(template);
+}
+
 function checkHumanizedText(text, fixture = {}) {
   const missing = (fixture.expectedContains || []).filter((part) => !text.includes(part));
   const forbidden = [
@@ -47,6 +59,15 @@ function checkHumanizedText(text, fixture = {}) {
     /\bLF\b/,
     /\bSKU\b/i,
     /\bstock\b/i,
+    /\bbarcode\b/i,
+    /\boffice\b/i,
+    /Запомнила:/i,
+    /Данные отсутствуют/i,
+    /Я как ИИ/i,
+    /согласно базе/i,
+    /артикул/i,
+    /остаток/i,
+    /По длине стопы ориентир: нужно уточнить размер/i,
     /остаток/i,
     /доступно только/i,
     /только в филиале/i,
@@ -105,7 +126,10 @@ function runHumanizationFixtures() {
 }
 
 function runConversationFixtures() {
-  return readFixture('conversation-fixtures.json').map((fixture) => {
+  return [
+    ...readFixture('conversation-fixtures.json'),
+    ...readFixture('stage7-conversation-fixtures.json'),
+  ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
     turns.slice(0, -1).forEach((turn) => memory.addUserMessage(turn, parseCustomerQuery(turn)));
@@ -114,6 +138,13 @@ function runConversationFixtures() {
     memory.addUserMessage(last, parsed);
     const memoryState = memory.getState();
     const customerProfile = buildCustomerProfile(memoryState, parsed).inferredCustomerProfile;
+    const conversationState = buildConversationState({
+      query: last,
+      parsedQuery: parsed,
+      memoryState,
+      previousState: fixture.previousConversationState || {},
+      searchResults: {},
+    });
     const formatted = formatHumanResponse({
       query: last,
       detectedIntent: parsed.intent,
@@ -124,13 +155,17 @@ function runConversationFixtures() {
       memoryEntities: memoryState.entities || {},
       memorySummary: memoryState.summary || '',
       customerProfile,
+      conversationState,
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
     });
     const textChecks = checkHumanizedText(formatted.text, fixture);
-    const ok = (!fixture.expectedStrategy || formatted.strategy === fixture.expectedStrategy || formatted.templateUsed === fixture.expectedStrategy)
+    const stateMismatches = compareExpected(conversationState, fixture.expectedConversationState || {});
+    const ok = strategyMatches(formatted.strategy, formatted.templateUsed, fixture.expectedStrategy)
+      && stateMismatches.length === 0
+      && textChecks.missing.length === 0
       && textChecks.forbiddenHits.length === 0
       && !textChecks.addressMissing;
-    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, ...textChecks, formatted, parsed });
+    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, ...textChecks, formatted, parsed, conversationState });
   });
 }
 

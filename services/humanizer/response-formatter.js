@@ -33,6 +33,26 @@ function isFamilyProfileUpdate(context = {}) {
 
 function chooseResponseStrategy(context = {}) {
   const intent = context.detectedIntent || context.parsedQuery?.intent || 'availability';
+  const conversationState = context.conversationState || {};
+  if (isFamilyProfileUpdate(context)) return { strategy: 'family_profile_update', template: 'family_profile_update' };
+  if (conversationState.nextBestAction === 'ask_clarifying_question' && conversationState.currentFocus === 'family_selection') {
+    return { strategy: 'stage7_family_discovery', template: 'stage7_family_discovery' };
+  }
+  if (conversationState.nextBestAction === 'recommend_brand' && conversationState.activeSubject === 'adultProfile') {
+    return { strategy: 'stage7_adult_brand_advice', template: 'stage7_adult_brand_advice' };
+  }
+  if (conversationState.nextBestAction === 'recommend_brand' && (conversationState.activeSubject === 'childProfile' || conversationState.activeSubject === 'teenProfile')) {
+    return { strategy: 'stage7_child_brand_advice', template: 'stage7_child_brand_advice' };
+  }
+  if (conversationState.nextBestAction === 'recommend_brand' && conversationState.customerType === 'family') {
+    return { strategy: 'stage7_family_brand_advice', template: 'stage7_family_brand_advice' };
+  }
+  if (conversationState.nextBestAction === 'compare_brands') {
+    return { strategy: 'stage7_brand_comparison', template: 'stage7_brand_comparison' };
+  }
+  if (conversationState.nextBestAction === 'give_size_advice' && (conversationState.activeSubject === 'childProfile' || conversationState.activeSubject === 'teenProfile')) {
+    return { strategy: 'stage7_child_size_advice', template: 'stage7_child_size_advice' };
+  }
   const products = Array.isArray(context.products) && context.products.length
     ? context.products
     : (Array.isArray(context.normalizedProducts) ? context.normalizedProducts : []);
@@ -41,7 +61,6 @@ function chooseResponseStrategy(context = {}) {
     : (Array.isArray(context.normalizedRecommendations) ? context.normalizedRecommendations : []);
   if (intent === 'brand_list') return { strategy: 'brand_list', template: 'brand_list' };
   if (intent === 'store_question' || intent === 'location' || intent === 'branch_info') return { strategy: 'branch_info', template: 'branch_info' };
-  if (isFamilyProfileUpdate(context)) return { strategy: 'family_profile_update', template: 'family_profile_update' };
   if (isPersonalFollowUp(context) && (context.customerProfile?.adultSize || context.memoryEntities?.adultSize || context.memoryEntities?.preferredSize)) {
     return { strategy: 'personal_advice', template: 'personal_advice' };
   }

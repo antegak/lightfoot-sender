@@ -163,6 +163,27 @@ Rules:
 - This is short-term conversational context.
 - Persistent CRM memory requires a separate privacy and retention design.
 
+## Stage7ConversationState
+
+Deterministic AI sandbox dialogue state from `services/conversation`.
+
+Important fields:
+- `currentFocus`: `adult_selection`, `child_selection`, `teen_selection`, `family_selection`, `sizing`, `brand_comparison`, `product_availability`, `recommendation`, `reassurance`, `location`, `conversion`, or `unknown`.
+- `currentStage`: `discovery`, `clarification`, `narrowing`, `recommendation`, `comparison`, `sizing`, `reassurance`, `conversion`, or `handoff_needed`.
+- `activeSubject`: `adultProfile`, `childProfile`, `teenProfile`, `family`, or null.
+- `adultProfile`, `childProfile`, `teenProfile`.
+- `missingInfo`.
+- `nextBestAction`.
+- `shouldSearchProducts`.
+- `salesFlow`.
+- `confidence`.
+
+Rules:
+- Keep adult and child profile facts separate.
+- Fresh user subject cues such as "for myself" switch `activeSubject` to adult without discarding child context.
+- Brand advice and comparison can avoid product search; availability and concrete size/color requests can search.
+- This is AI sandbox state, not persistent CRM memory.
+
 ## AIContext
 
 Object passed from AI Manager orchestration into the humanizer and OpenRouter prompt.

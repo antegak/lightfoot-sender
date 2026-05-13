@@ -13,6 +13,68 @@ function brandDescription(brand) {
 }
 
 const TEMPLATES = Object.freeze({
+  stage7_family_discovery: () => [
+    'Конечно 💛',
+    'Для вас подберем отдельно, для ребенка отдельно - так будет точнее.',
+    '',
+    'Напишите, пожалуйста:',
+    'для вас - размер или длину стопы,',
+    'для ребенка - сколько см стопа 👣',
+  ].join('\n'),
+  stage7_family_brand_advice: ({ conversationState }) => {
+    const adultSize = conversationState?.adultProfile?.size;
+    const childCm = conversationState?.childProfile?.footLengthCm;
+    const childSize = conversationState?.childProfile?.size;
+    return [
+      'Я бы разделила так 💛',
+      '',
+      `Для вас${adultSize ? ` в ${adultSize} размере` : ''}: TipsieToes или Be Lenka.`,
+      'TipsieToes мягче и проще на каждый день, Be Lenka - более премиальный вариант.',
+      '',
+      `Для ребенка${childCm ? ` ${childCm} см` : ''}${childSize ? `, ориентир ${childSize} размер` : ''}: Little Light - лучше начать с нее, потому что это детская/подростковая линейка.`,
+    ].join('\n');
+  },
+  stage7_adult_brand_advice: ({ conversationState }) => {
+    const size = conversationState?.adultProfile?.size;
+    return [
+      `Для вас${size ? ` в ${size} размере` : ''} я бы сначала смотрела TipsieToes или Be Lenka 💛`,
+      '',
+      'Если хотите мягче и на каждый день - TipsieToes.',
+      'Если хочется более премиальную посадку и стиль - Be Lenka.',
+      'Для активной носки можно еще смотреть Saguaro.',
+      '',
+      size ? `Могу сразу показать варианты в ${size} размере?` : 'Могу сразу показать подходящие варианты?',
+    ].join('\n');
+  },
+  stage7_child_brand_advice: ({ conversationState }) => {
+    const child = conversationState?.childProfile || conversationState?.teenProfile || {};
+    const cm = child.footLengthCm;
+    const size = child.size;
+    return [
+      `Для ребенка${cm ? ` при стопе ${cm} см` : ''}${size ? ` ориентир ${size} размер` : ''} я бы начала с Little Light 💛`,
+      '',
+      'Это детская/подростковая линейка, ее проще подбирать по длине стопы.',
+      'Если нужна более активная обувь для прогулок или спорта - можно смотреть детские Saguaro.',
+      '',
+      'Могу показать варианты по этому размеру?',
+    ].join('\n');
+  },
+  stage7_brand_comparison: () => [
+    'Если коротко 💛',
+    '',
+    'TipsieToes - мягче и проще на каждый день.',
+    'Be Lenka - премиальнее по посадке и стилю.',
+    'Saguaro - больше для активной носки, спорта и прогулок.',
+  ].join('\n'),
+  stage7_child_size_advice: ({ conversationState }) => {
+    const child = conversationState?.childProfile || conversationState?.teenProfile || {};
+    return [
+      `По стопе ${child.footLengthCm || ''} см я бы смотрела примерно ${child.size || ''} размер 💛`.replace(/\s+/g, ' ').trim(),
+      'Для ребенка лучше оставить небольшой запас, чтобы обувь не была впритык.',
+      '',
+      'По брендам сначала смотрим Little Light, а для активной носки можно Saguaro kids.',
+    ].join('\n');
+  },
   availability: ({ productsText, branchesText }) => [
     `${EMOJI.heart} Есть подходящие варианты:`,
     productsText,
@@ -44,7 +106,7 @@ const TEMPLATES = Object.freeze({
     const childFootLength = customerProfile?.childFootLength || memoryEntities?.childFootLength;
     const childSize = customerProfile?.childRecommendedSize || memoryEntities?.childRecommendedSize;
     return [
-      `${EMOJI.heart} Запомнила: для вас смотрим ${adultSize || 'взрослый'} размер.`,
+      `${EMOJI.heart} Отлично. Для вас смотрим ${adultSize || 'взрослый'} размер.`,
       childFootLength || childSize
         ? `Для ребенка: ${childFootLength ? `${childFootLength} см стопа` : 'по стопе'}${childSize ? `, ориентир ${childSize} размер` : ''}.`
         : '',

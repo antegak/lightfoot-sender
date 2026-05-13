@@ -146,6 +146,7 @@ function buildReasoningUserPrompt(context = {}) {
     `Search summary: ${JSON.stringify(context.searchSummary || null)}`,
     `Memory entities: ${JSON.stringify(context.memoryEntities || {})}`,
     `Customer profile: ${JSON.stringify(context.customerProfile || null)}`,
+    `Conversation state: ${JSON.stringify(context.conversationState || null)}`,
     `Normalized products: ${JSON.stringify((context.normalizedProducts || []).slice(0, 5))}`,
     `Recommendations: ${JSON.stringify((context.normalizedRecommendations || []).slice(0, 5))}`,
     `Deterministic draft preview: ${context.humanizedResponse?.text || ''}`,

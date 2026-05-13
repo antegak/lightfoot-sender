@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const { WhatsAppController } = require('./whatsapp');
 const NameUtils = require('./name-utils');
+const { parseCustomerQuery } = require('./intent-detector');
 const {
   LOG_CATEGORIES,
   clearLogs,
@@ -19,11 +20,12 @@ const {
   buildConversationContext,
   buildCustomerProfile,
   buildReasoningObject,
-  buildReasoningSystemPrompt,
   buildReasoningUserPrompt,
   parseReasoningObject,
 } = require('./services/ai/response-contract');
 const { formatHumanResponse, humanizeBranches } = require('./services/humanizer');
+const { applyDialoguePolicy, buildConversationState } = require('./services/conversation');
+const { buildLightfootConsultantReasoningPrompt } = require('./services/ai/prompts/lightfoot-consultant');
 const { runQaFixtures } = require('./services/qa');
 const {
   checkConnection: checkBillzConnection,
@@ -580,7 +582,7 @@ async function requestOpenRouterChat({
     ].join('\n');
 
     const fallbackReasoning = buildReasoningObject(billzContext || {}, billzContext?.humanizedResponse || {});
-    const reasoningSystemPrompt = buildReasoningSystemPrompt({ connected });
+    const reasoningSystemPrompt = buildLightfootConsultantReasoningPrompt({ connected });
     const reasoningUserPrompt = buildReasoningUserPrompt({
       ...(billzContext || {}),
       query: billzContext?.query || cleanText,
@@ -800,9 +802,36 @@ async function requestAiTestChat(payload = {}) {
   const billzStatus = getBillzStatus();
   const { secretToken } = getBillzAuthConfig();
   const previousMemoryState = aiConversationMemory.getState();
-  const billzAiContext = billzStatus.connected && secretToken
+  const preParsedQuery = parseCustomerQuery(text);
+  const preConversationState = buildConversationState({
+    query: text,
+    parsedQuery: preParsedQuery,
+    memoryState: previousMemoryState,
+    previousState: lastAiDebugState?.conversationState || {},
+    searchResults: {},
+  });
+  const shouldSearchProducts = Boolean(preConversationState.shouldSearchProducts);
+  const billzAiContext = billzStatus.connected && secretToken && shouldSearchProducts
     ? await getBillzContextForAi(secretToken, text, { memory: previousMemoryState.entities || {} })
-    : { connected: false, ok: false, query: text, error: billzStatus.error || 'billz-not-connected', products: [], parsedQuery: null, detectedIntent: 'unknown', sizeRecommendation: null, totalCachedProducts: 0, matchedProducts: 0, searchMode: '', updatedAt: new Date().toISOString() };
+    : {
+        connected: Boolean(billzStatus.connected && secretToken),
+        ok: Boolean(billzStatus.connected && secretToken),
+        query: text,
+        error: billzStatus.connected && secretToken ? '' : (billzStatus.error || 'billz-not-connected'),
+        products: [],
+        recommendations: [],
+        recommendationReasoning: [],
+        parsedQuery: preParsedQuery,
+        detectedIntent: preParsedQuery.intent || 'unknown',
+        sizeRecommendation: preParsedQuery.sizeRecommendation || null,
+        searchDebug: shouldSearchProducts ? null : { skipped: true, reason: 'conversation_state_no_product_search' },
+        searchSummary: shouldSearchProducts ? null : { mode: 'conversation', skipped: true, confidence: preConversationState.confidence, lowConfidence: preConversationState.confidence < 60 },
+        brandSummary: null,
+        totalCachedProducts: 0,
+        matchedProducts: 0,
+        searchMode: shouldSearchProducts ? '' : 'conversation-no-search',
+        updatedAt: new Date().toISOString(),
+      };
   logger.info(LOG_CATEGORIES.AI, 'AI parser boundary', {
     intent: billzAiContext.detectedIntent,
     parsedQuery: billzAiContext.parsedQuery,
@@ -812,10 +841,24 @@ async function requestAiTestChat(payload = {}) {
   const memoryState = aiConversationMemory.getState();
   const conversationContext = buildConversationContext(memoryState, billzAiContext.parsedQuery || {}, billzAiContext.products || []);
   const customerProfile = buildCustomerProfile(memoryState, billzAiContext.parsedQuery || {});
+  const conversationState = buildConversationState({
+    query: text,
+    parsedQuery: billzAiContext.parsedQuery || {},
+    memoryState,
+    previousState: preConversationState,
+    searchResults: billzAiContext,
+  });
   logger.info(LOG_CATEGORIES.AI, 'AI memory merge', {
     previousEntities: previousMemoryState.entities || {},
     currentEntities: memoryState.entities || {},
     previousIntent: conversationContext.previousIntent,
+  });
+  logger.info(LOG_CATEGORIES.AI, 'AI conversation state', {
+    currentFocus: conversationState.currentFocus,
+    currentStage: conversationState.currentStage,
+    activeSubject: conversationState.activeSubject,
+    nextBestAction: conversationState.nextBestAction,
+    shouldSearchProducts: conversationState.shouldSearchProducts,
   });
   const products = billzAiContext.connected ? billzAiContext.products : [];
   const billzContext = buildAiContext({
@@ -841,14 +884,23 @@ async function requestAiTestChat(payload = {}) {
 	    },
 	    memoryState,
 	    maxProducts: 5,
-	  });
+  });
   billzContext.conversationContext = conversationContext;
-  billzContext.customerProfile = customerProfile.inferredCustomerProfile;
+  billzContext.conversationState = conversationState;
+  billzContext.customerProfile = {
+    ...customerProfile.inferredCustomerProfile,
+    stage7: conversationState.customerProfile,
+    adultProfile: conversationState.adultProfile,
+    childProfile: conversationState.childProfile,
+    teenProfile: conversationState.teenProfile,
+    activeSubject: conversationState.activeSubject,
+  };
   let humanizedResponse = formatHumanResponse(billzContext);
   const reasoningObject = buildReasoningObject(billzContext, humanizedResponse);
   billzContext.reasoningObject = reasoningObject;
   billzContext.aiConfidence = reasoningObject.confidence;
   humanizedResponse = formatHumanResponse(billzContext);
+  humanizedResponse.text = applyDialoguePolicy(humanizedResponse.text, conversationState);
   billzContext.humanizedResponse = humanizedResponse;
   logger.info(LOG_CATEGORIES.AI, 'AI formatter output', {
     strategy: humanizedResponse.strategy,
@@ -885,6 +937,7 @@ async function requestAiTestChat(payload = {}) {
     result.aiConfidence = result.reasoningObject.confidence;
     result.customerProfile = billzContext.customerProfile;
     result.conversationContext = conversationContext;
+    result.conversationState = conversationState;
     result.recommendationReasoning = billzContext.recommendationReasoning || [];
     result.history = aiSandboxHistory;
   }
@@ -898,6 +951,20 @@ async function requestAiTestChat(payload = {}) {
     reasoningObject: result.reasoningObject || reasoningObject,
     formatterOutputPreview: humanizedResponse.text || '',
     customerProfile: billzContext.customerProfile || null,
+    conversationState: {
+      currentFocus: conversationState.currentFocus,
+      currentStage: conversationState.currentStage,
+      activeSubject: conversationState.activeSubject,
+      nextBestAction: conversationState.nextBestAction,
+      shouldSearchProducts: conversationState.shouldSearchProducts,
+      customerProfile: conversationState.customerProfile,
+      adultProfile: conversationState.adultProfile,
+      childProfile: conversationState.childProfile,
+      teenProfile: conversationState.teenProfile,
+      salesFlow: conversationState.salesFlow,
+      missingInfo: conversationState.missingInfo,
+      confidence: conversationState.confidence,
+    },
     clarificationState: conversationContext.clarificationState,
     aiConfidence: result.aiConfidence || reasoningObject.confidence,
     fallbackLogic: {

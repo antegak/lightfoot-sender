@@ -124,3 +124,25 @@ Rules:
 - If OpenRouter is unavailable, AI sandbox can still return the deterministic humanized response with an `aiError`.
 - Debug state includes normalized product preview, reasoning object, formatter output preview, customer profile, clarification state, and AI confidence.
 - Follow-up context is passed as memory entities to search; the original user query is preserved.
+
+## Stage 7 Conversational Sales Engine
+
+Stage 7 adds `services/conversation` for AI sandbox/test chat quality:
+- conversation state;
+- topic focus;
+- adult/child/teen/family profile separation;
+- sales flow detection;
+- next-best-action;
+- product-search decision;
+- dialogue policy and persona.
+
+The AI sandbox now exposes conversation debug state with `currentFocus`, `currentStage`, `activeSubject`, `nextBestAction`, `shouldSearchProducts`, `customerProfile`, `adultProfile`, and `childProfile`.
+
+Rules:
+- Do not enable autonomous WhatsApp replies.
+- Do not send messages automatically.
+- Do not create permanent CRM memory.
+- Do not ask for size/foot length when the conversation state already has it.
+- If the customer says "for myself", answer for the adult profile even when child context exists.
+- For brand advice, compare and recommend before searching random products.
+- For concrete availability, color, size, or "show options" requests, product search may be used.
