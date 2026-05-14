@@ -2,6 +2,8 @@ const { buildStage7CustomerProfiles } = require('./customer-profile');
 const { inferActiveSubject, inferCurrentFocus } = require('./topic-tracker');
 const { determineSalesFlow, inferCurrentStage } = require('./sales-flow');
 const { determineNextBestAction, shouldSearchProducts } = require('./next-best-action');
+const { determineFreedom } = require('./controlled-freedom');
+const { detectNewInfo } = require('./new-info-detector');
 
 function initialConversationState() {
   return {
@@ -19,6 +21,12 @@ function initialConversationState() {
     nextBestAction: null,
     shouldSearchProducts: false,
     salesFlow: null,
+    freedomLevel: null,
+    hasNewInfo: false,
+    newInfoType: null,
+    selectedDialogueMove: null,
+    reasonForNextBestAction: '',
+    blockedByRepetition: false,
     confidence: 0,
   };
 }
@@ -46,6 +54,7 @@ function buildConversationState({
   searchResults = {},
 } = {}) {
   const profiles = buildStage7CustomerProfiles(memoryState, parsedQuery, query);
+  const newInfo = detectNewInfo(query, parsedQuery, previousState, profiles);
   const activeSubject = inferActiveSubject(query, parsedQuery, profiles, previousState);
   const currentFocus = inferCurrentFocus(query, parsedQuery, profiles, activeSubject, previousState);
   const baseState = {
@@ -59,6 +68,9 @@ function buildConversationState({
     adultProfile: profiles.adultProfile,
     childProfile: profiles.childProfile,
     teenProfile: profiles.teenProfile,
+    newInfo,
+    hasNewInfo: newInfo.hasNewInfo,
+    newInfoType: newInfo.newInfoType,
     discussedBrands: Array.from(new Set([...(previousState.discussedBrands || []), parsedQuery.brand].filter(Boolean))),
   };
   baseState.currentStage = inferCurrentStage(currentFocus, parsedQuery, baseState);
@@ -66,12 +78,17 @@ function buildConversationState({
   baseState.nextBestAction = determineNextBestAction(baseState, parsedQuery, searchResults);
   baseState.shouldSearchProducts = shouldSearchProducts(baseState, parsedQuery, searchResults);
   baseState.salesFlow = determineSalesFlow(baseState);
+  if (baseState.nextBestAction === 'recommend_direction' || baseState.nextBestAction === 'acknowledge_correction') baseState.shouldSearchProducts = false;
   baseState.confidence = Math.max(
     profiles.customerProfile.confidence || 0,
     profiles.adultProfile.confidence || 0,
     profiles.childProfile.confidence || 0,
     baseState.currentFocus && baseState.currentFocus !== 'unknown' ? 55 : 30
   );
+  baseState.freedom = determineFreedom(baseState, parsedQuery, searchResults, { billzConnected: searchResults.connected !== false });
+  baseState.freedomLevel = baseState.freedom.freedomLevel;
+  baseState.selectedDialogueMove = baseState.nextBestAction;
+  baseState.reasonForNextBestAction = baseState.freedom.reason || '';
   return baseState;
 }
 

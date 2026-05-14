@@ -27,6 +27,10 @@ function shouldSearchProducts(state = {}, parsed = {}, searchResults = {}) {
 function determineNextBestAction(state = {}, parsed = {}, searchResults = {}) {
   const query = state.query || parsed.raw || '';
   if (state.currentFocus === 'location') return 'suggest_visit';
+  if (state.newInfo?.isCorrection && state.newInfo?.newInfoType === 'size') return 'acknowledge_correction';
+  if (state.newInfo?.hasNewInfo && ['useCase', 'fitPreference', 'stylePreference', 'objection', 'budget'].includes(state.newInfo.newInfoType)) {
+    return 'recommend_direction';
+  }
   if (state.currentFocus === 'sizing') return 'give_size_advice';
   if (state.currentFocus === 'family_selection' && (!state.adultProfile?.size || !state.childProfile?.footLengthCm)) {
     return 'ask_clarifying_question';

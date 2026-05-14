@@ -13,6 +13,63 @@ function brandDescription(brand) {
 }
 
 const TEMPLATES = Object.freeze({
+  stage8_child_direction: ({ conversationState }) => {
+    const child = conversationState?.childProfile || conversationState?.teenProfile || {};
+    const useCase = child.useCase || conversationState?.newInfo?.value;
+    if (useCase === 'school') {
+      return [
+        'Для школы я бы начала с Little Light 💛',
+        'Смотрите спокойные цвета и мягкую посадку, чтобы ребенку было удобно весь день.',
+        child.footLengthCm ? `На стопу ${child.footLengthCm} см уже можно подобрать варианты в детской линейке 👣` : 'Можно подобрать детскую линейку под длину стопы 👣',
+        'Хотите больше классический вид или что-то спортивнее?',
+      ].join('\n');
+    }
+    return [
+      'Для ребенка я бы начала с Little Light 💛',
+      'Это спокойная детская/подростковая линия для ежедневной носки.',
+      'Если нужна обувь для активных прогулок, можно смотреть Saguaro kids.',
+      'Хотите больше мягкий повседневный вариант или спортивнее?',
+    ].join('\n');
+  },
+  stage8_adult_direction: ({ conversationState }) => {
+    const adult = conversationState?.adultProfile || {};
+    if (adult.useCase === 'everyday') {
+      return [
+        `Для вас${adult.size ? ` в ${adult.size}` : ''} на каждый день я бы начала с TipsieToes 💛`,
+        'Они мягкие и понятные для ежедневной носки.',
+        'Если хочется более стильную и премиальную посадку - тогда Be Lenka.',
+        adult.size ? `Могу показать варианты в ${adult.size}?` : 'Могу показать подходящие варианты?',
+      ].join('\n');
+    }
+    return [
+      `Для вас${adult.size ? ` в ${adult.size}` : ''} я бы смотрела TipsieToes или Be Lenka 💛`,
+      'TipsieToes - мягче на каждый день.',
+      'Be Lenka - премиальнее и стильнее.',
+      adult.size ? `Показать варианты в ${adult.size}?` : 'Показать варианты?',
+    ].join('\n');
+  },
+  stage8_correction_ack: ({ conversationState }) => {
+    const adultSize = conversationState?.adultProfile?.size || conversationState?.newInfo?.value;
+    const childCm = conversationState?.childProfile?.footLengthCm;
+    return [
+      `Все нормально 💛 Тогда для вас смотрим ${adultSize || 'уточненный'} размер.`,
+      childCm ? `Для ребенка оставляем ${childCm} см стопы.` : '',
+    ].filter(Boolean).join('\n');
+  },
+  stage8_progression: ({ conversationState }) => {
+    if (conversationState?.activeSubject === 'childProfile' || conversationState?.activeSubject === 'teenProfile') {
+      return [
+        'Тогда двигаемся по ребенку 💛',
+        'Я бы сначала выбрала направление: Little Light для школы и спокойной носки, Saguaro kids - если нужно активнее.',
+        'Какой стиль ближе: классический или спортивный?',
+      ].join('\n');
+    }
+    return [
+      'Тогда двигаемся по вашему варианту 💛',
+      'Я бы сузила выбор до TipsieToes для мягкой ежедневной носки или Be Lenka для более премиальной посадки.',
+      'Показать варианты по размеру?',
+    ].join('\n');
+  },
   stage7_family_discovery: () => [
     'Конечно 💛',
     'Для вас подберем отдельно, для ребенка отдельно - так будет точнее.',

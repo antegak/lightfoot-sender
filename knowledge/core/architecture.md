@@ -93,8 +93,10 @@ AI output must remain explainable and debuggable. BILLZ context, parsed query, d
 user message
   -> parser and lightweight memory
   -> conversation state engine
+  -> controlled freedom and new-info detection
   -> customer profiles for adult / child / teen / family
   -> topic focus and next-best-action decision
+  -> repetition guard
   -> deterministic humanizer templates
   -> OpenRouter reasoning layer only
   -> final AI sandbox response

@@ -5,6 +5,7 @@ function inferCurrentStage(focus, parsed = {}, state = {}) {
   if (focus === 'product_availability') return 'recommendation';
   if (focus === 'family_selection' && (!state.adultProfile?.size || !state.childProfile?.footLengthCm)) return 'clarification';
   if (focus === 'adult_selection' || focus === 'child_selection' || focus === 'teen_selection') {
+    if (state.newInfo?.hasNewInfo && ['useCase', 'fitPreference', 'stylePreference', 'objection', 'budget'].includes(state.newInfo.newInfoType)) return 'recommendation';
     if (/recommendation|brand_list/.test(parsed.intent || '')) return 'recommendation';
     return state.activeSubject ? 'narrowing' : 'discovery';
   }

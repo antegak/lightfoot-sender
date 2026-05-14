@@ -34,9 +34,23 @@ function isFamilyProfileUpdate(context = {}) {
 function chooseResponseStrategy(context = {}) {
   const intent = context.detectedIntent || context.parsedQuery?.intent || 'availability';
   const conversationState = context.conversationState || {};
-  if (isFamilyProfileUpdate(context)) return { strategy: 'family_profile_update', template: 'family_profile_update' };
+  if (isFamilyProfileUpdate(context) && !['recommend_direction', 'acknowledge_correction', 'progress_conversation'].includes(conversationState.nextBestAction)) {
+    return { strategy: 'family_profile_update', template: 'family_profile_update' };
+  }
   if (conversationState.nextBestAction === 'ask_clarifying_question' && conversationState.currentFocus === 'family_selection') {
     return { strategy: 'stage7_family_discovery', template: 'stage7_family_discovery' };
+  }
+  if (conversationState.nextBestAction === 'acknowledge_correction') {
+    return { strategy: 'stage8_correction_ack', template: 'stage8_correction_ack' };
+  }
+  if (conversationState.nextBestAction === 'progress_conversation') {
+    return { strategy: 'stage8_progression', template: 'stage8_progression' };
+  }
+  if (conversationState.nextBestAction === 'recommend_direction' && (conversationState.activeSubject === 'childProfile' || conversationState.activeSubject === 'teenProfile')) {
+    return { strategy: 'stage8_child_direction', template: 'stage8_child_direction' };
+  }
+  if (conversationState.nextBestAction === 'recommend_direction' && conversationState.activeSubject === 'adultProfile') {
+    return { strategy: 'stage8_adult_direction', template: 'stage8_adult_direction' };
   }
   if (conversationState.nextBestAction === 'recommend_brand' && conversationState.activeSubject === 'adultProfile') {
     return { strategy: 'stage7_adult_brand_advice', template: 'stage7_adult_brand_advice' };

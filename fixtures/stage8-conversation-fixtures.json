@@ -1,0 +1,81 @@
+[
+  {
+    "name": "stage8-school-use-case-update",
+    "turns": ["Привет! смотрю обувь для себя и для ребенка, что взять?", "у меня 39 размер, а у ребенка 17 см стопа", "ребенку в школу надо"],
+    "expectedStrategy": "stage8_child_direction",
+    "expectedConversationState": {
+      "currentFocus": "child_selection",
+      "currentStage": "recommendation",
+      "activeSubject": "childProfile",
+      "nextBestAction": "recommend_direction",
+      "shouldSearchProducts": false,
+      "freedomLevel": "guided_consultant",
+      "hasNewInfo": true,
+      "newInfoType": "useCase",
+      "selectedDialogueMove": "recommend_direction"
+    },
+    "expectedContains": ["Для школы", "Little Light", "17", "классический", "спортивнее"],
+    "expectedNotContains": ["Запомнила:", "остаток", "артикул", "stock", "office", "согласно базе"],
+    "expectedMaxQuestions": 1
+  },
+  {
+    "name": "stage8-adult-advice-follow-up",
+    "turns": ["Привет! смотрю обувь для себя и для ребенка, что взять?", "у меня 39 размер, а у ребенка 17 см стопа", "а для себя какие лучше?"],
+    "expectedStrategy": "stage7_adult_brand_advice",
+    "expectedConversationState": {
+      "currentFocus": "adult_selection",
+      "activeSubject": "adultProfile",
+      "nextBestAction": "recommend_brand",
+      "shouldSearchProducts": false,
+      "freedomLevel": "guided_consultant"
+    },
+    "expectedContains": ["39", "TipsieToes", "Be Lenka"],
+    "expectedNotContains": ["Little Light", "остаток", "артикул", "stock", "office"],
+    "expectedMaxQuestions": 1
+  },
+  {
+    "name": "stage8-correction-handling",
+    "turns": ["у меня 9 размер", "прошу прощения, 39"],
+    "expectedStrategy": "stage8_correction_ack",
+    "expectedConversationState": {
+      "activeSubject": "adultProfile",
+      "nextBestAction": "acknowledge_correction",
+      "shouldSearchProducts": false,
+      "hasNewInfo": true,
+      "newInfoType": "size"
+    },
+    "expectedContains": ["Все нормально", "39"],
+    "expectedNotContains": ["Запомнила:", "нужно уточнить", "остаток", "артикул", "stock", "office"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage8-no-stale-summary-repeat",
+    "turns": ["Привет! смотрю обувь для себя и для ребенка, что взять?", "у меня 39 размер, а у ребенка 17 см стопа", "а для себя какие лучше?"],
+    "previousAssistantResponse": "Для вас в 39 размере я бы сначала смотрела TipsieToes или Be Lenka 💛\nЕсли хотите мягче и на каждый день - TipsieToes.\nЕсли хочется более премиальную посадку и стиль - Be Lenka.\nДля активной носки можно еще смотреть Saguaro.\nМогу сразу показать варианты в 39 размере?",
+    "expectedConversationState": {
+      "blockedByRepetition": true,
+      "selectedDialogueMove": "progress_conversation",
+      "reasonForNextBestAction": "blocked_by_repetition"
+    },
+    "expectedContains": ["Тогда двигаемся", "TipsieToes", "Be Lenka"],
+    "expectedNotContains": ["Запомнила:", "остаток", "артикул", "stock", "office"],
+    "expectedMaxQuestions": 1
+  },
+  {
+    "name": "stage8-controlled-freedom-low-exact-availability",
+    "turns": ["есть черные 39?"],
+    "expectedConversationState": {
+      "currentFocus": "product_availability",
+      "nextBestAction": "recommend_product",
+      "shouldSearchProducts": true,
+      "freedomLevel": "strict_safe"
+    },
+    "expectedNotContains": ["вы точно можете", "согласно базе", "остаток", "артикул", "stock", "office"]
+  },
+  {
+    "name": "stage8-one-good-question",
+    "turns": ["ребенку нужна обувь"],
+    "expectedMaxQuestions": 1,
+    "expectedNotContains": ["цвет?", "бюджет?", "бренд?", "остаток", "артикул", "stock", "office"]
+  }
+]

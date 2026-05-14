@@ -4,7 +4,7 @@ const { parseCustomerQuery } = require('../../intent-detector');
 const { normalizeQuery } = require('../search');
 const { ConversationMemory } = require('../memory');
 const { buildCustomerProfile } = require('../ai/response-contract');
-const { buildConversationState } = require('../conversation');
+const { applyDialoguePolicy, buildConversationState, countQuestions } = require('../conversation');
 const { formatHumanResponse } = require('../humanizer');
 
 const FIXTURE_DIR = path.join(__dirname, '..', '..', 'fixtures');
@@ -129,6 +129,7 @@ function runConversationFixtures() {
   return [
     ...readFixture('conversation-fixtures.json'),
     ...readFixture('stage7-conversation-fixtures.json'),
+    ...readFixture('stage8-conversation-fixtures.json'),
   ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
@@ -145,7 +146,7 @@ function runConversationFixtures() {
       previousState: fixture.previousConversationState || {},
       searchResults: {},
     });
-    const formatted = formatHumanResponse({
+    let formatted = formatHumanResponse({
       query: last,
       detectedIntent: parsed.intent,
       parsedQuery: parsed,
@@ -158,14 +159,42 @@ function runConversationFixtures() {
       conversationState,
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
     });
+    let policy = applyDialoguePolicy(formatted.text, conversationState, {
+      previousAssistantText: fixture.previousAssistantResponse || '',
+    });
+    if (policy.repetition.blockedByRepetition) {
+      conversationState.blockedByRepetition = true;
+      conversationState.nextBestAction = 'progress_conversation';
+      conversationState.selectedDialogueMove = 'progress_conversation';
+      conversationState.reasonForNextBestAction = 'blocked_by_repetition';
+      formatted = formatHumanResponse({
+        query: last,
+        detectedIntent: parsed.intent,
+        parsedQuery: parsed,
+        products: [],
+        recommendations: [],
+        sizeRecommendation: parsed.sizeRecommendation,
+        memoryEntities: memoryState.entities || {},
+        memorySummary: memoryState.summary || '',
+        customerProfile,
+        conversationState,
+        brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
+      });
+      policy = applyDialoguePolicy(formatted.text, conversationState);
+    }
+    formatted.text = policy.text;
+    formatted.dialoguePolicy = policy;
     const textChecks = checkHumanizedText(formatted.text, fixture);
     const stateMismatches = compareExpected(conversationState, fixture.expectedConversationState || {});
+    const questionCount = countQuestions(formatted.text);
+    const tooManyQuestions = fixture.expectedMaxQuestions !== undefined && questionCount > fixture.expectedMaxQuestions;
     const ok = strategyMatches(formatted.strategy, formatted.templateUsed, fixture.expectedStrategy)
       && stateMismatches.length === 0
       && textChecks.missing.length === 0
       && textChecks.forbiddenHits.length === 0
+      && !tooManyQuestions
       && !textChecks.addressMissing;
-    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, ...textChecks, formatted, parsed, conversationState });
+    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, questionCount, tooManyQuestions, ...textChecks, formatted, parsed, conversationState });
   });
 }
 

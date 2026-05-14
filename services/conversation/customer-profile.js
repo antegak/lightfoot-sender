@@ -11,6 +11,9 @@ function blankProfile() {
     preferredMaterial: null,
     useCase: null,
     fitPreference: null,
+    stylePreference: null,
+    budget: null,
+    objection: null,
     problemNotes: [],
     confidence: 0,
   };
@@ -40,6 +43,29 @@ function detectFitPreference(text = '') {
   if (/преми|premium|стиль|РїСЂРµРјРё|СЃС‚РёР»/.test(raw)) return 'premium';
   if (/дыш|breath|С‹С€/.test(raw)) return 'breathable';
   if (/прочн|долг|durable|РїСЂРѕС‡|РґРѕР»Рі/.test(raw)) return 'durable';
+  return null;
+}
+
+function detectStylePreference(text = '') {
+  const raw = String(text || '').toLowerCase();
+  if (/классич|спокойн|черн|бел|беж|РєР»Р°СЃСЃРёС‡|СЃРїРѕРєРѕР№РЅ|С‡РµСЂРЅ|Р±РµР»|Р±РµР¶/.test(raw)) return 'classic';
+  if (/спорт|актив|ярк|цветн|РЎРѓР С—Р С•РЎР‚РЎвЂљ|Р°РєС‚РёРІ|СЏСЂРє|С†РІРµС‚РЅ/.test(raw)) return 'sporty';
+  if (/стиль|преми|город|РЎРѓРЎвЂљР С‘Р В»|РїСЂРµРјРё|РіРѕСЂРѕРґ/.test(raw)) return 'stylish';
+  return null;
+}
+
+function detectBudget(text = '') {
+  const raw = String(text || '').toLowerCase();
+  if (/дешев|доступ|бюджет|РґРµС€РµРІ|РґРѕСЃС‚СѓРї|Р±СЋРґР¶РµС‚/.test(raw)) return 'value';
+  if (/преми|дороже|качест|РїСЂРµРјРё|РґРѕСЂРѕР¶|РєР°С‡РµСЃС‚/.test(raw)) return 'premium';
+  return null;
+}
+
+function detectObjection(text = '') {
+  const raw = String(text || '').toLowerCase();
+  if (/дорог|цена|РґРѕСЂРѕРі|С†РµРЅР°/.test(raw)) return 'price';
+  if (/сомне|не знаю|боюсь|РЅРµ\s+Р·РЅР°СЋ|СЃРѕРјРЅРµ|Р±РѕСЋСЃ/.test(raw)) return 'uncertain';
+  if (/не подойдет|неудоб|РЅРµ\s+РїРѕРґРѕР№Рґ|РЅРµСѓРґРѕР±/.test(raw)) return 'fit';
   return null;
 }
 
@@ -88,6 +114,9 @@ function fromEntities(type, entities = {}, parsed = {}, query = '') {
   profile.preferredMaterial = parsed.material || entities.preferredMaterial || null;
   profile.useCase = detectUseCase(query) || entities.useCase || null;
   profile.fitPreference = detectFitPreference(query) || entities.fitPreference || null;
+  profile.stylePreference = detectStylePreference(query) || entities.stylePreference || null;
+  profile.budget = detectBudget(query) || entities.budget || null;
+  profile.objection = detectObjection(query) || entities.objection || null;
   profile.problemNotes = Array.from(new Set([...(entities.problemNotes || []), ...detectProblemNotes(query)]));
   profile.confidence = scoreProfile(profile);
   return profile;
@@ -128,6 +157,9 @@ module.exports = {
   buildStage7CustomerProfiles,
   detectFitPreference,
   detectProblemNotes,
+  detectStylePreference,
   detectUseCase,
+  detectBudget,
+  detectObjection,
   inferSizeByFootLength,
 };

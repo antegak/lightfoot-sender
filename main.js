@@ -858,6 +858,12 @@ async function requestAiTestChat(payload = {}) {
     currentStage: conversationState.currentStage,
     activeSubject: conversationState.activeSubject,
     nextBestAction: conversationState.nextBestAction,
+    freedomLevel: conversationState.freedomLevel,
+    hasNewInfo: conversationState.hasNewInfo,
+    newInfoType: conversationState.newInfoType,
+    selectedDialogueMove: conversationState.selectedDialogueMove,
+    reasonForNextBestAction: conversationState.reasonForNextBestAction,
+    blockedByRepetition: conversationState.blockedByRepetition,
     shouldSearchProducts: conversationState.shouldSearchProducts,
   });
   const products = billzAiContext.connected ? billzAiContext.products : [];
@@ -900,7 +906,20 @@ async function requestAiTestChat(payload = {}) {
   billzContext.reasoningObject = reasoningObject;
   billzContext.aiConfidence = reasoningObject.confidence;
   humanizedResponse = formatHumanResponse(billzContext);
-  humanizedResponse.text = applyDialoguePolicy(humanizedResponse.text, conversationState);
+  let dialoguePolicy = applyDialoguePolicy(humanizedResponse.text, conversationState, {
+    previousAssistantText: lastAiDebugState?.formatterOutputPreview || '',
+  });
+  if (dialoguePolicy.repetition.blockedByRepetition) {
+    conversationState.blockedByRepetition = true;
+    conversationState.nextBestAction = 'progress_conversation';
+    conversationState.selectedDialogueMove = 'progress_conversation';
+    conversationState.reasonForNextBestAction = 'blocked_by_repetition';
+    billzContext.conversationState = conversationState;
+    humanizedResponse = formatHumanResponse(billzContext);
+    dialoguePolicy = applyDialoguePolicy(humanizedResponse.text, conversationState);
+  }
+  humanizedResponse.text = dialoguePolicy.text;
+  humanizedResponse.dialoguePolicy = dialoguePolicy;
   billzContext.humanizedResponse = humanizedResponse;
   logger.info(LOG_CATEGORIES.AI, 'AI formatter output', {
     strategy: humanizedResponse.strategy,
@@ -957,6 +976,13 @@ async function requestAiTestChat(payload = {}) {
       activeSubject: conversationState.activeSubject,
       nextBestAction: conversationState.nextBestAction,
       shouldSearchProducts: conversationState.shouldSearchProducts,
+      freedomLevel: conversationState.freedomLevel,
+      hasNewInfo: conversationState.hasNewInfo,
+      newInfoType: conversationState.newInfoType,
+      newInfo: conversationState.newInfo,
+      blockedByRepetition: conversationState.blockedByRepetition,
+      selectedDialogueMove: conversationState.selectedDialogueMove,
+      reasonForNextBestAction: conversationState.reasonForNextBestAction,
       customerProfile: conversationState.customerProfile,
       adultProfile: conversationState.adultProfile,
       childProfile: conversationState.childProfile,

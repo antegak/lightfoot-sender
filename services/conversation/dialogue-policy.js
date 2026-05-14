@@ -1,4 +1,5 @@
 const { PERSONA } = require('./persona');
+const { detectRepetition } = require('./repetition-detector');
 
 function sanitizeConsultantText(text = '') {
   let clean = String(text || '');
@@ -14,17 +15,36 @@ function sanitizeConsultantText(text = '') {
   return clean.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-function applyDialoguePolicy(text = '', state = {}) {
+function countQuestions(text = '') {
+  return (String(text || '').match(/\?/g) || []).length;
+}
+
+function applyDialoguePolicy(text = '', state = {}, options = {}) {
   const clean = sanitizeConsultantText(text);
   if (!clean) return clean;
   const lines = clean.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (lines.length <= 6) return lines.join('\n');
-  const keep = lines.slice(0, 6);
-  if (state.nextBestAction === 'suggest_visit') return keep.join('\n');
-  return keep.join('\n');
+  const maxLines = state.freedomLevel === 'proactive_consultant' ? 8 : 6;
+  const keep = lines.slice(0, maxLines);
+  let result = keep.join('\n');
+  if (countQuestions(result) > 1) {
+    const resultLines = result.split('\n');
+    let seenQuestion = false;
+    result = resultLines.filter((line) => {
+      if (!line.includes('?')) return true;
+      if (seenQuestion) return false;
+      seenQuestion = true;
+      return true;
+    }).join('\n');
+  }
+  const repetition = detectRepetition(result, options.previousAssistantText || state.lastAssistantResponse || '');
+  return {
+    text: result,
+    repetition,
+  };
 }
 
 module.exports = {
   applyDialoguePolicy,
+  countQuestions,
   sanitizeConsultantText,
 };

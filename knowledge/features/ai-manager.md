@@ -146,3 +146,22 @@ Rules:
 - If the customer says "for myself", answer for the adult profile even when child context exists.
 - For brand advice, compare and recommend before searching random products.
 - For concrete availability, color, size, or "show options" requests, product search may be used.
+
+## Stage 8 Controlled Freedom
+
+Stage 8 makes the AI sandbox less repetitive and more consultant-like while keeping deterministic safety boundaries.
+
+Added:
+- `services/conversation/controlled-freedom.js` with `strict_safe`, `guided_consultant`, and `proactive_consultant` levels;
+- `services/conversation/new-info-detector.js` for size, foot length, age, use case, color, material, brand, fit/style preference, budget, objection, and comparison cues;
+- `services/conversation/repetition-detector.js` to block stale repeated drafts;
+- active subject resolution for adult, child, teen, and family follow-ups;
+- Stage 8 fixtures for school use case, adult follow-up, correction handling, no stale summary, freedom levels, and one-good-question behavior.
+
+Rules:
+- LOW freedom is used for exact availability, exact price, concrete product facts, unavailable BILLZ, low confidence, or conflicting data.
+- MEDIUM/HIGH freedom can recommend direction, explain options, and suggest the next step when exact product facts are not required.
+- New customer information should progress the conversation instead of repeating the last summary.
+- If a draft is too similar to the previous assistant response, switch to a progress move.
+- Ask at most one important question.
+- The AI still must not invent products, prices, availability, medical promises, or branch-specific stock.

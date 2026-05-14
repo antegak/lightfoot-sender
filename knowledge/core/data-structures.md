@@ -176,6 +176,11 @@ Important fields:
 - `nextBestAction`.
 - `shouldSearchProducts`.
 - `salesFlow`.
+- `freedomLevel`: `strict_safe`, `guided_consultant`, or `proactive_consultant`.
+- `hasNewInfo`, `newInfoType`, `newInfo`.
+- `blockedByRepetition`.
+- `selectedDialogueMove`.
+- `reasonForNextBestAction`.
 - `confidence`.
 
 Rules:
@@ -183,6 +188,8 @@ Rules:
 - Fresh user subject cues such as "for myself" switch `activeSubject` to adult without discarding child context.
 - Brand advice and comparison can avoid product search; availability and concrete size/color requests can search.
 - This is AI sandbox state, not persistent CRM memory.
+- Stage 8 controlled freedom can make the AI more initiative-driven only when exact product facts are not required.
+- Repetition blocking should change the dialogue move, not invent product facts.
 
 ## AIContext
 

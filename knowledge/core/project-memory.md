@@ -49,6 +49,8 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Stage 6 removed the old conflicting Be Lenka shortcut; Be Lenka recognition is now `BB` plus written names only.
 - Stage 7 added a conversation state engine for AI sandbox quality: topic focus, adult/child profile separation, sales flow, next-best-action, search decision, and LightFoot consultant persona.
 - Stage 7 keeps OpenRouter as a reasoning/persona helper only; deterministic templates still own customer-facing product facts and formatting.
+- Stage 8 added controlled freedom so AI sandbox can progress a conversation, use new details, recommend direction, and avoid stale summary repetition without inventing product facts.
+- Stage 8 uses LOW freedom for exact facts and BILLZ/search uncertainty, and MEDIUM/HIGH freedom for advice, use-case, style, comfort, and recommendation flows.
 
 ## Future Plans
 
