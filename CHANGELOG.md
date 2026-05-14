@@ -30,6 +30,7 @@
 - Removed the old conflicting Be Lenka shortcut from parser/search/docs/fixtures.
 - Fixed AI sandbox dialogue focus so family, adult, and child follow-ups can stay on the requested subject instead of falling back to unrelated sizing or product-search behavior.
 - Fixed stale safe-summary repetition in AI sandbox by detecting near-duplicate drafts and switching to a progress-conversation move.
+- Fixed Stage 8 school/PE child flow so the AI does not repeat the school summary and can split classroom shoes from PE/change shoes in a more natural tone.
 
 ### Refactored
 - Reused canonical store addresses in the humanizer branch formatter.

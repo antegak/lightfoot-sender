@@ -16,12 +16,21 @@ const TEMPLATES = Object.freeze({
   stage8_child_direction: ({ conversationState }) => {
     const child = conversationState?.childProfile || conversationState?.teenProfile || {};
     const useCase = child.useCase || conversationState?.newInfo?.value;
+    if (useCase === 'school_pe' || useCase === 'sport') {
+      return [
+        'Поняла 💛 Тогда лучше разделить на две пары.',
+        'В класс на каждый день — Little Light: мягко, спокойно, удобно сидеть и ходить.',
+        'На физру/сменку — что-то легче и активнее; можно смотреть детские Saguaro, если в размере будут варианты.',
+        child.footLengthCm ? `По стопе ${child.footLengthCm} см будем смотреть детскую линейку.` : '',
+        'Дальше показать именно школьные или сразу варианты для физры?',
+      ].filter(Boolean).join('\n');
+    }
     if (useCase === 'school') {
       return [
         'Для школы я бы начала с Little Light 💛',
-        'Смотрите спокойные цвета и мягкую посадку, чтобы ребенку было удобно весь день.',
-        child.footLengthCm ? `На стопу ${child.footLengthCm} см уже можно подобрать варианты в детской линейке 👣` : 'Можно подобрать детскую линейку под длину стопы 👣',
-        'Хотите больше классический вид или что-то спортивнее?',
+        'Тут лучше спокойный цвет и мягкая посадка, чтобы ребенку было удобно весь день.',
+        child.footLengthCm ? `По стопе ${child.footLengthCm} см смотрим детскую линейку.` : 'Подберем по длине стопы, чтобы не брать наугад.',
+        'Нужен больше классический вариант или можно чуть спортивнее?',
       ].join('\n');
     }
     return [
@@ -59,24 +68,21 @@ const TEMPLATES = Object.freeze({
   stage8_progression: ({ conversationState }) => {
     if (conversationState?.activeSubject === 'childProfile' || conversationState?.activeSubject === 'teenProfile') {
       return [
-        'Тогда двигаемся по ребенку 💛',
-        'Я бы сначала выбрала направление: Little Light для школы и спокойной носки, Saguaro kids - если нужно активнее.',
-        'Какой стиль ближе: классический или спортивный?',
+        'Поняла, смотрим именно для ребенка 💛',
+        'Для школы — Little Light, для более активной сменки или физры — можно рассмотреть детские Saguaro.',
+        'Лучше сначала подобрать пару в класс или отдельную на физру?',
       ].join('\n');
     }
     return [
-      'Тогда двигаемся по вашему варианту 💛',
+      'Поняла, смотрим для вас 💛',
       'Я бы сузила выбор до TipsieToes для мягкой ежедневной носки или Be Lenka для более премиальной посадки.',
       'Показать варианты по размеру?',
     ].join('\n');
   },
   stage7_family_discovery: () => [
-    'Конечно 💛',
-    'Для вас подберем отдельно, для ребенка отдельно - так будет точнее.',
-    '',
-    'Напишите, пожалуйста:',
-    'для вас - размер или длину стопы,',
-    'для ребенка - сколько см стопа 👣',
+    'Подберем 💛',
+    'Для вас и для ребенка лучше смотреть отдельно.',
+    'Напишите ваш размер, а ребенку — длину стопы 👣',
   ].join('\n'),
   stage7_family_brand_advice: ({ conversationState }) => {
     const adultSize = conversationState?.adultProfile?.size;
@@ -88,7 +94,7 @@ const TEMPLATES = Object.freeze({
       `Для вас${adultSize ? ` в ${adultSize} размере` : ''}: TipsieToes или Be Lenka.`,
       'TipsieToes мягче и проще на каждый день, Be Lenka - более премиальный вариант.',
       '',
-      `Для ребенка${childCm ? ` ${childCm} см` : ''}${childSize ? `, ориентир ${childSize} размер` : ''}: Little Light - лучше начать с нее, потому что это детская/подростковая линейка.`,
+      `Для ребенка${childCm ? ` ${childCm} см` : ''}${childSize ? `, примерно ${childSize} размер` : ''}: Little Light - лучше начать с нее, это детская/подростковая линейка.`,
     ].join('\n');
   },
   stage7_adult_brand_advice: ({ conversationState }) => {
@@ -108,7 +114,7 @@ const TEMPLATES = Object.freeze({
     const cm = child.footLengthCm;
     const size = child.size;
     return [
-      `Для ребенка${cm ? ` при стопе ${cm} см` : ''}${size ? ` ориентир ${size} размер` : ''} я бы начала с Little Light 💛`,
+      `Для ребенка${cm ? ` при стопе ${cm} см` : ''}${size ? ` примерно ${size} размер` : ''} я бы начала с Little Light 💛`,
       '',
       'Это детская/подростковая линейка, ее проще подбирать по длине стопы.',
       'Если нужна более активная обувь для прогулок или спорта - можно смотреть детские Saguaro.',
@@ -163,11 +169,11 @@ const TEMPLATES = Object.freeze({
     const childFootLength = customerProfile?.childFootLength || memoryEntities?.childFootLength;
     const childSize = customerProfile?.childRecommendedSize || memoryEntities?.childRecommendedSize;
     return [
-      `${EMOJI.heart} Отлично. Для вас смотрим ${adultSize || 'взрослый'} размер.`,
+      `${EMOJI.heart} Отлично, тогда для вас держим ${adultSize || 'взрослый'} размер.`,
       childFootLength || childSize
-        ? `Для ребенка: ${childFootLength ? `${childFootLength} см стопа` : 'по стопе'}${childSize ? `, ориентир ${childSize} размер` : ''}.`
+        ? `Для ребенка — ${childFootLength ? `${childFootLength} см стопа` : 'по стопе'}${childSize ? `, примерно ${childSize} размер` : ''}.`
         : '',
-      'Дальше можно подобрать отдельно: вам - взрослые TipsieToes, Be Lenka или Saguaro, ребенку - Little Light или детские Saguaro.',
+      'Можем начать с ребенка: для школы чаще всего смотрят Little Light.',
     ].filter(Boolean).join('\n\n');
   },
   clarification: ({ parsedQuery, branchesText, fallbackReason }) => {

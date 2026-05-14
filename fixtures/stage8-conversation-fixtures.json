@@ -57,7 +57,7 @@
       "selectedDialogueMove": "progress_conversation",
       "reasonForNextBestAction": "blocked_by_repetition"
     },
-    "expectedContains": ["Тогда двигаемся", "TipsieToes", "Be Lenka"],
+    "expectedContains": ["Поняла", "TipsieToes", "Be Lenka"],
     "expectedNotContains": ["Запомнила:", "остаток", "артикул", "stock", "office"],
     "expectedMaxQuestions": 1
   },
@@ -77,5 +77,21 @@
     "turns": ["ребенку нужна обувь"],
     "expectedMaxQuestions": 1,
     "expectedNotContains": ["цвет?", "бюджет?", "бренд?", "остаток", "артикул", "stock", "office"]
+  },
+  {
+    "name": "stage8-user-school-and-pe-follow-up",
+    "turns": ["Привет! смотрю обувь для себя и для ребенка, что взять?", "у меня 39 размер а ребенку 15 см стопа", "ребенку в школу надо", "а для физры в школу?", "для ребенка нужно просто в школу, и семную обувь на физру"],
+    "expectedStrategy": "stage8_child_direction",
+    "expectedConversationState": {
+      "currentFocus": "child_selection",
+      "activeSubject": "childProfile",
+      "nextBestAction": "recommend_direction",
+      "shouldSearchProducts": false,
+      "hasNewInfo": true,
+      "newInfoType": "useCase"
+    },
+    "expectedContains": ["две пары", "Little Light", "физру", "Saguaro", "15"],
+    "expectedNotContains": ["Тогда двигаемся", "ориентир", "Запомнила:", "остаток", "артикул", "stock", "office"],
+    "expectedMaxQuestions": 1
   }
 ]

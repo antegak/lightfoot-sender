@@ -26,6 +26,8 @@ function num(value) {
 
 function detectUseCase(text = '') {
   const raw = String(text || '').toLowerCase();
+  if (/(школ|РіРєРѕР»|school)/.test(raw) && /(физр|смен|семн|sport|спорт|СЃРїРѕСЂС‚)/.test(raw)) return 'school_pe';
+  if (/физр|смен|семн/.test(raw)) return 'school_pe';
   if (/школ|РіРєРѕР»/.test(raw)) return 'school';
   if (/спорт|sport|бег|зал|СЃРїРѕСЂС‚/.test(raw)) return 'sport';
   if (/улиц|outdoor|поход|актив|СѓР»РёС†|Р°РєС‚РёРІ/.test(raw)) return 'outdoor';

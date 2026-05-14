@@ -165,3 +165,12 @@ Rules:
 - If a draft is too similar to the previous assistant response, switch to a progress move.
 - Ask at most one important question.
 - The AI still must not invent products, prices, availability, medical promises, or branch-specific stock.
+
+### Stage 8 Dialogue Quality Hotfix
+
+The school/PE child flow was tightened after real sandbox feedback:
+- avoid "moving along" / mechanical phrases;
+- avoid repeating the same school recommendation when the customer adds PE/change-shoe context;
+- split classroom shoes and PE/change shoes as two directions;
+- keep one concise next question;
+- avoid raw "orientir" style phrasing in customer-facing child recommendations.

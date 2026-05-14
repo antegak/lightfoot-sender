@@ -51,6 +51,7 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Stage 7 keeps OpenRouter as a reasoning/persona helper only; deterministic templates still own customer-facing product facts and formatting.
 - Stage 8 added controlled freedom so AI sandbox can progress a conversation, use new details, recommend direction, and avoid stale summary repetition without inventing product facts.
 - Stage 8 uses LOW freedom for exact facts and BILLZ/search uncertainty, and MEDIUM/HIGH freedom for advice, use-case, style, comfort, and recommendation flows.
+- Stage 8 dialogue-quality hotfix made school plus PE/change-shoe child follow-ups less scripted: classroom shoes and PE shoes are handled as separate directions instead of repeating the same school summary.
 
 ## Future Plans
 
