@@ -6,6 +6,7 @@ const { ConversationMemory } = require('../memory');
 const { buildCustomerProfile } = require('../ai/response-contract');
 const { applyDialoguePolicy, buildConversationState, countQuestions } = require('../conversation');
 const { formatHumanResponse } = require('../humanizer');
+const { buildResponsePlan } = require('../orchestration');
 
 const FIXTURE_DIR = path.join(__dirname, '..', '..', 'fixtures');
 
@@ -130,6 +131,7 @@ function runConversationFixtures() {
     ...readFixture('conversation-fixtures.json'),
     ...readFixture('stage7-conversation-fixtures.json'),
     ...readFixture('stage8-conversation-fixtures.json'),
+    ...readFixture('stage9-orchestration-fixtures.json'),
   ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
@@ -146,6 +148,23 @@ function runConversationFixtures() {
       previousState: fixture.previousConversationState || {},
       searchResults: {},
     });
+    const useOrchestration = Boolean(fixture.expectedResponsePlan || String(fixture.name || '').startsWith('stage9-'));
+    const responsePlan = useOrchestration
+      ? buildResponsePlan({
+          query: last,
+          parsedQuery: parsed,
+          conversationState,
+          searchResults: {},
+          billzConnected: fixture.billzConnected !== false,
+        })
+      : null;
+    if (responsePlan) {
+      conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
+      conversationState.nextBestAction = responsePlan.shouldClarify
+        ? 'ask_clarifying_question'
+        : (responsePlan.shouldRecommend ? 'recommend_direction' : conversationState.nextBestAction);
+      conversationState.selectedDialogueMove = conversationState.nextBestAction;
+    }
     let formatted = formatHumanResponse({
       query: last,
       detectedIntent: parsed.intent,
@@ -157,6 +176,7 @@ function runConversationFixtures() {
       memorySummary: memoryState.summary || '',
       customerProfile,
       conversationState,
+      responsePlan,
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
     });
     let policy = applyDialoguePolicy(formatted.text, conversationState, {
@@ -178,6 +198,7 @@ function runConversationFixtures() {
         memorySummary: memoryState.summary || '',
         customerProfile,
         conversationState,
+        responsePlan,
         brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
       });
       policy = applyDialoguePolicy(formatted.text, conversationState);
@@ -186,15 +207,17 @@ function runConversationFixtures() {
     formatted.dialoguePolicy = policy;
     const textChecks = checkHumanizedText(formatted.text, fixture);
     const stateMismatches = compareExpected(conversationState, fixture.expectedConversationState || {});
+    const planMismatches = compareExpected(responsePlan || {}, fixture.expectedResponsePlan || {});
     const questionCount = countQuestions(formatted.text);
     const tooManyQuestions = fixture.expectedMaxQuestions !== undefined && questionCount > fixture.expectedMaxQuestions;
     const ok = strategyMatches(formatted.strategy, formatted.templateUsed, fixture.expectedStrategy)
       && stateMismatches.length === 0
+      && planMismatches.length === 0
       && textChecks.missing.length === 0
       && textChecks.forbiddenHits.length === 0
       && !tooManyQuestions
       && !textChecks.addressMissing;
-    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, questionCount, tooManyQuestions, ...textChecks, formatted, parsed, conversationState });
+    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, planMismatches, questionCount, tooManyQuestions, ...textChecks, formatted, parsed, conversationState, responsePlan });
   });
 }
 

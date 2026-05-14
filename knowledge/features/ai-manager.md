@@ -174,3 +174,29 @@ The school/PE child flow was tightened after real sandbox feedback:
 - split classroom shoes and PE/change shoes as two directions;
 - keep one concise next question;
 - avoid raw "orientir" style phrasing in customer-facing child recommendations.
+
+## Stage 9 Logic-First Orchestration
+
+Stage 9 adds `services/orchestration`. The response plan becomes the deterministic source of truth for AI sandbox decisions.
+
+Responsibilities:
+- intent hierarchy decides high-priority flows such as pain, nail problems, comfort, school, family, exact availability, sizing, style, and comparison;
+- mode selector chooses response modes such as `comfort_consultation`, `school_selection`, `sport_selection`, `availability_check`, and `style_guidance`;
+- safety engine blocks fake availability, fake prices, raw SKU/barcode/stock, branch-specific stock, and medical promises;
+- clarification engine prevents over-questioning when recommendation confidence is high;
+- recommendation engine chooses directional brands and use cases before the LLM speaks.
+
+LLM policy:
+- LLM is draft-only.
+- LLM may improve natural wording and flow.
+- LLM must not choose mode, search, clarification, empathy, safety, or business facts.
+
+Debug adds:
+- `responsePlan`;
+- `selectedMode`;
+- `selectedIntent`;
+- `recommendationConfidence`;
+- `clarificationAllowed`;
+- `searchAllowed`;
+- `activeProfile`;
+- `orchestrationReason`.

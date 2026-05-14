@@ -94,6 +94,7 @@ user message
   -> parser and lightweight memory
   -> conversation state engine
   -> controlled freedom and new-info detection
+  -> deterministic orchestration responsePlan
   -> customer profiles for adult / child / teen / family
   -> topic focus and next-best-action decision
   -> repetition guard
@@ -103,6 +104,23 @@ user message
 ```
 
 Stage 7 is limited to AI sandbox/test chat quality. It does not enable WhatsApp auto replies, autonomous mode, CRM persistence, or a rewrite of BILLZ/search/parser/memory/humanizer.
+
+## Stage 9 Logic-First Orchestration
+
+```text
+user message
+  -> parser
+  -> memory/context merge
+  -> intent hierarchy
+  -> orchestration decision engine
+  -> responsePlan
+  -> optional BILLZ search only when allowed
+  -> deterministic humanizer
+  -> LLM draft/naturalization only
+  -> customer response
+```
+
+Stage 9 rule: logic decides `WHAT/WHY/WHEN`; LLM helps with `HOW TO SAY IT`. Search mode, empathy, clarification, recommendation confidence, active profile, safety, and response mode are deterministic decisions.
 
 ## BILLZ Pipeline
 

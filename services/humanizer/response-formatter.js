@@ -34,6 +34,12 @@ function isFamilyProfileUpdate(context = {}) {
 function chooseResponseStrategy(context = {}) {
   const intent = context.detectedIntent || context.parsedQuery?.intent || 'availability';
   const conversationState = context.conversationState || {};
+  const responsePlan = context.responsePlan || {};
+  if (responsePlan.mode === 'comfort_consultation') return { strategy: 'stage9_comfort_consultation', template: 'stage9_comfort_consultation' };
+  if (responsePlan.mode === 'school_selection' || responsePlan.mode === 'sport_selection') return { strategy: 'stage9_school_sport_selection', template: 'stage9_school_sport_selection' };
+  if (responsePlan.mode === 'style_guidance') return { strategy: 'stage9_style_guidance', template: 'stage9_style_guidance' };
+  if (responsePlan.mode === 'availability_check') return { strategy: 'availability', template: 'availability' };
+  if (responsePlan.mode === 'clarification') return { strategy: 'clarification', template: 'clarification', fallbackReason: 'orchestration_clarification' };
   if (isFamilyProfileUpdate(context) && !['recommend_direction', 'acknowledge_correction', 'progress_conversation'].includes(conversationState.nextBestAction)) {
     return { strategy: 'family_profile_update', template: 'family_profile_update' };
   }

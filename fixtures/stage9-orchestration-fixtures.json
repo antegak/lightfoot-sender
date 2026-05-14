@@ -1,0 +1,80 @@
+[
+  {
+    "name": "stage9-nail-problem-empathy-first",
+    "turns": ["у меня вросшие ногти"],
+    "expectedStrategy": "stage9_comfort_consultation",
+    "expectedResponsePlan": {
+      "mode": "comfort_consultation",
+      "intent": "nail_problem",
+      "shouldSearchProducts": false,
+      "shouldEmpathize": true,
+      "shouldRecommend": true,
+      "riskLevel": "medium",
+      "customerEmotion": "pain",
+      "conversationEnergy": "low",
+      "trustBuildingMode": true
+    },
+    "expectedContains": ["Понимаю", "не давила", "пальцы", "barefoot"],
+    "expectedNotContains": ["модель", "цена", "остаток", "артикул", "stock", "SKU"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage9-child-school-sport-no-clarification",
+    "turns": ["у ребенка 15 см стопа", "ребенку в школу и на физру"],
+    "expectedStrategy": "stage9_school_sport_selection",
+    "expectedResponsePlan": {
+      "mode": "sport_selection",
+      "intent": "child_school_selection",
+      "shouldSearchProducts": false,
+      "shouldClarify": false,
+      "shouldRecommend": true,
+      "recommendationConfidence": 90,
+      "activeProfile": "childProfile"
+    },
+    "expectedContains": ["Little Light", "Saguaro", "физру", "15"],
+    "expectedNotContains": ["уточните", "ориентир", "остаток", "артикул", "stock"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage9-office-style-guidance-no-random-search",
+    "turns": ["какие лучше для офиса?"],
+    "expectedStrategy": "stage9_style_guidance",
+    "expectedResponsePlan": {
+      "mode": "style_guidance",
+      "intent": "style_guidance",
+      "shouldSearchProducts": false,
+      "shouldClarify": false,
+      "shouldRecommend": true
+    },
+    "expectedContains": ["офиса", "Be Lenka", "TipsieToes"],
+    "expectedNotContains": ["остаток", "артикул", "stock", "SKU"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage9-exact-availability-stays-strict",
+    "turns": ["есть черные 39?"],
+    "expectedResponsePlan": {
+      "mode": "availability_check",
+      "intent": "exact_availability",
+      "shouldSearchProducts": true,
+      "shouldEmpathize": false,
+      "shouldRecommend": false,
+      "riskLevel": "strict"
+    },
+    "expectedNotContains": ["Понимаю", "медицин", "леч", "stock", "SKU"]
+  },
+  {
+    "name": "stage9-wide-foot-trust-building",
+    "turns": ["у меня широкая стопа, что лучше?"],
+    "expectedStrategy": "stage9_comfort_consultation",
+    "expectedResponsePlan": {
+      "mode": "comfort_consultation",
+      "intent": "wide_foot",
+      "shouldSearchProducts": false,
+      "shouldEmpathize": true,
+      "trustBuildingMode": true
+    },
+    "expectedContains": ["мягкую посадку", "свободный носок"],
+    "expectedNotContains": ["леч", "остаток", "артикул", "stock"]
+  }
+]

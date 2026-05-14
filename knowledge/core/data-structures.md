@@ -220,11 +220,36 @@ Important fields:
 - `matchedProducts`
 - `searchMode`
 - `humanizedResponse`
+- `responsePlan`
 
 Rules:
 - Keep product context short and relevant.
 - Deterministic `humanizedResponse` is the safest customer-facing draft.
 - Prompt should support tone/reasoning, not become the only home for business rules.
+
+## ResponsePlan
+
+Stage 9 deterministic orchestration object. It is the source of truth for AI sandbox mode, search permission, empathy, clarification, recommendation, and safety.
+
+Important fields:
+- `mode`: `comfort_consultation`, `family_guidance`, `recommendation`, `clarification`, `comparison`, `reassurance`, `availability_check`, `sizing_help`, `style_guidance`, `school_selection`, `sport_selection`, or `conversion_soft`.
+- `intent` / `selectedIntent`.
+- `shouldSearchProducts`, `searchAllowed`.
+- `shouldClarify`, `clarificationAllowed`.
+- `shouldRecommend`, `recommendationConfidence`.
+- `shouldEmpathize`, `empathyGate`.
+- `activeProfile`, `currentFocus`.
+- `allowedTopics`, `forbiddenTopics`.
+- `suggestedBrands`, `suggestedUseCases`.
+- `riskLevel`, `safetyFlags`.
+- `conversationEnergy`, `customerEmotion`, `conversationMomentum`, `trustBuildingMode`, `variationStyle`.
+- `orchestrationReason`.
+
+Rules:
+- LLM must not override `responsePlan`.
+- Comfort/pain intents must not trigger product search first.
+- Exact availability and price requests stay strict and fact-bound.
+- Human dynamics fields vary tone without changing product facts.
 
 ## AIReasoningObject
 

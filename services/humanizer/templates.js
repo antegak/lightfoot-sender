@@ -13,6 +13,43 @@ function brandDescription(brand) {
 }
 
 const TEMPLATES = Object.freeze({
+  stage9_comfort_consultation: ({ responsePlan }) => {
+    const problem = responsePlan?.intent || '';
+    const nail = problem === 'nail_problem';
+    return [
+      'Понимаю 💛',
+      nail
+        ? 'При вросших ногтях обычно важно, чтобы обувь не давила на пальцы и было больше места спереди.'
+        : 'Когда обувь давит или натирает, лучше сначала смотреть мягкую посадку и свободный носок.',
+      'Поэтому я бы шла в сторону мягких barefoot-моделей с более свободной формой 👣',
+      'Могу подсказать направление на каждый день или что-то полегче/спортивнее.',
+    ].join('\n');
+  },
+  stage9_school_sport_selection: ({ conversationState, responsePlan }) => {
+    const child = conversationState?.childProfile || {};
+    const brands = responsePlan?.suggestedBrands || [];
+    if (brands.includes('Saguaro kids')) {
+      return [
+        '💛 Тогда ребенку я бы разделила так:',
+        '• Little Light — на каждый день в школу',
+        '• Saguaro kids — как сменку на физру и активность 👣',
+        child.footLengthCm ? `На ${child.footLengthCm} см стопы уже можно подбирать детскую линейку.` : '',
+        'Могу показать спокойные модели для школы и отдельно полегче на физру.',
+      ].filter(Boolean).join('\n');
+    }
+    return [
+      'Для школы я бы начала с Little Light 💛',
+      'Нужна мягкая посадка и спокойный вид, чтобы ребенку было удобно весь день.',
+      child.footLengthCm ? `По стопе ${child.footLengthCm} см смотрим детскую линейку.` : '',
+      'Могу дальше подобрать более спокойные варианты.',
+    ].filter(Boolean).join('\n');
+  },
+  stage9_style_guidance: ({ responsePlan }) => [
+    'Для офиса я бы смотрела спокойные и аккуратные модели 💛',
+    `${(responsePlan?.suggestedBrands || ['Be Lenka', 'TipsieToes']).join(' или ')} — хорошие направления: первые выглядят премиальнее, вторые мягче на каждый день.`,
+    'Тут лучше не уходить в спорт, а выбрать нейтральный цвет и чистую форму.',
+    'Могу показать варианты под ваш размер.',
+  ].join('\n'),
   stage8_child_direction: ({ conversationState }) => {
     const child = conversationState?.childProfile || conversationState?.teenProfile || {};
     const useCase = child.useCase || conversationState?.newInfo?.value;

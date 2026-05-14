@@ -25,6 +25,7 @@ const {
 } = require('./services/ai/response-contract');
 const { formatHumanResponse, humanizeBranches } = require('./services/humanizer');
 const { applyDialoguePolicy, buildConversationState } = require('./services/conversation');
+const { buildResponsePlan } = require('./services/orchestration');
 const { buildLightfootConsultantReasoningPrompt } = require('./services/ai/prompts/lightfoot-consultant');
 const { runQaFixtures } = require('./services/qa');
 const {
@@ -810,7 +811,14 @@ async function requestAiTestChat(payload = {}) {
     previousState: lastAiDebugState?.conversationState || {},
     searchResults: {},
   });
-  const shouldSearchProducts = Boolean(preConversationState.shouldSearchProducts);
+  const preResponsePlan = buildResponsePlan({
+    query: text,
+    parsedQuery: preParsedQuery,
+    conversationState: preConversationState,
+    searchResults: {},
+    billzConnected: Boolean(billzStatus.connected && secretToken),
+  });
+  const shouldSearchProducts = Boolean(preResponsePlan.shouldSearchProducts);
   const billzAiContext = billzStatus.connected && secretToken && shouldSearchProducts
     ? await getBillzContextForAi(secretToken, text, { memory: previousMemoryState.entities || {} })
     : {
@@ -848,6 +856,19 @@ async function requestAiTestChat(payload = {}) {
     previousState: preConversationState,
     searchResults: billzAiContext,
   });
+  const responsePlan = buildResponsePlan({
+    query: text,
+    parsedQuery: billzAiContext.parsedQuery || {},
+    conversationState,
+    searchResults: billzAiContext,
+    billzConnected: Boolean(billzStatus.connected && secretToken),
+  });
+  conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
+  conversationState.nextBestAction = responsePlan.shouldClarify
+    ? 'ask_clarifying_question'
+    : (responsePlan.shouldRecommend ? 'recommend_direction' : conversationState.nextBestAction);
+  conversationState.selectedDialogueMove = conversationState.nextBestAction;
+  conversationState.reasonForNextBestAction = responsePlan.orchestrationReason || conversationState.reasonForNextBestAction;
   logger.info(LOG_CATEGORIES.AI, 'AI memory merge', {
     previousEntities: previousMemoryState.entities || {},
     currentEntities: memoryState.entities || {},
@@ -865,6 +886,9 @@ async function requestAiTestChat(payload = {}) {
     reasonForNextBestAction: conversationState.reasonForNextBestAction,
     blockedByRepetition: conversationState.blockedByRepetition,
     shouldSearchProducts: conversationState.shouldSearchProducts,
+    responseMode: responsePlan.mode,
+    responseIntent: responsePlan.intent,
+    recommendationConfidence: responsePlan.recommendationConfidence,
   });
   const products = billzAiContext.connected ? billzAiContext.products : [];
   const billzContext = buildAiContext({
@@ -893,6 +917,7 @@ async function requestAiTestChat(payload = {}) {
   });
   billzContext.conversationContext = conversationContext;
   billzContext.conversationState = conversationState;
+  billzContext.responsePlan = responsePlan;
   billzContext.customerProfile = {
     ...customerProfile.inferredCustomerProfile,
     stage7: conversationState.customerProfile,
@@ -957,6 +982,7 @@ async function requestAiTestChat(payload = {}) {
     result.customerProfile = billzContext.customerProfile;
     result.conversationContext = conversationContext;
     result.conversationState = conversationState;
+    result.responsePlan = responsePlan;
     result.recommendationReasoning = billzContext.recommendationReasoning || [];
     result.history = aiSandboxHistory;
   }
@@ -970,6 +996,14 @@ async function requestAiTestChat(payload = {}) {
     reasoningObject: result.reasoningObject || reasoningObject,
     formatterOutputPreview: humanizedResponse.text || '',
     customerProfile: billzContext.customerProfile || null,
+    responsePlan,
+    selectedMode: responsePlan.selectedMode,
+    selectedIntent: responsePlan.selectedIntent,
+    recommendationConfidence: responsePlan.recommendationConfidence,
+    clarificationAllowed: responsePlan.clarificationAllowed,
+    searchAllowed: responsePlan.searchAllowed,
+    activeProfile: responsePlan.activeProfile,
+    orchestrationReason: responsePlan.orchestrationReason,
     conversationState: {
       currentFocus: conversationState.currentFocus,
       currentStage: conversationState.currentStage,

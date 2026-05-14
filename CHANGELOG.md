@@ -18,6 +18,7 @@
 - Added Stage 6 deterministic response contracts, normalized product service, AI reasoning object, confidence hooks, and expanded QA fixtures.
 - Added Stage 7 conversational sales engine for AI sandbox with conversation state, topic focus, customer profiles, next-best-action, persona prompt, and multi-step dialogue fixtures.
 - Added Stage 8 controlled freedom layer with new-info detection, freedom levels, repetition blocking, proactive dialogue moves, and human-like sales fixtures.
+- Added Stage 9 logic-first orchestration with deterministic response plans, intent hierarchy, mode selection, safety/clarification/recommendation engines, and human dynamics fields.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
@@ -31,6 +32,7 @@
 - Fixed AI sandbox dialogue focus so family, adult, and child follow-ups can stay on the requested subject instead of falling back to unrelated sizing or product-search behavior.
 - Fixed stale safe-summary repetition in AI sandbox by detecting near-duplicate drafts and switching to a progress-conversation move.
 - Fixed Stage 8 school/PE child flow so the AI does not repeat the school summary and can split classroom shoes from PE/change shoes in a more natural tone.
+- Fixed premature product search for comfort/pain intents by routing them through empathy-first `comfort_consultation`.
 
 ### Refactored
 - Reused canonical store addresses in the humanizer branch formatter.
