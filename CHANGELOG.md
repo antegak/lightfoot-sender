@@ -19,6 +19,7 @@
 - Added Stage 7 conversational sales engine for AI sandbox with conversation state, topic focus, customer profiles, next-best-action, persona prompt, and multi-step dialogue fixtures.
 - Added Stage 8 controlled freedom layer with new-info detection, freedom levels, repetition blocking, proactive dialogue moves, and human-like sales fixtures.
 - Added Stage 9 logic-first orchestration with deterministic response plans, intent hierarchy, mode selection, safety/clarification/recommendation engines, and human dynamics fields.
+- Added Stage 10 store-consultant direction with anchored conversation subject, product gallery response mode, product media resolver, product-media mapping config, and gallery QA fixtures.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
@@ -33,6 +34,7 @@
 - Fixed stale safe-summary repetition in AI sandbox by detecting near-duplicate drafts and switching to a progress-conversation move.
 - Fixed Stage 8 school/PE child flow so the AI does not repeat the school summary and can split classroom shoes from PE/change shoes in a more natural tone.
 - Fixed premature product search for comfort/pain intents by routing them through empathy-first `comfort_consultation`.
+- Fixed Be Lenka/photo follow-ups so gallery requests keep the anchored adult/child subject instead of drifting to the wrong profile.
 
 ### Refactored
 - Reused canonical store addresses in the humanizer branch formatter.
@@ -40,6 +42,7 @@
 - Preserved original user query during memory follow-up search by passing memory as structured context.
 - Moved LightFoot consultant reasoning prompt rules into `services/ai/prompts/lightfoot-consultant.js`.
 - Extended conversation state with controlled freedom, new information, active subject resolution, and repetition metadata.
+- Simplified the AI persona/prompt direction toward a calm LightFoot store consultant and away from therapy/life-coach behavior.
 
 ### Known Issues
 - Stage 5 audit found prompt/business-rule duplication that should be reduced in a later controlled AI pipeline patch.

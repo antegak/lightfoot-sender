@@ -50,6 +50,20 @@ const TEMPLATES = Object.freeze({
     'Тут лучше не уходить в спорт, а выбрать нейтральный цвет и чистую форму.',
     'Могу показать варианты под ваш размер.',
   ].join('\n'),
+  product_gallery: ({ productsText, productGallery, parsedQuery, responsePlan }) => {
+    const brand = parsedQuery?.brand || responsePlan?.activeProfileData?.preferredBrand || '';
+    const intro = brand
+      ? `${EMOJI.heart} Вот варианты ${brand}, которые можно показать:`
+      : `${EMOJI.heart} Вот несколько подходящих вариантов:`;
+    const mediaFound = Boolean(productGallery?.mediaFound);
+    return [
+      intro,
+      productsText,
+      mediaFound
+        ? 'Фото подготовлены из карточек товара.'
+        : 'По этим моделям пока не вижу привязанных фото в карточках. Можно показать сами варианты, а фото подтянуть после добавления ссылок в BILLZ или product-media.json.',
+    ].filter(Boolean).join('\n\n');
+  },
   stage8_child_direction: ({ conversationState }) => {
     const child = conversationState?.childProfile || conversationState?.teenProfile || {};
     const useCase = child.useCase || conversationState?.newInfo?.value;

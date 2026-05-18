@@ -47,6 +47,7 @@ const BRAND_ALIASES = [
 ];
 
 function detectIntent(text) {
+  if (/фото|покаж|как\s+выгляд|выглядят|картинк|галере/i.test(text)) return 'product_gallery';
   if (/широк|wide|болят|плоскостоп|пальц|жмет|давит/i.test(text)) return 'recommendation';
   if (/(какие|что).*бренд|бренд.*есть|марки.*есть/.test(text)) return 'brand_list';
   if (/(где|адрес|магазин|филиал|примерить)/.test(text)) return 'store_question';

@@ -27,6 +27,7 @@ const { formatHumanResponse, humanizeBranches } = require('./services/humanizer'
 const { applyDialoguePolicy, buildConversationState } = require('./services/conversation');
 const { buildResponsePlan } = require('./services/orchestration');
 const { buildLightfootConsultantReasoningPrompt } = require('./services/ai/prompts/lightfoot-consultant');
+const { buildProductGallery } = require('./services/product-media');
 const { runQaFixtures } = require('./services/qa');
 const {
   checkConnection: checkBillzConnection,
@@ -863,6 +864,11 @@ async function requestAiTestChat(payload = {}) {
     searchResults: billzAiContext,
     billzConnected: Boolean(billzStatus.connected && secretToken),
   });
+  const products = billzAiContext.connected ? billzAiContext.products : [];
+  const productGallery = buildProductGallery(products, {
+    intent: responsePlan.mode === 'product_gallery' ? 'product_gallery' : '',
+    limit: 5,
+  });
   conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
   conversationState.nextBestAction = responsePlan.shouldClarify
     ? 'ask_clarifying_question'
@@ -889,8 +895,11 @@ async function requestAiTestChat(payload = {}) {
     responseMode: responsePlan.mode,
     responseIntent: responsePlan.intent,
     recommendationConfidence: responsePlan.recommendationConfidence,
+    anchoredSubject: conversationState.anchoredConversationSubject,
+    galleryIntent: responsePlan.galleryIntent,
+    mediaFound: productGallery.mediaFound,
+    selectedProducts: productGallery.selectedProducts,
   });
-  const products = billzAiContext.connected ? billzAiContext.products : [];
   const billzContext = buildAiContext({
     query: text,
     billzContext: {
@@ -918,6 +927,7 @@ async function requestAiTestChat(payload = {}) {
   billzContext.conversationContext = conversationContext;
   billzContext.conversationState = conversationState;
   billzContext.responsePlan = responsePlan;
+  billzContext.productGallery = productGallery;
   billzContext.customerProfile = {
     ...customerProfile.inferredCustomerProfile,
     stage7: conversationState.customerProfile,
@@ -983,6 +993,7 @@ async function requestAiTestChat(payload = {}) {
     result.conversationContext = conversationContext;
     result.conversationState = conversationState;
     result.responsePlan = responsePlan;
+    result.productGallery = productGallery;
     result.recommendationReasoning = billzContext.recommendationReasoning || [];
     result.history = aiSandboxHistory;
   }
@@ -1004,10 +1015,18 @@ async function requestAiTestChat(payload = {}) {
     searchAllowed: responsePlan.searchAllowed,
     activeProfile: responsePlan.activeProfile,
     orchestrationReason: responsePlan.orchestrationReason,
+    anchoredSubject: conversationState.anchoredConversationSubject,
+    subjectConfidence: conversationState.anchoredConversationSubject?.confidence || 0,
+    responseMode: responsePlan.mode,
+    galleryIntent: responsePlan.galleryIntent,
+    mediaFound: productGallery.mediaFound,
+    selectedProducts: productGallery.selectedProducts,
+    recommendationReason: responsePlan.orchestrationReason,
     conversationState: {
       currentFocus: conversationState.currentFocus,
       currentStage: conversationState.currentStage,
       activeSubject: conversationState.activeSubject,
+      anchoredConversationSubject: conversationState.anchoredConversationSubject,
       nextBestAction: conversationState.nextBestAction,
       shouldSearchProducts: conversationState.shouldSearchProducts,
       freedomLevel: conversationState.freedomLevel,

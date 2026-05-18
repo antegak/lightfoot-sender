@@ -171,6 +171,7 @@ Important fields:
 - `currentFocus`: `adult_selection`, `child_selection`, `teen_selection`, `family_selection`, `sizing`, `brand_comparison`, `product_availability`, `recommendation`, `reassurance`, `location`, `conversion`, or `unknown`.
 - `currentStage`: `discovery`, `clarification`, `narrowing`, `recommendation`, `comparison`, `sizing`, `reassurance`, `conversion`, or `handoff_needed`.
 - `activeSubject`: `adultProfile`, `childProfile`, `teenProfile`, `family`, or null.
+- `anchoredConversationSubject`: `{ profile, confidence, expiresAfterTurns, lastUpdatedAt, reason }`.
 - `adultProfile`, `childProfile`, `teenProfile`.
 - `missingInfo`.
 - `nextBestAction`.
@@ -186,6 +187,7 @@ Important fields:
 Rules:
 - Keep adult and child profile facts separate.
 - Fresh user subject cues such as "for myself" switch `activeSubject` to adult without discarding child context.
+- Follow-up phrases such as "show", "which ones", "these", "photo", and brand-only gallery requests should use `anchoredConversationSubject` unless a new explicit subject is detected with high confidence.
 - Brand advice and comparison can avoid product search; availability and concrete size/color requests can search.
 - This is AI sandbox state, not persistent CRM memory.
 - Stage 8 controlled freedom can make the AI more initiative-driven only when exact product facts are not required.
@@ -221,6 +223,7 @@ Important fields:
 - `searchMode`
 - `humanizedResponse`
 - `responsePlan`
+- `productGallery`
 
 Rules:
 - Keep product context short and relevant.
@@ -229,10 +232,10 @@ Rules:
 
 ## ResponsePlan
 
-Stage 9 deterministic orchestration object. It is the source of truth for AI sandbox mode, search permission, empathy, clarification, recommendation, and safety.
+Stage 9/10 deterministic orchestration object. It is the source of truth for AI sandbox mode, search permission, empathy, clarification, recommendation, product gallery, and safety.
 
 Important fields:
-- `mode`: `comfort_consultation`, `family_guidance`, `recommendation`, `clarification`, `comparison`, `reassurance`, `availability_check`, `sizing_help`, `style_guidance`, `school_selection`, `sport_selection`, or `conversion_soft`.
+- `mode`: `comfort_consultation`, `family_guidance`, `recommendation`, `clarification`, `comparison`, `reassurance`, `availability_check`, `product_gallery`, `sizing_help`, `style_guidance`, `school_selection`, `sport_selection`, or `conversion_soft`.
 - `intent` / `selectedIntent`.
 - `shouldSearchProducts`, `searchAllowed`.
 - `shouldClarify`, `clarificationAllowed`.
@@ -243,6 +246,7 @@ Important fields:
 - `suggestedBrands`, `suggestedUseCases`.
 - `riskLevel`, `safetyFlags`.
 - `conversationEnergy`, `customerEmotion`, `conversationMomentum`, `trustBuildingMode`, `variationStyle`.
+- `galleryIntent`.
 - `orchestrationReason`.
 
 Rules:
@@ -250,6 +254,32 @@ Rules:
 - Comfort/pain intents must not trigger product search first.
 - Exact availability and price requests stay strict and fact-bound.
 - Human dynamics fields vary tone without changing product facts.
+- `product_gallery` must use real product media only and must not generate AI images.
+
+## ProductMedia
+
+Resolved media object produced by `services/product-media`.
+
+```js
+ProductMedia = {
+  sku,
+  productId,
+  brand,
+  model,
+  color,
+  images,
+  gallery,
+  previewImage,
+  tags,
+  mediaFound,
+  source
+}
+```
+
+Rules:
+- Media can come from BILLZ product fields such as `images`, `gallery`, `photos`, `imageUrl`, or from `config/product-media.json`.
+- Do not generate product images.
+- Gallery responses can proceed when media is missing, but debug must expose `mediaFound` and selected products.
 
 ## AIReasoningObject
 

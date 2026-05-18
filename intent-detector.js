@@ -4,6 +4,7 @@ const { normalizeQuery: normalizeAdvancedQuery } = require('./services/search/qu
 
 function detectIntent(message) {
   const text = normalizeText(message);
+  if (/(фото|покаж|как\s+выгляд|выглядят|картинк|галере)/.test(text)) return 'product_gallery';
   if (/(какие|что за|какой).*(бренд|марки)|бренд.*(есть|прода)|марки.*есть/.test(text)) return 'brand_list';
   if (/(где|адрес|находит|примерить|филиал|магазин)/.test(text)) return 'location';
   if (/(стоп|см|сантиметр|размер лучше|какой размер|подойдет размер)/.test(text)) return 'sizing';

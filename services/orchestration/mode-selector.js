@@ -3,6 +3,7 @@ function selectMode({ selectedIntent, conversationState = {}, searchAllowed } = 
   if (selectedIntent === 'child_school_selection') {
     return conversationState.childProfile?.useCase === 'school_pe' ? 'sport_selection' : 'school_selection';
   }
+  if (selectedIntent === 'product_gallery') return 'product_gallery';
   if (selectedIntent === 'family_selection') return 'family_guidance';
   if (selectedIntent === 'exact_availability' || searchAllowed) return 'availability_check';
   if (selectedIntent === 'sizing') return 'sizing_help';

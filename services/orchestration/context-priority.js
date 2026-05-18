@@ -11,6 +11,9 @@ function buildAllowedTopics(activeProfileKey, selectedIntent) {
   if (selectedIntent === 'nail_problem' || selectedIntent === 'pain_problem' || selectedIntent === 'comfort_problem') {
     return ['comfort', 'fit', 'soft_recommendation_direction'];
   }
+  if (selectedIntent === 'product_gallery') {
+    return ['product_photos', 'real_gallery_images', 'current_active_subject'];
+  }
   if (activeProfileKey === 'childProfile' || activeProfileKey === 'teenProfile') {
     return ['child_fit', 'school', 'sport', 'Little Light', 'Saguaro kids'];
   }
@@ -23,6 +26,7 @@ function buildAllowedTopics(activeProfileKey, selectedIntent) {
 function buildForbiddenTopics(selectedIntent, searchAllowed) {
   const topics = ['raw_sku', 'barcode', 'stock_count', 'branch_specific_stock', 'medical_promises'];
   if (!searchAllowed) topics.push('exact_product_dump', 'fake_availability', 'fake_prices');
+  if (selectedIntent === 'product_gallery') topics.push('ai_generated_product_images');
   if (selectedIntent === 'nail_problem' || selectedIntent === 'pain_problem') topics.push('hard_sales');
   return topics;
 }

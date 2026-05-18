@@ -41,7 +41,9 @@ function buildResponsePlan({
 } = {}) {
   const hierarchy = detectPriorityIntent(query, parsedQuery, conversationState);
   const { key: activeProfile, profile } = getActiveProfile(conversationState);
-  const searchAllowed = hierarchy.selectedIntent === 'exact_availability' || Boolean(conversationState.shouldSearchProducts && !['nail_problem', 'pain_problem', 'comfort_problem', 'wide_foot', 'child_school_selection', 'family_selection'].includes(hierarchy.selectedIntent));
+  const searchAllowed = hierarchy.selectedIntent === 'exact_availability'
+    || hierarchy.selectedIntent === 'product_gallery'
+    || Boolean(conversationState.shouldSearchProducts && !['nail_problem', 'pain_problem', 'comfort_problem', 'wide_foot', 'child_school_selection', 'family_selection'].includes(hierarchy.selectedIntent));
   const risk = determineRisk({ selectedIntent: hierarchy.selectedIntent, searchAllowed, billzConnected });
   const recommendationConfidence = computeRecommendationConfidence({ selectedIntent: hierarchy.selectedIntent, conversationState, activeProfileKey: activeProfile });
   const clarification = determineClarification({ selectedIntent: hierarchy.selectedIntent, recommendationConfidence, conversationState, riskLevel: risk.riskLevel });
@@ -50,7 +52,7 @@ function buildResponsePlan({
   const customerEmotion = inferEmotion(hierarchy.selectedIntent, query);
   const conversationEnergy = inferEnergy(mode, customerEmotion);
   const suggestedUseCases = rec.suggestedUseCases || [];
-  const shouldRecommend = mode === 'availability_check'
+  const shouldRecommend = mode === 'availability_check' || mode === 'product_gallery'
     ? false
     : (rec.shouldRecommend || recommendationConfidence >= 70);
   return {
@@ -59,6 +61,7 @@ function buildResponsePlan({
     selectedMode: mode,
     selectedIntent: hierarchy.selectedIntent,
     responseStrategy: mode,
+    galleryIntent: mode === 'product_gallery',
     shouldSearchProducts: searchAllowed,
     searchAllowed,
     shouldClarify: clarification.shouldClarify,

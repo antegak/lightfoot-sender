@@ -1,0 +1,75 @@
+[
+  {
+    "name": "stage10-family-adult-be-lenka-follow-up-anchored",
+    "turns": [
+      "Хочу обувь для себя и ребенка",
+      "у меня 39 размер, у ребенка 17 см стопа",
+      "а для себя какие лучше?",
+      "покажи be lenka"
+    ],
+    "expectedResponsePlan": {
+      "mode": "product_gallery",
+      "intent": "product_gallery",
+      "shouldSearchProducts": true,
+      "galleryIntent": true,
+      "activeProfile": "adultProfile"
+    },
+    "expectedConversationState": {
+      "activeSubject": "adultProfile",
+      "currentFocus": "product_availability"
+    },
+    "expectedContains": ["Be Lenka"],
+    "expectedNotContains": ["ребенка", "Little Light", "Saguaro kids", "SKU", "stock", "остаток"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage10-photo-request-starts-gallery-flow",
+    "turns": [
+      "мне нужны черные 39",
+      "можешь отправить фото?"
+    ],
+    "expectedResponsePlan": {
+      "mode": "product_gallery",
+      "intent": "product_gallery",
+      "shouldSearchProducts": true,
+      "galleryIntent": true
+    },
+    "expectedConversationState": {
+      "activeSubject": "adultProfile"
+    },
+    "expectedContains": ["фото"],
+    "expectedNotContains": ["леч", "SKU", "stock", "остаток"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage10-pain-comfort-no-product-spam",
+    "turns": ["у меня вросшие ногти"],
+    "expectedResponsePlan": {
+      "mode": "comfort_consultation",
+      "intent": "nail_problem",
+      "shouldSearchProducts": false
+    },
+    "expectedContains": ["пальцы", "barefoot"],
+    "expectedNotContains": ["цена", "SKU", "stock", "остаток"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage10-recommendation-commitment-known-context",
+    "turns": [
+      "мне на каждый день",
+      "39 размер",
+      "хочу be lenka"
+    ],
+    "expectedResponsePlan": {
+      "mode": "availability_check",
+      "intent": "availability",
+      "shouldSearchProducts": true,
+      "shouldClarify": false
+    },
+    "expectedConversationState": {
+      "activeSubject": "adultProfile",
+      "nextBestAction": "recommend_product"
+    },
+    "expectedNotContains": ["уточните", "какой размер", "ребенка", "SKU", "stock", "остаток"]
+  }
+]

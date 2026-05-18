@@ -38,6 +38,7 @@ function chooseResponseStrategy(context = {}) {
   if (responsePlan.mode === 'comfort_consultation') return { strategy: 'stage9_comfort_consultation', template: 'stage9_comfort_consultation' };
   if (responsePlan.mode === 'school_selection' || responsePlan.mode === 'sport_selection') return { strategy: 'stage9_school_sport_selection', template: 'stage9_school_sport_selection' };
   if (responsePlan.mode === 'style_guidance') return { strategy: 'stage9_style_guidance', template: 'stage9_style_guidance' };
+  if (responsePlan.mode === 'product_gallery') return { strategy: 'product_gallery', template: 'product_gallery' };
   if (responsePlan.mode === 'availability_check') return { strategy: 'availability', template: 'availability' };
   if (responsePlan.mode === 'clarification') return { strategy: 'clarification', template: 'clarification', fallbackReason: 'orchestration_clarification' };
   if (isFamilyProfileUpdate(context) && !['recommend_direction', 'acknowledge_correction', 'progress_conversation'].includes(conversationState.nextBestAction)) {
@@ -140,6 +141,9 @@ function formatHumanResponse(context = {}, options = {}) {
       reasoningObject: context.reasoningObject || null,
       customerProfile: context.customerProfile || null,
       clarificationState: meta.strategy === 'clarification' ? { needed: true, reason: meta.fallbackReason || '' } : { needed: false, reason: '' },
+      galleryIntent: context.responsePlan?.galleryIntent || meta.strategy === 'product_gallery',
+      mediaFound: Boolean(context.productGallery?.mediaFound),
+      selectedProducts: context.productGallery?.selectedProducts || [],
     },
   };
 }

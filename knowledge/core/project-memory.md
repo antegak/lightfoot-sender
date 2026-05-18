@@ -53,6 +53,7 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Stage 8 uses LOW freedom for exact facts and BILLZ/search uncertainty, and MEDIUM/HIGH freedom for advice, use-case, style, comfort, and recommendation flows.
 - Stage 8 dialogue-quality hotfix made school plus PE/change-shoe child follow-ups less scripted: classroom shoes and PE shoes are handled as separate directions instead of repeating the same school summary.
 - Stage 9 added logic-first orchestration: deterministic `responsePlan` now controls mode, search permission, empathy, clarification, recommendation confidence, active profile, safety, and human dynamics; LLM is draft-only.
+- Stage 10 changes the product direction toward an AI store consultant: `anchoredConversationSubject` protects adult/child focus across follow-ups, `product_gallery` becomes a deterministic response mode, and `services/product-media` prepares real product-photo galleries from BILLZ fields or `config/product-media.json`.
 
 ## Future Plans
 
@@ -60,7 +61,7 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Suggest mode.
 - Handoff mode.
 - Voice transcription.
-- Image support.
+- Product photo/gallery UI support on top of the new product media resolver.
 - Advanced recommendations.
 - AI CRM memory.
 - Analytics.

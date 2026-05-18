@@ -200,3 +200,26 @@ Debug adds:
 - `searchAllowed`;
 - `activeProfile`;
 - `orchestrationReason`.
+
+## Stage 10 Store Consultant And Product Media
+
+Stage 10 narrows the AI target to a LightFoot store consultant:
+- logic decides intent, active subject, search permission, gallery mode, and safety;
+- LLM remains wording-only;
+- `anchoredConversationSubject` keeps adult/child focus across follow-ups such as "покажи", "какие", "эти", "фото", or brand-only requests;
+- `product_gallery` starts the real-photo flow when the customer asks to see a model, color, brand, or photo;
+- `services/product-media` builds galleries from real product fields or `config/product-media.json`.
+
+Debug adds:
+- `anchoredSubject`;
+- `subjectConfidence`;
+- `responseMode`;
+- `galleryIntent`;
+- `mediaFound`;
+- `selectedProducts`;
+- `recommendationReason`.
+
+Rules:
+- Do not generate AI product images.
+- Do not use product search for pain/comfort discovery unless the customer asks for concrete options.
+- Keep responses short, product-aware, and store-consultant-like.

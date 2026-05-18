@@ -4,6 +4,7 @@ const { determineSalesFlow, inferCurrentStage } = require('./sales-flow');
 const { determineNextBestAction, shouldSearchProducts } = require('./next-best-action');
 const { determineFreedom } = require('./controlled-freedom');
 const { detectNewInfo } = require('./new-info-detector');
+const { resolveAnchoredSubject } = require('./anchored-subject');
 
 function initialConversationState() {
   return {
@@ -11,6 +12,7 @@ function initialConversationState() {
     currentStage: null,
     customerType: null,
     activeSubject: null,
+    anchoredConversationSubject: null,
     adultProfile: {},
     childProfile: {},
     teenProfile: {},
@@ -55,7 +57,15 @@ function buildConversationState({
 } = {}) {
   const profiles = buildStage7CustomerProfiles(memoryState, parsedQuery, query);
   const newInfo = detectNewInfo(query, parsedQuery, previousState, profiles);
-  const activeSubject = inferActiveSubject(query, parsedQuery, profiles, previousState);
+  const inferredSubject = inferActiveSubject(query, parsedQuery, profiles, previousState);
+  const anchoredConversationSubject = resolveAnchoredSubject({
+    query,
+    parsedQuery,
+    profiles,
+    previousAnchor: previousState.anchoredConversationSubject || null,
+    inferredSubject,
+  });
+  const activeSubject = anchoredConversationSubject?.profile || inferredSubject;
   const currentFocus = inferCurrentFocus(query, parsedQuery, profiles, activeSubject, previousState);
   const baseState = {
     ...initialConversationState(),
@@ -63,6 +73,7 @@ function buildConversationState({
     query,
     currentFocus,
     activeSubject,
+    anchoredConversationSubject,
     customerType: profiles.customerProfile.type || parsedQuery.customerType || memoryState.entities?.customerType || 'unknown',
     customerProfile: profiles.customerProfile,
     adultProfile: profiles.adultProfile,

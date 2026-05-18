@@ -25,6 +25,14 @@ function buildRecommendations({ selectedIntent, activeProfileKey, conversationSt
       recommendationStyle: 'style_direction',
     };
   }
+  if (selectedIntent === 'product_gallery') {
+    return {
+      shouldRecommend: false,
+      suggestedBrands: [adult.preferredBrand || child.preferredBrand].filter(Boolean),
+      suggestedUseCases: ['show_real_product_photos'],
+      recommendationStyle: 'gallery',
+    };
+  }
   if (activeProfileKey === 'adultProfile') {
     return {
       shouldRecommend: true,

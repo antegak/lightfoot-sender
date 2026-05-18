@@ -122,6 +122,22 @@ user message
 
 Stage 9 rule: logic decides `WHAT/WHY/WHEN`; LLM helps with `HOW TO SAY IT`. Search mode, empathy, clarification, recommendation confidence, active profile, safety, and response mode are deterministic decisions.
 
+## Stage 10 Store Consultant Media
+
+```text
+user message
+  -> parser
+  -> conversation state
+  -> anchoredConversationSubject
+  -> responsePlan mode/product_gallery when requested
+  -> optional BILLZ search
+  -> product media resolver
+  -> gallery-aware humanizer
+  -> LLM wording layer only
+```
+
+Stage 10 adds `services/product-media` as a non-destructive layer on top of BILLZ product results. It resolves real product photos from product fields or `config/product-media.json`; it does not generate images. Debug exposes anchored subject, subject confidence, response mode, gallery intent, media found, selected products, and recommendation reason.
+
 ## BILLZ Pipeline
 
 ```text

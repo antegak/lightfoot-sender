@@ -7,6 +7,7 @@ const { buildCustomerProfile } = require('../ai/response-contract');
 const { applyDialoguePolicy, buildConversationState, countQuestions } = require('../conversation');
 const { formatHumanResponse } = require('../humanizer');
 const { buildResponsePlan } = require('../orchestration');
+const { buildProductGallery } = require('../product-media');
 
 const FIXTURE_DIR = path.join(__dirname, '..', '..', 'fixtures');
 
@@ -132,10 +133,22 @@ function runConversationFixtures() {
     ...readFixture('stage7-conversation-fixtures.json'),
     ...readFixture('stage8-conversation-fixtures.json'),
     ...readFixture('stage9-orchestration-fixtures.json'),
+    ...readFixture('stage10-store-consultant-fixtures.json'),
   ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
-    turns.slice(0, -1).forEach((turn) => memory.addUserMessage(turn, parseCustomerQuery(turn)));
+    let previousState = fixture.previousConversationState || {};
+    turns.slice(0, -1).forEach((turn) => {
+      const priorParsed = parseCustomerQuery(turn);
+      memory.addUserMessage(turn, priorParsed);
+      previousState = buildConversationState({
+        query: turn,
+        parsedQuery: priorParsed,
+        memoryState: memory.getState(),
+        previousState,
+        searchResults: {},
+      });
+    });
     const last = turns.slice(-1)[0] || '';
     const parsed = parseCustomerQuery(last);
     memory.addUserMessage(last, parsed);
@@ -145,7 +158,7 @@ function runConversationFixtures() {
       query: last,
       parsedQuery: parsed,
       memoryState,
-      previousState: fixture.previousConversationState || {},
+      previousState,
       searchResults: {},
     });
     const useOrchestration = Boolean(fixture.expectedResponsePlan || String(fixture.name || '').startsWith('stage9-'));
@@ -165,6 +178,9 @@ function runConversationFixtures() {
         : (responsePlan.shouldRecommend ? 'recommend_direction' : conversationState.nextBestAction);
       conversationState.selectedDialogueMove = conversationState.nextBestAction;
     }
+    const productGallery = buildProductGallery(fixture.products || [], {
+      intent: responsePlan?.mode === 'product_gallery' ? 'product_gallery' : '',
+    });
     let formatted = formatHumanResponse({
       query: last,
       detectedIntent: parsed.intent,
@@ -177,6 +193,7 @@ function runConversationFixtures() {
       customerProfile,
       conversationState,
       responsePlan,
+      productGallery,
       brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
     });
     let policy = applyDialoguePolicy(formatted.text, conversationState, {
@@ -199,6 +216,7 @@ function runConversationFixtures() {
         customerProfile,
         conversationState,
         responsePlan,
+        productGallery,
         brandSummary: { brandsAvailable: ['TipsieToes', 'Little Light', 'Saguaro', 'Be Lenka'] },
       });
       policy = applyDialoguePolicy(formatted.text, conversationState);
