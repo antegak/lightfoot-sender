@@ -4,6 +4,7 @@ dist/
 build/
 node_modules/
 temp/
+claude-context/
 *.log
 .env
 .env.*

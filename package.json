@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "export:claude": "node scripts/export-claude-context.js",
     "clean:build": "node scripts/clean-build.js",
     "install:chromium": "playwright install chromium",
     "prepare:chromium": "node scripts/prepare-chromium.js",
