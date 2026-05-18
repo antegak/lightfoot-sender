@@ -870,9 +870,15 @@ async function requestAiTestChat(payload = {}) {
     limit: 5,
   });
   conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
-  conversationState.nextBestAction = responsePlan.shouldClarify
-    ? 'ask_clarifying_question'
-    : (responsePlan.shouldRecommend ? 'recommend_direction' : conversationState.nextBestAction);
+  if (responsePlan.shouldClarify) {
+    conversationState.nextBestAction = 'ask_clarifying_question';
+    conversationState.clarificationCount = Number(conversationState.clarificationCount || 0) + 1;
+    conversationState.lastClarificationReason = 'critical_info_missing';
+  } else if (responsePlan.mode === 'availability_check' && responsePlan.shouldSearchProducts) {
+    conversationState.nextBestAction = 'recommend_product';
+  } else if (responsePlan.shouldRecommend && !responsePlan.shouldSearchProducts) {
+    conversationState.nextBestAction = 'recommend_direction';
+  }
   conversationState.selectedDialogueMove = conversationState.nextBestAction;
   conversationState.reasonForNextBestAction = responsePlan.orchestrationReason || conversationState.reasonForNextBestAction;
   logger.info(LOG_CATEGORIES.AI, 'AI memory merge', {

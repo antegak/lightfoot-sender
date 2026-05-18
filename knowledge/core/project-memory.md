@@ -54,6 +54,7 @@ Project memory records durable decisions, tradeoffs, known problems, and future 
 - Stage 8 dialogue-quality hotfix made school plus PE/change-shoe child follow-ups less scripted: classroom shoes and PE shoes are handled as separate directions instead of repeating the same school summary.
 - Stage 9 added logic-first orchestration: deterministic `responsePlan` now controls mode, search permission, empathy, clarification, recommendation confidence, active profile, safety, and human dynamics; LLM is draft-only.
 - Stage 10 changes the product direction toward an AI store consultant: `anchoredConversationSubject` protects adult/child focus across follow-ups, `product_gallery` becomes a deterministic response mode, and `services/product-media` prepares real product-photo galleries from BILLZ fields or `config/product-media.json`.
+- Stage 11 critical stabilization keeps the same architecture but tightens failure points: intent hierarchy uses clean UTF-8 patterns, strong/follow-up anchors beat inferred subject drift, clarification has a one-reason budget, and availability flows can still commit to recommendation when brand plus size/use-case/fit context are known.
 
 ## Future Plans
 

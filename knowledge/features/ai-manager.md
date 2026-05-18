@@ -223,3 +223,13 @@ Rules:
 - Do not generate AI product images.
 - Do not use product search for pain/comfort discovery unless the customer asks for concrete options.
 - Keep responses short, product-aware, and store-consultant-like.
+
+## Stage 11 Critical Stabilization
+
+Stage 11 fixes the critical audit findings without refactoring `main.js` or changing memory schema:
+- `intent-hierarchy` now uses clean UTF-8 health/comfort/gallery/search patterns so issues like ingrown nails or wide feet win over availability/search wording;
+- `anchoredConversationSubject` priority is explicit subject, family advice, carried strong/follow-up anchor, then inferred subject;
+- `clarificationCount` and `lastClarificationReason` stop repeated clarification loops for the same missing context;
+- recommendation confidence includes known brand, and availability checks no longer suppress recommendation commitment when subject plus brand and fit context are already known.
+
+QA coverage lives in `fixtures/stage11-critical-ai-fixtures.json`.

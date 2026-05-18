@@ -134,6 +134,7 @@ function runConversationFixtures() {
     ...readFixture('stage8-conversation-fixtures.json'),
     ...readFixture('stage9-orchestration-fixtures.json'),
     ...readFixture('stage10-store-consultant-fixtures.json'),
+    ...readFixture('stage11-critical-ai-fixtures.json'),
   ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
@@ -173,9 +174,15 @@ function runConversationFixtures() {
       : null;
     if (responsePlan) {
       conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
-      conversationState.nextBestAction = responsePlan.shouldClarify
-        ? 'ask_clarifying_question'
-        : (responsePlan.shouldRecommend ? 'recommend_direction' : conversationState.nextBestAction);
+      if (responsePlan.shouldClarify) {
+        conversationState.nextBestAction = 'ask_clarifying_question';
+        conversationState.clarificationCount = Number(conversationState.clarificationCount || 0) + 1;
+        conversationState.lastClarificationReason = 'critical_info_missing';
+      } else if (responsePlan.mode === 'availability_check' && responsePlan.shouldSearchProducts) {
+        conversationState.nextBestAction = 'recommend_product';
+      } else if (responsePlan.shouldRecommend && !responsePlan.shouldSearchProducts) {
+        conversationState.nextBestAction = 'recommend_direction';
+      }
       conversationState.selectedDialogueMove = conversationState.nextBestAction;
     }
     const productGallery = buildProductGallery(fixture.products || [], {

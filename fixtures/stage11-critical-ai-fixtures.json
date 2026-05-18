@@ -1,0 +1,121 @@
+[
+  {
+    "name": "stage11-adult-anchor-be-lenka-gallery-stays-adult",
+    "turns": [
+      "Хочу обувь для себя и ребенка",
+      "у меня 39 размер, у ребенка 17 см стопа",
+      "а для себя какие лучше?",
+      "покажи be lenka"
+    ],
+    "expectedResponsePlan": {
+      "mode": "product_gallery",
+      "intent": "product_gallery",
+      "shouldSearchProducts": true,
+      "galleryIntent": true,
+      "activeProfile": "adultProfile"
+    },
+    "expectedConversationState": {
+      "activeSubject": "adultProfile"
+    },
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage11-child-anchor-photo-follow-up-stays-child",
+    "turns": [
+      "ребенку нужна обувь",
+      "стопа 17 см",
+      "покажи варианты",
+      "есть фото?"
+    ],
+    "expectedResponsePlan": {
+      "mode": "product_gallery",
+      "intent": "product_gallery",
+      "shouldSearchProducts": true,
+      "galleryIntent": true,
+      "activeProfile": "childProfile"
+    },
+    "expectedConversationState": {
+      "activeSubject": "childProfile"
+    },
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage11-nail-problem-health-wins-over-availability",
+    "turns": [
+      "при вросших ногтях что-то есть?"
+    ],
+    "expectedResponsePlan": {
+      "mode": "comfort_consultation",
+      "intent": "nail_problem",
+      "shouldSearchProducts": false,
+      "shouldEmpathize": true
+    },
+    "expectedConversationState": {
+      "shouldSearchProducts": false
+    },
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage11-wide-foot-comfort-wins-over-search",
+    "turns": [
+      "широкая стопа, какие варианты есть?"
+    ],
+    "expectedResponsePlan": {
+      "mode": "comfort_consultation",
+      "intent": "wide_foot",
+      "shouldSearchProducts": false
+    },
+    "expectedConversationState": {
+      "shouldSearchProducts": false
+    },
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage11-repeated-clarification-budget-progresses",
+    "previousConversationState": {
+      "activeSubject": "adultProfile",
+      "currentFocus": "adult_selection",
+      "clarificationCount": 1,
+      "lastClarificationReason": "critical_info_missing",
+      "anchoredConversationSubject": {
+        "profile": "adultProfile",
+        "confidence": 90,
+        "expiresAfterTurns": 4,
+        "lastUpdatedAt": "fixture",
+        "reason": "fixture"
+      }
+    },
+    "turns": [
+      "есть обувь?"
+    ],
+    "expectedResponsePlan": {
+      "shouldClarify": false,
+      "clarificationAllowed": false
+    },
+    "expectedConversationState": {
+      "activeSubject": "adultProfile",
+      "clarificationCount": 1
+    },
+    "expectedMaxQuestions": 1
+  },
+  {
+    "name": "stage11-known-brand-size-use-case-commits-to-recommendation",
+    "turns": [
+      "мне на каждый день",
+      "39 размер",
+      "хочу be lenka"
+    ],
+    "expectedResponsePlan": {
+      "mode": "availability_check",
+      "shouldSearchProducts": true,
+      "shouldClarify": false,
+      "shouldRecommend": true,
+      "activeProfile": "adultProfile"
+    },
+    "expectedConversationState": {
+      "activeSubject": "adultProfile",
+      "nextBestAction": "recommend_product"
+    },
+    "expectedMaxQuestions": 1
+  }
+]

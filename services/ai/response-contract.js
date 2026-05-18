@@ -5,6 +5,7 @@ function hasMeaningfulProducts(context = {}) {
 
 function needsClarification(context = {}) {
   const parsed = context.parsedQuery || {};
+  if (context.responsePlan?.shouldClarify === false) return false;
   if (parsed.intent === 'brand_list' || parsed.intent === 'store_question' || parsed.intent === 'location') return false;
   if (parsed.footLength || parsed.sizeRecommendation) return false;
   if ((parsed.childAge || parsed.customerType === 'kids' || parsed.customerType === 'teen') && !parsed.size) {

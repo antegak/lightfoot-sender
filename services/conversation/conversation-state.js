@@ -20,6 +20,8 @@ function initialConversationState() {
     lastQuestion: null,
     lastRecommendation: null,
     missingInfo: [],
+    clarificationCount: 0,
+    lastClarificationReason: '',
     nextBestAction: null,
     shouldSearchProducts: false,
     salesFlow: null,

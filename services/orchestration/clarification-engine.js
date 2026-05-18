@@ -1,9 +1,10 @@
-function computeRecommendationConfidence({ selectedIntent, conversationState = {}, activeProfileKey } = {}) {
+function computeRecommendationConfidence({ selectedIntent, conversationState = {}, activeProfileKey, parsedQuery = {} } = {}) {
   const profile = activeProfileKey === 'adultProfile'
     ? conversationState.adultProfile || {}
     : (activeProfileKey === 'childProfile' || activeProfileKey === 'teenProfile' ? conversationState.childProfile || {} : conversationState.customerProfile || {});
   let score = 35;
   if (selectedIntent && selectedIntent !== 'unknown') score += 15;
+  if (profile.preferredBrand || parsedQuery.brand || conversationState.customerProfile?.preferredBrand) score += 15;
   if (profile.size || profile.footLengthCm) score += 20;
   if (profile.useCase) score += 20;
   if (profile.fitPreference || profile.stylePreference || profile.problemNotes?.length) score += 10;
@@ -18,6 +19,10 @@ function determineClarification({ selectedIntent, recommendationConfidence, conv
     return { shouldClarify: false, clarificationAllowed: false, reason: 'can_progress_without_clarification' };
   }
   if (conversationState.missingInfo?.length && recommendationConfidence < 55) {
+    const reason = 'critical_info_missing';
+    if (Number(conversationState.clarificationCount || 0) >= 1 && conversationState.lastClarificationReason === reason) {
+      return { shouldClarify: false, clarificationAllowed: false, reason: 'already_asked_same_clarification' };
+    }
     return { shouldClarify: true, clarificationAllowed: true, reason: 'critical_info_missing' };
   }
   return { shouldClarify: false, clarificationAllowed: false, reason: 'enough_context' };

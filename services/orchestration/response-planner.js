@@ -32,6 +32,14 @@ function selectVariation(mode, suggestedUseCases = []) {
   return 'consultant_note';
 }
 
+function hasRecommendationCommitment({ mode, activeProfile, profile = {}, parsedQuery = {} } = {}) {
+  if (mode !== 'availability_check') return false;
+  if (!['adultProfile', 'childProfile', 'teenProfile'].includes(activeProfile)) return false;
+  const hasBrand = Boolean(profile.preferredBrand || parsedQuery.brand);
+  const hasFitContext = Boolean(profile.size || profile.footLengthCm || profile.useCase || profile.fitPreference || profile.stylePreference);
+  return hasBrand && hasFitContext;
+}
+
 function buildResponsePlan({
   query = '',
   parsedQuery = {},
@@ -45,16 +53,19 @@ function buildResponsePlan({
     || hierarchy.selectedIntent === 'product_gallery'
     || Boolean(conversationState.shouldSearchProducts && !['nail_problem', 'pain_problem', 'comfort_problem', 'wide_foot', 'child_school_selection', 'family_selection'].includes(hierarchy.selectedIntent));
   const risk = determineRisk({ selectedIntent: hierarchy.selectedIntent, searchAllowed, billzConnected });
-  const recommendationConfidence = computeRecommendationConfidence({ selectedIntent: hierarchy.selectedIntent, conversationState, activeProfileKey: activeProfile });
+  const recommendationConfidence = computeRecommendationConfidence({ selectedIntent: hierarchy.selectedIntent, conversationState, activeProfileKey: activeProfile, parsedQuery });
   const clarification = determineClarification({ selectedIntent: hierarchy.selectedIntent, recommendationConfidence, conversationState, riskLevel: risk.riskLevel });
   const rec = buildRecommendations({ selectedIntent: hierarchy.selectedIntent, activeProfileKey: activeProfile, conversationState });
   const mode = selectMode({ selectedIntent: hierarchy.selectedIntent, conversationState, searchAllowed });
   const customerEmotion = inferEmotion(hierarchy.selectedIntent, query);
   const conversationEnergy = inferEnergy(mode, customerEmotion);
   const suggestedUseCases = rec.suggestedUseCases || [];
-  const shouldRecommend = mode === 'availability_check' || mode === 'product_gallery'
+  const committedRecommendation = hasRecommendationCommitment({ mode, activeProfile, profile, parsedQuery });
+  const shouldRecommend = mode === 'product_gallery'
     ? false
-    : (rec.shouldRecommend || recommendationConfidence >= 70);
+    : (mode === 'availability_check'
+      ? committedRecommendation
+      : (rec.shouldRecommend || recommendationConfidence >= 70));
   return {
     mode,
     intent: hierarchy.selectedIntent,
