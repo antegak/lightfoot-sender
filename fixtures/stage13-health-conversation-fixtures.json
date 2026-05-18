@@ -1,0 +1,102 @@
+[
+  {
+    "name": "stage13-health-follow-up-recommends-before-asking",
+    "previousConversationState": {
+      "activeSubject": "adultProfile",
+      "currentFocus": "adult_selection",
+      "customerType": "adult",
+      "lastHealthIntent": "nail_problem",
+      "lastHealthIntentTurns": 3,
+      "currentIntent": "nail_problem",
+      "anchoredConversationSubject": {
+        "profile": "adultProfile",
+        "confidence": 96,
+        "expiresAfterTurns": 4,
+        "lastUpdatedAt": "fixture",
+        "reason": "explicit_adult"
+      }
+    },
+    "turns": [
+      "Ну что взять тогда?"
+    ],
+    "expectedStrategy": "after_health_recommendation",
+    "expectedResponsePlan": {
+      "mode": "recommendation",
+      "shouldClarify": false,
+      "clarificationAllowed": false,
+      "lastHealthIntent": "nail_problem",
+      "searchHint": "wide_toe_box_preferred"
+    },
+    "expectedConversationState": {
+      "nextBestAction": "recommend_direction",
+      "shouldSearchProducts": false,
+      "lastHealthIntent": "nail_problem"
+    },
+    "expectedContains": ["TipsieToes", "Be Lenka", "свободным носком"],
+    "expectedNotContains": ["Уточните", "цвет", "черный", "бежевый", "Коенкозова", "Байтик Баатыра", "stock", "остаток"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage13-health-unusual-colors-filters-basic-colors-and-hides-address",
+    "previousConversationState": {
+      "activeSubject": "adultProfile",
+      "currentFocus": "adult_selection",
+      "customerType": "adult",
+      "lastHealthIntent": "nail_problem",
+      "lastHealthIntentTurns": 3,
+      "currentIntent": "recommendation",
+      "anchoredConversationSubject": {
+        "profile": "adultProfile",
+        "confidence": 96,
+        "expiresAfterTurns": 4,
+        "lastUpdatedAt": "fixture",
+        "reason": "explicit_adult"
+      }
+    },
+    "turns": [
+      "39 размер хочу необычные цвета"
+    ],
+    "products": [
+      {
+        "brand": "TipsieToes",
+        "model": "Glamour",
+        "color": "черный",
+        "material": "замша",
+        "size": "39",
+        "price": 5590
+      },
+      {
+        "brand": "TipsieToes",
+        "model": "Glamour",
+        "color": "бежевый",
+        "material": "замша",
+        "size": "39",
+        "price": 5590
+      },
+      {
+        "brand": "TipsieToes",
+        "model": "Glamour",
+        "color": "красный",
+        "material": "замша",
+        "size": "39",
+        "price": 5590
+      }
+    ],
+    "expectedStrategy": "availability",
+    "expectedResponsePlan": {
+      "mode": "availability_check",
+      "shouldSearchProducts": true,
+      "shouldClarify": false,
+      "lastHealthIntent": "nail_problem",
+      "searchHint": "wide_toe_box_preferred"
+    },
+    "expectedConversationState": {
+      "nextBestAction": "recommend_product",
+      "shouldSearchProducts": true,
+      "activeSubject": "adultProfile"
+    },
+    "expectedContains": ["TipsieToes", "Glamour", "красный", "39"],
+    "expectedNotContains": ["черный", "бежевый", "Коенкозова", "Байтик Баатыра", "stock", "остаток"],
+    "expectedMaxQuestions": 0
+  }
+]

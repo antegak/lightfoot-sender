@@ -9,6 +9,7 @@ function computeRecommendationConfidence({ selectedIntent, conversationState = {
   if (profile.useCase) score += 20;
   if (profile.fitPreference || profile.stylePreference || profile.problemNotes?.length) score += 10;
   if (selectedIntent === 'nail_problem' || selectedIntent === 'pain_problem' || selectedIntent === 'comfort_problem' || selectedIntent === 'wide_foot') score = Math.max(score, 75);
+  if (conversationState.lastHealthIntent) score = Math.max(score, 70);
   if (selectedIntent === 'child_school_selection' && (profile.footLengthCm || profile.size)) score = Math.max(score, 80);
   return Math.max(0, Math.min(100, score));
 }
@@ -17,6 +18,9 @@ function determineClarification({ selectedIntent, recommendationConfidence, conv
   if (riskLevel === 'high') return { shouldClarify: false, clarificationAllowed: false, reason: 'safety_mode_no_question_loop' };
   if (['nail_problem', 'pain_problem', 'comfort_problem', 'wide_foot', 'child_school_selection', 'style_guidance', 'comparison'].includes(selectedIntent)) {
     return { shouldClarify: false, clarificationAllowed: false, reason: 'can_progress_without_clarification' };
+  }
+  if (conversationState.lastHealthIntent && conversationState.lastHealthIntentTurns > 0) {
+    return { shouldClarify: false, clarificationAllowed: false, reason: 'follow_up_after_health_no_clarification' };
   }
   if (conversationState.missingInfo?.length && recommendationConfidence < 55) {
     const reason = 'critical_info_missing';

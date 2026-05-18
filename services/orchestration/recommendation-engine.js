@@ -1,12 +1,18 @@
 function buildRecommendations({ selectedIntent, activeProfileKey, conversationState = {} } = {}) {
   const child = conversationState.childProfile || {};
   const adult = conversationState.adultProfile || {};
-  if (selectedIntent === 'nail_problem' || selectedIntent === 'pain_problem' || selectedIntent === 'comfort_problem' || selectedIntent === 'wide_foot') {
+  const healthIntent = selectedIntent === 'nail_problem'
+    || selectedIntent === 'pain_problem'
+    || selectedIntent === 'comfort_problem'
+    || selectedIntent === 'wide_foot'
+    || Boolean(conversationState.lastHealthIntent);
+  if (healthIntent) {
     return {
       shouldRecommend: true,
       suggestedBrands: ['TipsieToes', 'Be Lenka'],
       suggestedUseCases: ['soft_everyday', 'wide_toe_box'],
       recommendationStyle: 'soft',
+      searchHint: 'wide_toe_box_preferred',
     };
   }
   if (selectedIntent === 'child_school_selection' || child.useCase === 'school' || child.useCase === 'school_pe') {

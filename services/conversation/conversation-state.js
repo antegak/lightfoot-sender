@@ -20,6 +20,10 @@ function initialConversationState() {
     lastQuestion: null,
     lastRecommendation: null,
     recommendationHistory: [],
+    currentIntent: null,
+    previousIntent: null,
+    lastHealthIntent: null,
+    lastHealthIntentTurns: 0,
     missingInfo: [],
     clarificationCount: 0,
     lastClarificationReason: '',
@@ -58,6 +62,7 @@ function buildConversationState({
   previousState = {},
   searchResults = {},
 } = {}) {
+  const previousHealthTurns = Math.max(0, Number(previousState.lastHealthIntentTurns || 0) - 1);
   const profiles = buildStage7CustomerProfiles(memoryState, parsedQuery, query);
   const newInfo = detectNewInfo(query, parsedQuery, previousState, profiles);
   const inferredSubject = inferActiveSubject(query, parsedQuery, profiles, previousState);
@@ -74,6 +79,10 @@ function buildConversationState({
     ...initialConversationState(),
     ...previousState,
     query,
+    currentIntent: parsedQuery.intent || previousState.currentIntent || null,
+    previousIntent: previousState.currentIntent || previousState.selectedIntent || previousState.previousIntent || null,
+    lastHealthIntent: previousHealthTurns > 0 ? previousState.lastHealthIntent : null,
+    lastHealthIntentTurns: previousHealthTurns,
     currentFocus,
     activeSubject,
     anchoredConversationSubject,

@@ -244,3 +244,15 @@ Stage 12 targets the "bot feeling" issues from the audit while keeping the Stage
 - `config/product-media.json` contains initial verified Be Lenka media mappings from official product images.
 
 QA coverage lives in `fixtures/stage12-consultant-quality-fixtures.json`.
+
+## Stage 13 Health Conversation Hotfix
+
+Stage 13 fixes a live failure where the AI handled ingrown nails correctly once, then lost the context:
+- conversation state now carries `currentIntent`, `previousIntent`, `lastHealthIntent`, and a short `lastHealthIntentTurns` TTL;
+- follow-ups such as "Ну что взять тогда?" after nail/pain context use `after_health_recommendation` instead of generic clarification;
+- `determineClarification()` refuses repeated size/color clarification immediately after health context;
+- recommendation planning includes `searchHint: wide_toe_box_preferred` for health-context product flow;
+- availability display filters basic colors when the customer asks for unusual colors and non-basic options exist;
+- branch addresses are shown only for branch/location/conversion context, not every product list.
+
+QA coverage lives in `fixtures/stage13-health-conversation-fixtures.json`.

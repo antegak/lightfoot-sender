@@ -872,6 +872,11 @@ async function requestAiTestChat(payload = {}) {
     intent: responsePlan.mode === 'product_gallery' ? 'product_gallery' : '',
     limit: 5,
   });
+  conversationState.currentIntent = responsePlan.intent;
+  if (['nail_problem', 'pain_problem', 'comfort_problem', 'toe_pain', 'wide_foot', 'walking_fatigue', 'posture_problem', 'health_concern'].includes(responsePlan.intent)) {
+    conversationState.lastHealthIntent = responsePlan.intent;
+    conversationState.lastHealthIntentTurns = 4;
+  }
   conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
   if (responsePlan.shouldClarify) {
     conversationState.nextBestAction = 'ask_clarifying_question';
@@ -1039,6 +1044,10 @@ async function requestAiTestChat(payload = {}) {
       anchoredConversationSubject: conversationState.anchoredConversationSubject,
       nextBestAction: conversationState.nextBestAction,
       shouldSearchProducts: conversationState.shouldSearchProducts,
+      currentIntent: conversationState.currentIntent,
+      previousIntent: conversationState.previousIntent,
+      lastHealthIntent: conversationState.lastHealthIntent,
+      lastHealthIntentTurns: conversationState.lastHealthIntentTurns,
       freedomLevel: conversationState.freedomLevel,
       hasNewInfo: conversationState.hasNewInfo,
       newInfoType: conversationState.newInfoType,
@@ -1052,6 +1061,10 @@ async function requestAiTestChat(payload = {}) {
       teenProfile: conversationState.teenProfile,
       salesFlow: conversationState.salesFlow,
       missingInfo: conversationState.missingInfo,
+      clarificationCount: conversationState.clarificationCount,
+      lastClarificationReason: conversationState.lastClarificationReason,
+      lastRecommendation: conversationState.lastRecommendation,
+      recommendationHistory: conversationState.recommendationHistory,
       confidence: conversationState.confidence,
     },
     clarificationState: conversationContext.clarificationState,

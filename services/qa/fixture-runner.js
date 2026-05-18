@@ -136,6 +136,7 @@ function runConversationFixtures() {
     ...readFixture('stage10-store-consultant-fixtures.json'),
     ...readFixture('stage11-critical-ai-fixtures.json'),
     ...readFixture('stage12-consultant-quality-fixtures.json'),
+    ...readFixture('stage13-health-conversation-fixtures.json'),
   ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
@@ -174,6 +175,11 @@ function runConversationFixtures() {
         })
       : null;
     if (responsePlan) {
+      conversationState.currentIntent = responsePlan.intent;
+      if (['nail_problem', 'pain_problem', 'comfort_problem', 'toe_pain', 'wide_foot', 'walking_fatigue', 'posture_problem', 'health_concern'].includes(responsePlan.intent)) {
+        conversationState.lastHealthIntent = responsePlan.intent;
+        conversationState.lastHealthIntentTurns = 4;
+      }
       conversationState.shouldSearchProducts = responsePlan.shouldSearchProducts;
       if (responsePlan.shouldClarify) {
         conversationState.nextBestAction = 'ask_clarifying_question';
@@ -194,7 +200,7 @@ function runConversationFixtures() {
       query: last,
       detectedIntent: parsed.intent,
       parsedQuery: parsed,
-      products: [],
+      products: fixture.products || [],
       recommendations: [],
       sizeRecommendation: parsed.sizeRecommendation,
       memoryEntities: memoryState.entities || {},
@@ -217,7 +223,7 @@ function runConversationFixtures() {
         query: last,
         detectedIntent: parsed.intent,
         parsedQuery: parsed,
-        products: [],
+        products: fixture.products || [],
         recommendations: [],
         sizeRecommendation: parsed.sizeRecommendation,
         memoryEntities: memoryState.entities || {},

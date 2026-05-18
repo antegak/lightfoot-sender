@@ -31,6 +31,37 @@ function isFamilyProfileUpdate(context = {}) {
   );
 }
 
+function isHealthFollowUp(context = {}) {
+  const state = context.conversationState || {};
+  return Boolean(state.lastHealthIntent && state.lastHealthIntentTurns > 0);
+}
+
+function wantsBranchInfo(context = {}) {
+  const text = String(context.query || context.parsedQuery?.raw || '').toLocaleLowerCase('ru-RU');
+  return Boolean(
+    context.conversationState?.currentStage === 'conversion'
+    || context.responsePlan?.mode === 'branch_info'
+    || /адрес|где|локац|магазин|пример|приех|коенкоз|байтик|как\s+купить/.test(text)
+  );
+}
+
+function filterDisplayProducts(products = [], context = {}) {
+  const text = String(context.query || context.parsedQuery?.raw || '').toLocaleLowerCase('ru-RU');
+  if (!/необычн|ярк|интересн|цветн|акцент/.test(text)) return products;
+  const basicColor = /черн|бел|беж|сер|корич|black|white|beige|grey|gray|brown/i;
+  const filtered = products.filter((product) => {
+    const colorText = [
+      product.displayColor,
+      product.color,
+      product.colorHuman,
+      product.name,
+      product.model,
+    ].filter(Boolean).join(' ');
+    return colorText && !basicColor.test(colorText);
+  });
+  return filtered.length ? filtered : products;
+}
+
 function chooseResponseStrategy(context = {}) {
   const intent = context.detectedIntent || context.parsedQuery?.intent || 'availability';
   const conversationState = context.conversationState || {};
@@ -41,6 +72,9 @@ function chooseResponseStrategy(context = {}) {
   if (responsePlan.mode === 'product_gallery') return { strategy: 'product_gallery', template: 'product_gallery' };
   if (responsePlan.mode === 'availability_check') return { strategy: 'availability', template: 'availability' };
   if (responsePlan.mode === 'clarification') return { strategy: 'clarification', template: 'clarification', fallbackReason: 'orchestration_clarification' };
+  if (isHealthFollowUp(context) && conversationState.nextBestAction === 'recommend_direction') {
+    return { strategy: 'after_health_recommendation', template: 'after_health_recommendation' };
+  }
   if (isFamilyProfileUpdate(context) && !['recommend_direction', 'acknowledge_correction', 'progress_conversation'].includes(conversationState.nextBestAction)) {
     return { strategy: 'family_profile_update', template: 'family_profile_update' };
   }
@@ -99,15 +133,16 @@ function formatHumanResponse(context = {}, options = {}) {
   const config = { ...readConfig(), ...options };
   const meta = chooseResponseStrategy(context);
   const maxProducts = Number(config.maxProductsInResponse) || 3;
-  const productsForDisplay = Array.isArray(context.normalizedProducts) && context.normalizedProducts.length
+  const rawProductsForDisplay = Array.isArray(context.normalizedProducts) && context.normalizedProducts.length
     ? context.normalizedProducts
     : (context.products || []);
+  const productsForDisplay = filterDisplayProducts(rawProductsForDisplay, context);
   const recommendationsForDisplay = Array.isArray(context.normalizedRecommendations) && context.normalizedRecommendations.length
     ? context.normalizedRecommendations
     : (context.recommendations || []).map((item) => item.product || item);
   const productsText = humanizeProducts(productsForDisplay, maxProducts);
   const recommendationsText = humanizeProducts(recommendationsForDisplay, maxProducts);
-  const branchesText = ['availability', 'unavailable', 'branch_info'].includes(meta.template)
+  const branchesText = meta.template === 'branch_info' || (['availability', 'unavailable'].includes(meta.template) && (!context.responsePlan || wantsBranchInfo(context)))
     ? humanizeBranches(context.branches)
     : '';
   const template = TEMPLATES[meta.template] || TEMPLATES.availability;

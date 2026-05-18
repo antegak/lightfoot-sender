@@ -25,6 +25,17 @@ const TEMPLATES = Object.freeze({
       'Могу подсказать направление на каждый день или что-то полегче/спортивнее.',
     ].join('\n');
   },
+  after_health_recommendation: ({ conversationState }) => {
+    const adult = conversationState?.adultProfile || {};
+    const size = adult.size || adult.footLengthCm;
+    return [
+      'Тогда начните с мягких barefoot-моделей с более свободным носком.',
+      'По брендам я бы смотрела TipsieToes для мягкой ежедневной носки и Be Lenka, если хочется более премиальную посадку.',
+      size
+        ? `В ${size} размере уже можно подбирать конкретные варианты.`
+        : 'Размер нужен только для следующего шага, чтобы показать конкретные пары, а не гадать.',
+    ].join('\n');
+  },
   stage9_school_sport_selection: ({ conversationState, responsePlan }) => {
     const child = conversationState?.childProfile || {};
     const brands = responsePlan?.suggestedBrands || [];
