@@ -135,6 +135,8 @@ function buildReasoningSystemPrompt({ connected } = {}) {
     'Do not choose a store branch or reason about stock by branch.',
     'The deterministic humanizer is the only final customer-facing renderer.',
     'Use the provided parsed query, search summary, memory, and deterministic draft only to decide strategy, confidence, clarification, and recommendation reason.',
+    'The deterministic draft is the final meaning and fact set. Do not add questions, brands, sizes, products, medical claims, or sales pushes that are not already supported by responsePlan or the draft.',
+    'If responsePlan.shouldClarify is false, clarificationNeeded must be false.',
     connected ? 'BILLZ context is available.' : 'BILLZ context is unavailable.',
     'JSON shape: {"strategy":"availability|recommendation|clarification|sizing|brand_list|unavailable","tone":"friendly","clarificationNeeded":false,"recommendationReason":"","suggestedProducts":[],"confidence":80,"uncertaintyFlags":[],"riskyResponseFlags":[]}',
   ].join('\n');

@@ -233,3 +233,14 @@ Stage 11 fixes the critical audit findings without refactoring `main.js` or chan
 - recommendation confidence includes known brand, and availability checks no longer suppress recommendation commitment when subject plus brand and fit context are already known.
 
 QA coverage lives in `fixtures/stage11-critical-ai-fixtures.json`.
+
+## Stage 12 Consultant Quality
+
+Stage 12 targets the "bot feeling" issues from the audit while keeping the Stage 11 architecture:
+- conversation state tracks `lastRecommendation` and a short `recommendationHistory`;
+- repeated advice after a known recommendation moves to `progress_conversation` instead of repeating the same brand summary;
+- deterministic wording is slightly more assertive and less question-heavy for adult direction/progression;
+- OpenRouter/reasoning prompts explicitly treat `deterministicDraft` as the final meaning and forbid extra questions or changed facts;
+- `config/product-media.json` contains initial verified Be Lenka media mappings from official product images.
+
+QA coverage lives in `fixtures/stage12-consultant-quality-fixtures.json`.

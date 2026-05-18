@@ -5,10 +5,13 @@ const { detectNewInfo } = require('./new-info-detector');
 const { detectRepetition } = require('./repetition-detector');
 const { PERSONA } = require('./persona');
 const { detectExplicitSubject, isFollowUpMessage, resolveAnchoredSubject } = require('./anchored-subject');
+const { applyRecommendationProgression, buildRecommendationSnapshot, hasRecentRecommendation } = require('./recommendation-progress');
 
 module.exports = {
   PERSONA,
   applyDialoguePolicy,
+  applyRecommendationProgression,
+  buildRecommendationSnapshot,
   buildConversationState,
   countQuestions,
   detectNewInfo,
@@ -16,6 +19,7 @@ module.exports = {
   detectExplicitSubject,
   determineFreedom,
   freedomLevel,
+  hasRecentRecommendation,
   initialConversationState,
   isFollowUpMessage,
   resolveAnchoredSubject,

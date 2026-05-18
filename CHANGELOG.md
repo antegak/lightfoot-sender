@@ -21,6 +21,7 @@
 - Added Stage 9 logic-first orchestration with deterministic response plans, intent hierarchy, mode selection, safety/clarification/recommendation engines, and human dynamics fields.
 - Added Stage 10 store-consultant direction with anchored conversation subject, product gallery response mode, product media resolver, product-media mapping config, and gallery QA fixtures.
 - Added Stage 11 critical AI stabilization fixtures for health-over-search, anchored subject follow-ups, clarification budget, and recommendation commitment.
+- Added Stage 12 consultant-quality fixtures for recommendation progression and real product-media resolution.
 
 ### Fixed
 - Improved parser/search handling for mixed colors, follow-up context, and brand-list intent without changing Electron architecture.
@@ -37,6 +38,7 @@
 - Fixed premature product search for comfort/pain intents by routing them through empathy-first `comfort_consultation`.
 - Fixed Be Lenka/photo follow-ups so gallery requests keep the anchored adult/child subject instead of drifting to the wrong profile.
 - Fixed critical Stage 11 AI issues: cleaned mojibake regex duplicates from intent hierarchy, protected strong anchors from inferred-subject overrides, prevented repeated clarification by the same reason, and kept recommendations committed when brand plus fit context are already known.
+- Improved AI consultant flow so repeated advice requests progress from the previous recommendation instead of repeating the same brand summary.
 
 ### Refactored
 - Reused canonical store addresses in the humanizer branch formatter.

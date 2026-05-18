@@ -36,6 +36,7 @@ function determineNextBestAction(state = {}, parsed = {}, searchResults = {}) {
     return 'ask_clarifying_question';
   }
   if (asksAdvice(query)) {
+    if (state.lastRecommendation && !state.newInfo?.hasNewInfo) return 'progress_conversation';
     if (state.currentFocus === 'brand_comparison' && state.customerType !== 'family') return 'compare_brands';
     return 'recommend_brand';
   }

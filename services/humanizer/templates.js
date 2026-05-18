@@ -95,17 +95,17 @@ const TEMPLATES = Object.freeze({
     const adult = conversationState?.adultProfile || {};
     if (adult.useCase === 'everyday') {
       return [
-        `Для вас${adult.size ? ` в ${adult.size}` : ''} на каждый день я бы начала с TipsieToes 💛`,
-        'Они мягкие и понятные для ежедневной носки.',
+        `Для вас${adult.size ? ` в ${adult.size}` : ''} на каждый день рекомендую начать с TipsieToes.`,
+        'Это мягкое и понятное направление для ежедневной носки.',
         'Если хочется более стильную и премиальную посадку - тогда Be Lenka.',
-        adult.size ? `Могу показать варианты в ${adult.size}?` : 'Могу показать подходящие варианты?',
+        adult.size ? `Дальше логично показать варианты в ${adult.size}.` : 'Дальше логично показать подходящие варианты.',
       ].join('\n');
     }
     return [
-      `Для вас${adult.size ? ` в ${adult.size}` : ''} я бы смотрела TipsieToes или Be Lenka 💛`,
+      `Для вас${adult.size ? ` в ${adult.size}` : ''} я бы сузила выбор до TipsieToes или Be Lenka.`,
       'TipsieToes - мягче на каждый день.',
       'Be Lenka - премиальнее и стильнее.',
-      adult.size ? `Показать варианты в ${adult.size}?` : 'Показать варианты?',
+      adult.size ? `Дальше можно показать варианты в ${adult.size}.` : 'Дальше можно показать варианты.',
     ].join('\n');
   },
   stage8_correction_ack: ({ conversationState }) => {
@@ -125,9 +125,9 @@ const TEMPLATES = Object.freeze({
       ].join('\n');
     }
     return [
-      'Поняла, смотрим для вас 💛',
-      'Я бы сузила выбор до TipsieToes для мягкой ежедневной носки или Be Lenka для более премиальной посадки.',
-      'Показать варианты по размеру?',
+      'Поняла, держим фокус на взрослых моделях.',
+      'Мы уже сузили направление: TipsieToes для мягкой ежедневной носки, Be Lenka для более премиальной посадки.',
+      'Следующий шаг - показать конкретные варианты по размеру.',
     ].join('\n');
   },
   stage7_family_discovery: () => [

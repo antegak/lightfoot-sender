@@ -1,0 +1,84 @@
+[
+  {
+    "name": "stage12-repeated-advice-progresses-after-recommendation",
+    "previousConversationState": {
+      "activeSubject": "adultProfile",
+      "currentFocus": "adult_selection",
+      "customerType": "adult",
+      "adultProfile": {
+        "type": "adult",
+        "size": "39",
+        "useCase": "everyday",
+        "confidence": 80
+      },
+      "anchoredConversationSubject": {
+        "profile": "adultProfile",
+        "confidence": 90,
+        "expiresAfterTurns": 4,
+        "lastUpdatedAt": "fixture",
+        "reason": "fixture"
+      },
+      "lastRecommendation": {
+        "mode": "recommendation",
+        "intent": "recommendation",
+        "activeProfile": "adultProfile",
+        "brands": ["TipsieToes", "Be Lenka"],
+        "useCases": ["everyday"],
+        "reason": "fixture"
+      },
+      "recommendationHistory": [
+        {
+          "mode": "recommendation",
+          "intent": "recommendation",
+          "activeProfile": "adultProfile",
+          "brands": ["TipsieToes", "Be Lenka"],
+          "useCases": ["everyday"],
+          "reason": "fixture"
+        }
+      ]
+    },
+    "turns": [
+      "какие лучше?"
+    ],
+    "expectedResponsePlan": {
+      "shouldClarify": false
+    },
+    "expectedConversationState": {
+      "nextBestAction": "progress_conversation",
+      "selectedDialogueMove": "progress_conversation",
+      "shouldSearchProducts": false
+    },
+    "expectedContains": ["TipsieToes", "Be Lenka"],
+    "expectedNotContains": ["уточните", "какой размер", "остаток", "stock"],
+    "expectedMaxQuestions": 0
+  },
+  {
+    "name": "stage12-product-media-map-resolves-real-be-lenka-photo",
+    "turns": [
+      "покажи be lenka core"
+    ],
+    "products": [
+      {
+        "id": "fixture-core",
+        "name": "Be Lenka Core / All Black / 39",
+        "brand": "Be Lenka",
+        "model": "Core",
+        "color": "All Black",
+        "size": "39",
+        "price": 9900
+      }
+    ],
+    "expectedResponsePlan": {
+      "mode": "product_gallery",
+      "intent": "product_gallery",
+      "galleryIntent": true,
+      "shouldSearchProducts": true
+    },
+    "expectedProductGallery": {
+      "mediaFound": true
+    },
+    "expectedContains": ["Be Lenka"],
+    "expectedNotContains": ["AI карт", "сгенер"],
+    "expectedMaxQuestions": 0
+  }
+]

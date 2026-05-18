@@ -4,7 +4,7 @@ const { parseCustomerQuery } = require('../../intent-detector');
 const { normalizeQuery } = require('../search');
 const { ConversationMemory } = require('../memory');
 const { buildCustomerProfile } = require('../ai/response-contract');
-const { applyDialoguePolicy, buildConversationState, countQuestions } = require('../conversation');
+const { applyDialoguePolicy, applyRecommendationProgression, buildConversationState, countQuestions } = require('../conversation');
 const { formatHumanResponse } = require('../humanizer');
 const { buildResponsePlan } = require('../orchestration');
 const { buildProductGallery } = require('../product-media');
@@ -135,6 +135,7 @@ function runConversationFixtures() {
     ...readFixture('stage9-orchestration-fixtures.json'),
     ...readFixture('stage10-store-consultant-fixtures.json'),
     ...readFixture('stage11-critical-ai-fixtures.json'),
+    ...readFixture('stage12-consultant-quality-fixtures.json'),
   ].map((fixture) => {
     const turns = fixture.turns || [];
     const memory = new ConversationMemory({ ttlMinutes: 60, maxTurns: 8, maxSummaryChars: 700 });
@@ -180,9 +181,10 @@ function runConversationFixtures() {
         conversationState.lastClarificationReason = 'critical_info_missing';
       } else if (responsePlan.mode === 'availability_check' && responsePlan.shouldSearchProducts) {
         conversationState.nextBestAction = 'recommend_product';
-      } else if (responsePlan.shouldRecommend && !responsePlan.shouldSearchProducts) {
+      } else if (responsePlan.shouldRecommend && !responsePlan.shouldSearchProducts && conversationState.nextBestAction !== 'progress_conversation') {
         conversationState.nextBestAction = 'recommend_direction';
       }
+      applyRecommendationProgression(conversationState, responsePlan);
       conversationState.selectedDialogueMove = conversationState.nextBestAction;
     }
     const productGallery = buildProductGallery(fixture.products || [], {
@@ -233,16 +235,18 @@ function runConversationFixtures() {
     const textChecks = checkHumanizedText(formatted.text, fixture);
     const stateMismatches = compareExpected(conversationState, fixture.expectedConversationState || {});
     const planMismatches = compareExpected(responsePlan || {}, fixture.expectedResponsePlan || {});
+    const galleryMismatches = compareExpected(productGallery || {}, fixture.expectedProductGallery || {});
     const questionCount = countQuestions(formatted.text);
     const tooManyQuestions = fixture.expectedMaxQuestions !== undefined && questionCount > fixture.expectedMaxQuestions;
     const ok = strategyMatches(formatted.strategy, formatted.templateUsed, fixture.expectedStrategy)
       && stateMismatches.length === 0
       && planMismatches.length === 0
+      && galleryMismatches.length === 0
       && textChecks.missing.length === 0
       && textChecks.forbiddenHits.length === 0
       && !tooManyQuestions
       && !textChecks.addressMissing;
-    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, planMismatches, questionCount, tooManyQuestions, ...textChecks, formatted, parsed, conversationState, responsePlan });
+    return result(fixture.name, ok, { expectedStrategy: fixture.expectedStrategy, stateMismatches, planMismatches, galleryMismatches, questionCount, tooManyQuestions, ...textChecks, formatted, parsed, conversationState, responsePlan, productGallery });
   });
 }
 

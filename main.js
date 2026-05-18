@@ -24,7 +24,7 @@ const {
   parseReasoningObject,
 } = require('./services/ai/response-contract');
 const { formatHumanResponse, humanizeBranches } = require('./services/humanizer');
-const { applyDialoguePolicy, buildConversationState } = require('./services/conversation');
+const { applyDialoguePolicy, applyRecommendationProgression, buildConversationState } = require('./services/conversation');
 const { buildResponsePlan } = require('./services/orchestration');
 const { buildLightfootConsultantReasoningPrompt } = require('./services/ai/prompts/lightfoot-consultant');
 const { buildProductGallery } = require('./services/product-media');
@@ -554,6 +554,9 @@ async function requestOpenRouterChat({
       'Если intent=brand_list, отвечай по brandSummary и не говори, что товаров нет.',
       'Если клиент спрашивает бренд, которого нет в products, не заменяй его на TipsieToes. Скажи честно, что этого бренда сейчас не вижу, и мягко предложи альтернативы.',
       'Если клиент спрашивает обувь для ребенка, не предлагай взрослую линейку TipsieToes как детскую. Ориентируйся на Little Light, Saguaro или уточни возраст/длину стопы.',
+      'Deterministic draft is the final customer-facing meaning. Do not add questions, brands, sizes, product facts, medical claims, or sales pushes that are not already in the deterministic draft or responsePlan.',
+      'If responsePlan.shouldClarify=false, do not add a clarification question.',
+      'Do not change active subject, gallery intent, search permission, recommended brands, or product facts.',
       connected
         ? 'BILLZ подключен. Используй только клиентский BILLZ context. Если available=false или products пустой, скажи, что сейчас не вижу подходящих вариантов.'
         : 'BILLZ не подключен. Обязательно ответь: "BILLZ не подключен, данные о товарах пока недоступны."',
@@ -876,9 +879,10 @@ async function requestAiTestChat(payload = {}) {
     conversationState.lastClarificationReason = 'critical_info_missing';
   } else if (responsePlan.mode === 'availability_check' && responsePlan.shouldSearchProducts) {
     conversationState.nextBestAction = 'recommend_product';
-  } else if (responsePlan.shouldRecommend && !responsePlan.shouldSearchProducts) {
+  } else if (responsePlan.shouldRecommend && !responsePlan.shouldSearchProducts && conversationState.nextBestAction !== 'progress_conversation') {
     conversationState.nextBestAction = 'recommend_direction';
   }
+  applyRecommendationProgression(conversationState, responsePlan);
   conversationState.selectedDialogueMove = conversationState.nextBestAction;
   conversationState.reasonForNextBestAction = responsePlan.orchestrationReason || conversationState.reasonForNextBestAction;
   logger.info(LOG_CATEGORIES.AI, 'AI memory merge', {

@@ -1,1 +1,52 @@
-{}
+{
+  "be lenka|core": {
+    "brand": "Be Lenka",
+    "model": "Core",
+    "color": "All Black",
+    "productPage": "https://www.belenka.com/barefoot-sneakers-be-lenka-core-all-black/",
+    "images": [
+      "https://belenkacdn.vshcdn.net/media/2025/02/9/3/barefoot-tenisky-be-lenka-core-all-black-93319-size-medium-v-1.png"
+    ],
+    "tags": ["adult", "barefoot", "sneakers", "black", "everyday"]
+  },
+  "be lenka|core|all black": {
+    "brand": "Be Lenka",
+    "model": "Core",
+    "color": "All Black",
+    "productPage": "https://www.belenka.com/barefoot-sneakers-be-lenka-core-all-black/",
+    "images": [
+      "https://belenkacdn.vshcdn.net/media/2025/02/9/3/barefoot-tenisky-be-lenka-core-all-black-93319-size-medium-v-1.png"
+    ],
+    "tags": ["adult", "barefoot", "sneakers", "black", "everyday"]
+  },
+  "gzu9h5f20n": {
+    "brand": "Be Lenka",
+    "model": "Core",
+    "color": "All Black",
+    "productPage": "https://www.belenka.com/barefoot-sneakers-be-lenka-core-all-black/",
+    "images": [
+      "https://belenkacdn.vshcdn.net/media/2025/02/9/3/barefoot-tenisky-be-lenka-core-all-black-93319-size-medium-v-1.png"
+    ],
+    "tags": ["official-be-lenka", "sku"]
+  },
+  "be lenka|echo": {
+    "brand": "Be Lenka",
+    "model": "Echo",
+    "color": "All Black",
+    "productPage": "https://www.belenka.com/barefoot-sneakers-be-lenka-echo-all-black/",
+    "images": [
+      "https://belenkacdn.vshcdn.net/media/2026/03/1/1/barefoot-tenisky-be-lenka-echo-all-black-118497-size-medium-v-1.jpg"
+    ],
+    "tags": ["adult", "barefoot", "sneakers", "black", "city"]
+  },
+  "be lenka|echo|all black": {
+    "brand": "Be Lenka",
+    "model": "Echo",
+    "color": "All Black",
+    "productPage": "https://www.belenka.com/barefoot-sneakers-be-lenka-echo-all-black/",
+    "images": [
+      "https://belenkacdn.vshcdn.net/media/2026/03/1/1/barefoot-tenisky-be-lenka-echo-all-black-118497-size-medium-v-1.jpg"
+    ],
+    "tags": ["adult", "barefoot", "sneakers", "black", "city"]
+  }
+}

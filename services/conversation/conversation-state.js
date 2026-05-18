@@ -19,6 +19,7 @@ function initialConversationState() {
     discussedBrands: [],
     lastQuestion: null,
     lastRecommendation: null,
+    recommendationHistory: [],
     missingInfo: [],
     clarificationCount: 0,
     lastClarificationReason: '',
@@ -91,7 +92,7 @@ function buildConversationState({
   baseState.nextBestAction = determineNextBestAction(baseState, parsedQuery, searchResults);
   baseState.shouldSearchProducts = shouldSearchProducts(baseState, parsedQuery, searchResults);
   baseState.salesFlow = determineSalesFlow(baseState);
-  if (baseState.nextBestAction === 'recommend_direction' || baseState.nextBestAction === 'acknowledge_correction') baseState.shouldSearchProducts = false;
+  if (baseState.nextBestAction === 'recommend_direction' || baseState.nextBestAction === 'acknowledge_correction' || baseState.nextBestAction === 'progress_conversation') baseState.shouldSearchProducts = false;
   baseState.confidence = Math.max(
     profiles.customerProfile.confidence || 0,
     profiles.adultProfile.confidence || 0,
